@@ -8,24 +8,37 @@ const UserSocialPost = () => {
   const [commentText, setCommentText] = useState("");
   const [previewImage, setPreviewImage] = useState(null);
   const [comments, setComments] = useState([
-    {
-      id: 1,
-      author: "Neneng",
-      content: "Hoy tangina asa ni dapit?",
-      timestamp: "06/06/21 8:00pm",
-      avatar:
-        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    },
-    ...Array(5)
-      .fill(null)
-      .map((_, i) => ({
-        id: i + 2,
-        author: `User ${i + 2}`,
-        content: "Makit'an tika boss ibtan tikag ngipon! 👍",
-        timestamp: "06/06/21 8:00pm",
-        avatar:
-          "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-      })),
+    // {
+    //   id: 1,
+    //   author: "Neneng",
+    //   content: "Hoy tangina asa ni dapit?",
+    //   timestamp: "06/06/21 8:00pm",
+    //   avatar:
+    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    // },
+    // ...Array(5)
+    //   .fill(null)
+    //   .map((_, i) => ({
+    //     id: i + 2,
+    //     author: `User ${i + 2}`,
+    //     content: "Makit'an tika boss ibtan tikag ngipon! 👍",
+    //     timestamp: "06/06/21 8:00pm",
+    //     avatar:
+    //       "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    //   })),
+  ]);
+  const [posts, setPosts] = useState([
+    // {
+    //   id: 1,
+    //   author: "Marc Gerasmio",
+    //   content: "Bossing?! Musta ang buhay buhay",
+    //   location: "Purok 6",
+    //   images: [
+    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    //   ],
+    // },
   ]);
   const modalRef = useRef(null);
 
@@ -75,68 +88,74 @@ const UserSocialPost = () => {
 
   return (
     <>
-      <div className="max-w-lg mx-auto bg-white rounded-xl shadow-sm mb-4">
-        {/* Post Header */}
-        <div className="flex items-center gap-3 p-4">
-          <img
-            src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-            alt="Profile picture"
-            className="rounded-full w-10 h-10"
-          />
-          <div>
-            <h2 className="font-medium">Dodong Opaw</h2>
-          </div>
-          <span className="ml-auto text-sm text-white rounded-full p-1 bg-[#77cdb1] w-1/4 flex justify-center">
-            Purok 6
-          </span>
-        </div>
-
-        {/* Post Content */}
-        <div className="px-4 pb-2">
-          <p className="mb-3">Ahh! ra mo pangayo lang!</p>
-          {/* Image Grid */}
-          <div className="grid grid-cols-3 gap-1 mb-4">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="aspect-square relative"
-                onClick={() =>
-                  setPreviewImage(
-                    `https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp`
-                  )
-                }
-              >
-                <img
-                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                  alt={`Image ${i}`}
-                  className="object-cover w-full h-full rounded cursor-pointer"
-                />
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <div
+            key={post.id}
+            className="max-w-lg mx-auto bg-white rounded-xl shadow-sm mb-4"
+          >
+            {/* Post Header */}
+            <div className="flex items-center gap-3 p-4">
+              <img
+                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                alt="Profile picture"
+                className="rounded-full w-10 h-10"
+              />
+              <div>
+                <h2 className="font-medium">{post.author}</h2>
               </div>
-            ))}
-          </div>
-        </div>
+              <span className="ml-auto text-sm text-white rounded-full p-1 bg-[#77cdb1] w-1/4 flex justify-center">
+                {post.location}
+              </span>
+            </div>
 
-        {/* Action Buttons */}
-        <div className="flex justify-end gap-4 px-4 pb-3">
-          <button
-            onClick={() => setIsHeart(!isHeart)}
-            className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-          >
-            {isHeart ? (
-              <FaHeart className="w-5 h-5 text-red-500" />
-            ) : (
-              <FaRegHeart className="w-5 h-5" />
-            )}
-          </button>
-          <button
-            onClick={() => setIsCommentsOpen(true)}
-            className="flex items-center gap-1 text-gray-600 text-sm hover:text-gray-900"
-          >
-            <FaRegComment className="w-5 h-5" />
-            Comments
-          </button>
-        </div>
-      </div>
+            {/* Post Content */}
+            <div className="px-4 pb-2">
+              <p className="mb-3">{post.content}</p>
+
+              {/* Image Grid */}
+              <div className="grid grid-cols-3 gap-1 mb-4">
+                {post.images.map((image, i) => (
+                  <div
+                    key={i}
+                    className="aspect-square relative"
+                    onClick={() => setPreviewImage(image)}
+                  >
+                    <img
+                      src={image}
+                      alt={`Image ${i + 1}`}
+                      className="object-cover w-full h-full rounded cursor-pointer"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-4 px-4 pb-3">
+              <button
+                onClick={() => setIsHeart(!isHeart)}
+                className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
+              >
+                {isHeart ? (
+                  <FaHeart className="w-5 h-5 text-red-500" />
+                ) : (
+                  <FaRegHeart className="w-5 h-5" />
+                )}
+              </button>
+              <button
+                onClick={() => setIsCommentsOpen(true)}
+                className="flex items-center gap-1 text-gray-600 text-sm hover:text-gray-900"
+              >
+                <FaRegComment className="w-5 h-5" />
+                Comments
+              </button>
+            </div>
+          </div>
+        ))
+      ) : (
+        <p className="text-center text-white">No post available</p>
+      )}
 
       {/* Comments Modal */}
       {isCommentsOpen && (
@@ -160,24 +179,28 @@ const UserSocialPost = () => {
             {/* Comments List */}
             <div className="flex-1 overflow-y-auto p-4">
               <div className="space-y-4">
-                {comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-3">
-                    <img
-                      src={comment.avatar || "/placeholder.svg"}
-                      alt={`${comment.author}'s avatar`}
-                      className="rounded-full w-8 h-8"
-                    />
-                    <div className="flex-1">
-                      <div className="bg-white p-3 rounded-2xl">
-                        <h3 className="font-medium">{comment.author}</h3>
-                        <p className="text-sm">{comment.content}</p>
+                {comments.length > 0 ? (
+                  comments.map((comment) => (
+                    <div key={comment.id} className="flex gap-3">
+                      <img
+                        src={comment.avatar || "/placeholder.svg"}
+                        alt={`${comment.author}'s avatar`}
+                        className="rounded-full w-8 h-8"
+                      />
+                      <div className="flex-1">
+                        <div className="bg-white p-3 rounded-2xl">
+                          <h3 className="font-medium">{comment.author}</h3>
+                          <p className="text-sm">{comment.content}</p>
+                        </div>
+                        <span className="text-xs text-gray-500 ml-2">
+                          {comment.timestamp}
+                        </span>
                       </div>
-                      <span className="text-xs text-gray-500 ml-2">
-                        {comment.timestamp}
-                      </span>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-center text-gray-500">No comments yet</p>
+                )}
               </div>
             </div>
 

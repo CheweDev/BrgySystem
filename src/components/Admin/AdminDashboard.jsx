@@ -22,23 +22,24 @@ const DynamicCalendarIcon = ({ date }) => {
 
 const AdminDashboard = () => {
   const [showModal, setShowModal] = useState(false);
+
   // Simulated announcements
   const announcements = [
-    {
-      id: 1,
-      date: "2025-01-12",
-      text: "Meeting rescheduled to January 12th, 2025. Please mark your calendars.",
-    },
-    {
-      id: 2,
-      date: "2025-01-15",
-      text: "Reminder: Submit your reports before the deadline on January 15th, 2025.",
-    },
-    {
-      id: 3,
-      date: "2025-01-16",
-      text: "Meeting rescheduled to January 16th, 2025. Please mark your calendars.",
-    },
+    // {
+    //   id: 1,
+    //   date: "2025-01-12",
+    //   text: "Meeting rescheduled to January 12th, 2025. Please mark your calendars.",
+    // },
+    // {
+    //   id: 2,
+    //   date: "2025-01-15",
+    //   text: "Reminder: Submit your reports before the deadline on January 15th, 2025.",
+    // },
+    // {
+    //   id: 3,
+    //   date: "2025-01-16",
+    //   text: "Meeting rescheduled to January 16th, 2025. Please mark your calendars.",
+    // },
   ];
 
   return (
@@ -50,21 +51,8 @@ const AdminDashboard = () => {
     >
       <div className="p-3">
         <p className="text-3xl font-bold text-white mb-2 mt-5">Dashboard</p>
-        <label className="input input-bordered flex items-center gap-2">
-          <input type="text" className="grow" placeholder="Search" />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            className="h-4 w-4 opacity-70"
-          >
-            <path
-              fillRule="evenodd"
-              d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </label>
+        <hr className="border-t border-white my-4" />
+
         <div className="flex justify-between mt-4 mb-2">
           <p className="text-xl text-white flex gap-2">
             Announcement <GrAnnounce />
@@ -78,28 +66,35 @@ const AdminDashboard = () => {
         </div>
 
         <section className="mt-4 bg-gray-100 rounded-lg">
-          <Swiper
-            spaceBetween={10}
-            slidesPerView={1}
-            // navigation
-            loop
-            autoplay={{ delay: 1500 }}
-            className="rounded-lg shadow-md"
-          >
-            {announcements.map((announcement) => (
-              <SwiperSlide
-                key={announcement.id}
-                className="flex-shrink-0 w-80 p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
-              >
-                <div className="flex gap-2">
-                  <DynamicCalendarIcon date={announcement.date} />
-                  <p className="text-sm mt-2">{announcement.text}</p>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          {announcements.length > 0 ? (
+            <Swiper
+              spaceBetween={10}
+              slidesPerView={1}
+              loop
+              autoplay={{ delay: 1500 }}
+              className="rounded-lg shadow-md"
+            >
+              {announcements.map((announcement) => (
+                <SwiperSlide
+                  key={announcement.id}
+                  className="flex-shrink-0 w-80 p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
+                >
+                  <div className="flex gap-2">
+                    <DynamicCalendarIcon date={announcement.date} />
+                    <p className="text-sm mt-2">{announcement.text}</p>
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <div className="p-4 text-center text-gray-500">
+              No announcement available.
+            </div>
+          )}
         </section>
+
         <hr className="border-t border-white my-4" />
+
         <AdminSocialPost />
         <CreatePostModal
           isOpen={showModal}

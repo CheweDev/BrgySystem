@@ -189,29 +189,6 @@ export default function SuperAdminDashboard() {
           </button>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative mb-6">
-          <input
-            type="text"
-            className="w-full px-4 py-2 rounded-lg bg-white/90 backdrop-blur-sm"
-            placeholder="Search posts, announcements, or admins..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            className="h-4 w-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
-          >
-            <path
-              fillRule="evenodd"
-              d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-
         {/* Announcements Section */}
         <section className="mb-6">
           <div className="flex justify-between items-center mb-4">

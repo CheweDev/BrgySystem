@@ -3,6 +3,38 @@ import { Link } from "react-router-dom";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState({
+    message: "",
+    type: "",
+    show: false,
+  });
+
+  const isSuccessfull = true;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setNotification({ message: "", type: "", show: false });
+
+    setTimeout(() => {
+      setLoading(false);
+
+      if (isSuccessfull) {
+        setNotification({
+          message: "Register successful!",
+          type: "success",
+          show: true,
+        });
+      } else {
+        setNotification({
+          message: "Invalid credentials. Please try again.",
+          type: "error",
+          show: true,
+        });
+      }
+    }, 2000);
+  };
 
   return (
     <>
@@ -16,7 +48,7 @@ const Register = () => {
             background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
           }}
         >
-          <form>
+          <form onSubmit={handleSubmit}>
             <label className="input input-bordered flex items-center gap-2 mt-4 mb-2 rounded-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -119,8 +151,38 @@ const Register = () => {
               Show Password
             </label>
 
-            <button className="w-full shadow-xl bg-green-300 font-extrabold py-3 sm:py-4 text-base sm:text-lg rounded-full mb-6 sm:mb-8 mt-3 tracking-wider transition">
-              Register
+            <button
+              type="submit"
+              className="w-full shadow-xl bg-green-300 font-extrabold py-3 sm:py-4 text-base sm:text-lg rounded-full mb-6 sm:mb-8 mt-3 tracking-wider transition flex justify-center"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 mr-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 0116 0H4z"
+                    ></path>
+                  </svg>
+                  Loading...
+                </>
+              ) : (
+                "Register"
+              )}
             </button>
           </form>
           <div className="flex justify-center mb-5">
@@ -133,6 +195,30 @@ const Register = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal for Notification */}
+      {notification.show && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl text-center w-80">
+            <h2
+              className={`text-lg font-bold ${
+                notification.type === "success"
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
+              {notification.type === "success" ? "Success" : "Error"}
+            </h2>
+            <p className="mt-2">{notification.message}</p>
+            <button
+              onClick={() => setNotification({ ...notification, show: false })}
+              className="mt-4 bg-gray-300 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

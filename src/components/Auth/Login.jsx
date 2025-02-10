@@ -3,7 +3,39 @@ import { Link } from "react-router-dom";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(""); // State to track selected role
+  const [selectedRole, setSelectedRole] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [notification, setNotification] = useState({
+    message: "",
+    type: "",
+    show: false,
+  });
+
+  const isSuccessfull = true;
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setNotification({ message: "", type: "", show: false });
+
+    setTimeout(() => {
+      setIsLoading(false);
+
+      if (isSuccessfull) {
+        setNotification({
+          message: "Login successful!",
+          type: "success",
+          show: true,
+        });
+      } else {
+        setNotification({
+          message: "Invalid credentials. Please try again.",
+          type: "error",
+          show: true,
+        });
+      }
+    }, 2000);
+  };
 
   return (
     <>
@@ -23,7 +55,7 @@ const Login = () => {
             </p>
           </div>
 
-          <form>
+          <form onSubmit={handleLogin}>
             <label className="input input-bordered flex items-center gap-2 mb-2 mt-4 rounded-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +66,12 @@ const Login = () => {
                 <path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z" />
                 <path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z" />
               </svg>
-              <input type="text" className="grow" placeholder="Email" />
+              <input
+                type="text"
+                className="grow"
+                placeholder="Email"
+                required
+              />
             </label>
 
             <label className="input input-bordered flex items-center gap-2 mb-3 rounded-full">
@@ -59,10 +96,9 @@ const Login = () => {
             </label>
 
             <div className="flex justify-between gap-2">
-              {/* Purok Select */}
               <select
                 className="select select-bordered w-full rounded-full mb-4"
-                disabled={selectedRole === "Super Admin"} // Disable based on role
+                disabled={selectedRole === "Super Admin"}
               >
                 <option disabled selected>
                   Purok #:
@@ -71,11 +107,10 @@ const Login = () => {
                 <option>Greedo</option>
               </select>
 
-              {/* Role Select */}
               <select
                 className="select select-bordered w-full rounded-full mb-4"
                 value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)} // Update selected role
+                onChange={(e) => setSelectedRole(e.target.value)}
               >
                 <option disabled selected>
                   Select Role
@@ -95,8 +130,38 @@ const Login = () => {
               Show Password
             </label>
 
-            <button className="w-full shadow-xl bg-green-300 font-extrabold py-3 sm:py-4 text-base sm:text-lg rounded-full mb-6 sm:mb-8 mt-3 tracking-wider transition">
-              Login
+            <button
+              type="submit"
+              className="w-full shadow-xl bg-green-300 font-extrabold py-3 sm:py-4 text-base sm:text-lg rounded-full mb-6 sm:mb-8 mt-3 tracking-wider transition flex justify-center items-center"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 mr-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 0116 0H4z"
+                    ></path>
+                  </svg>
+                  Loading...
+                </>
+              ) : (
+                "Login"
+              )}
             </button>
           </form>
 
@@ -110,6 +175,30 @@ const Login = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal for Notification */}
+      {notification.show && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl text-center w-80">
+            <h2
+              className={`text-lg font-bold ${
+                notification.type === "success"
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
+              {notification.type === "success" ? "Success" : "Error"}
+            </h2>
+            <p className="mt-2">{notification.message}</p>
+            <button
+              onClick={() => setNotification({ ...notification, show: false })}
+              className="mt-4 bg-gray-300 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

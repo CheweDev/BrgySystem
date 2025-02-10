@@ -8,7 +8,7 @@ import {
 import { NavLink } from "react-router-dom";
 
 // Sample user role
-const isAdmin = true;
+const isAdmin = false;
 
 const Menu = () => {
   return (

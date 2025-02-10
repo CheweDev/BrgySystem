@@ -19,60 +19,60 @@ const DynamicCalendarIcon = ({ date }) => {
 const AdminAttendance = () => {
   // Simulated announcements
   const announcements = [
-    {
-      id: 1,
-      date: "2025-01-12",
-      text: "Meeting rescheduled to January 12th, 2025. Please mark your calendars.",
-    },
-    {
-      id: 2,
-      date: "2025-01-15",
-      text: "Reminder: Submit your reports before the deadline on January 15th, 2025.",
-    },
-    {
-      id: 3,
-      date: "2025-01-16",
-      text: "Meeting rescheduled to January 16th, 2025. Please mark your calendars.",
-    },
+    // {
+    //   id: 1,
+    //   date: "2025-01-12",
+    //   text: "Meeting rescheduled to January 12th, 2025. Please mark your calendars.",
+    // },
+    // {
+    //   id: 2,
+    //   date: "2025-01-15",
+    //   text: "Reminder: Submit your reports before the deadline on January 15th, 2025.",
+    // },
+    // {
+    //   id: 3,
+    //   date: "2025-01-16",
+    //   text: "Meeting rescheduled to January 16th, 2025. Please mark your calendars.",
+    // },
   ];
 
   // Dummy data for attendees
   const attendees = [
-    {
-      id: 1,
-      name: "Neneng B Angkatawan",
-      hours: 21,
-      image:
-        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    },
-    {
-      id: 2,
-      name: "Thomas Andre",
-      hours: 19,
-      image:
-        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    },
-    {
-      id: 3,
-      name: "Dodong Upaw",
-      hours: 17,
-      image:
-        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    },
-    {
-      id: 4,
-      name: "Ineng Tidyawat",
-      hours: 15,
-      image:
-        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    },
-    {
-      id: 5,
-      name: "Sikma Bois",
-      hours: 13,
-      image:
-        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    },
+    // {
+    //   id: 1,
+    //   name: "Neneng B Angkatawan",
+    //   hours: 21,
+    //   image:
+    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    // },
+    // {
+    //   id: 2,
+    //   name: "Thomas Andre",
+    //   hours: 19,
+    //   image:
+    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    // },
+    // {
+    //   id: 3,
+    //   name: "Dodong Upaw",
+    //   hours: 17,
+    //   image:
+    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    // },
+    // {
+    //   id: 4,
+    //   name: "Ineng Tidyawat",
+    //   hours: 15,
+    //   image:
+    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    // },
+    // {
+    //   id: 5,
+    //   name: "Sikma Bois",
+    //   hours: 13,
+    //   image:
+    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    // },
   ];
 
   return (
@@ -105,28 +105,35 @@ const AdminAttendance = () => {
             Announcement <GrAnnounce />
           </p>
 
+          {/* Announcements Section */}
           <section className="mt-4 bg-gray-100 rounded-lg">
-            <Swiper
-              spaceBetween={10}
-              slidesPerView={1}
-              // navigation
-              loop
-              autoplay={{ delay: 1500 }}
-              className="rounded-lg shadow-md"
-            >
-              {announcements.map((announcement) => (
-                <SwiperSlide
-                  key={announcement.id}
-                  className="flex-shrink-0 w-80 p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
-                >
-                  <div className="flex gap-2">
-                    <DynamicCalendarIcon date={announcement.date} />
-                    <p className="text-sm mt-2">{announcement.text}</p>
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+            {announcements.length > 0 ? (
+              <Swiper
+                spaceBetween={10}
+                slidesPerView={1}
+                loop
+                autoplay={{ delay: 1500 }}
+                className="rounded-lg shadow-md"
+              >
+                {announcements.map((announcement) => (
+                  <SwiperSlide
+                    key={announcement.id}
+                    className="flex-shrink-0 w-80 p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
+                  >
+                    <div className="flex gap-2">
+                      <DynamicCalendarIcon date={announcement.date} />
+                      <p className="text-sm mt-2">{announcement.text}</p>
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            ) : (
+              <p className="text-center text-gray-500 p-4">
+                No announcements available
+              </p>
+            )}
           </section>
+
           <hr className="border-t border-white my-4" />
 
           {/* Attendance List */}
@@ -134,38 +141,45 @@ const AdminAttendance = () => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-white">Attendance</h2>
               <span className="text-white text-sm opacity-75">
-                volunteer hours
+                Volunteer hours
               </span>
             </div>
-            <div className="space-y-3">
-              {attendees.map((attendee) => (
-                <div
-                  key={attendee.id}
-                  className="bg-base-200 rounded-3xl p-3 flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative w-10 h-10 overflow-hidden rounded-full">
-                      <img
-                        src={
-                          attendee.image || "https://placehold.co/600x400/png"
-                        }
-                        alt={attendee.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
 
-                    <span className="text-gray-700 font-medium">
-                      {attendee.name}
-                    </span>
+            {attendees.length > 0 ? (
+              <div className="space-y-3">
+                {attendees.map((attendee) => (
+                  <div
+                    key={attendee.id}
+                    className="bg-base-200 rounded-3xl p-3 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-10 h-10 overflow-hidden rounded-full">
+                        <img
+                          src={
+                            attendee.image || "https://placehold.co/600x400/png"
+                          }
+                          alt={attendee.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+
+                      <span className="text-gray-700 font-medium">
+                        {attendee.name}
+                      </span>
+                    </div>
+                    <div className="w-8 h-8 bg-[#2A7B62] rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold">
+                        {attendee.hours}
+                      </span>
+                    </div>
                   </div>
-                  <div className="w-8 h-8 bg-[#2A7B62] rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">
-                      {attendee.hours}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-gray-500">
+                No attendees available
+              </p>
+            )}
           </div>
         </div>
         <Menu />

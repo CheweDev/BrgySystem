@@ -1,6 +1,9 @@
+import { useState } from "react";
 import Menu from "../../Menu";
 
 const AdminNotification = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const notifications = [
     {
       id: 1,
@@ -22,6 +25,11 @@ const AdminNotification = () => {
     },
   ];
 
+  // Filter notifications based on search term
+  const filteredNotifications = notifications.filter((item) =>
+    item.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div
       style={{
@@ -31,8 +39,16 @@ const AdminNotification = () => {
     >
       <div className="p-3">
         <p className="text-3xl font-bold text-white mb-2 mt-5">Notification</p>
+
+        {/* Search Input */}
         <label className="input input-bordered flex items-center gap-2 mb-3">
-          <input type="text" className="grow" placeholder="Search" />
+          <input
+            type="text"
+            className="grow"
+            placeholder="Search notifications..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 16 16"
@@ -49,20 +65,26 @@ const AdminNotification = () => {
 
         {/* Notifications List */}
         <div className="bg-white/10 rounded-lg p-2 backdrop-blur-md">
-          {notifications.map((item) => (
-            <div
-              key={item.id}
-              className="p-4 border-b border-white/40 flex items-start"
-            >
-              {item.isNew && (
-                <span className="text-red-500 text-lg mr-2">🔴</span>
-              )}
-              <div>
-                <h3 className="text-white font-semibold">{item.title}</h3>
-                <p className="text-white/80 text-sm">{item.message}</p>
+          {filteredNotifications.length > 0 ? (
+            filteredNotifications.map((item) => (
+              <div
+                key={item.id}
+                className="p-4 border-b border-white/40 flex items-start"
+              >
+                {item.isNew && (
+                  <span className="text-red-500 text-lg mr-2">🔴</span>
+                )}
+                <div>
+                  <h3 className="text-white font-semibold">{item.title}</h3>
+                  <p className="text-white/80 text-sm">{item.message}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="text-center text-gray-300 py-4">
+              No notifications found
+            </p>
+          )}
         </div>
       </div>
 

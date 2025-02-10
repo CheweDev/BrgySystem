@@ -6,6 +6,41 @@ const UserProfile = () => {
     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
   );
 
+  const waitlistedRequests = [
+    // {
+    //   id: 1,
+    //   date: { day: 23, month: "Jan" },
+    //   title: "Barangay Clearance",
+    //   submitted: "02/30/21",
+    //   status: "Pending",
+    //   statusColor: "bg-warning",
+    // },
+    // {
+    //   id: 2,
+    //   date: { day: 23, month: "Jan" },
+    //   title: "Barangay Clearance",
+    //   submitted: "02/30/21",
+    //   status: "Accepted",
+    //   statusColor: "bg-[#23ab80]",
+    // },
+    // {
+    //   id: 3,
+    //   date: { day: 23, month: "Jan" },
+    //   title: "Barangay Clearance",
+    //   submitted: "02/30/21",
+    //   status: "Rejected",
+    //   statusColor: "bg-error",
+    // },
+    // {
+    //   id: 4,
+    //   date: { day: 29, month: "Aug" },
+    //   title: "Attendance",
+    //   submitted: "03/18/21",
+    //   status: "Accepted",
+    //   statusColor: "bg-[#23ab80]",
+    // },
+  ];
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -85,82 +120,45 @@ const UserProfile = () => {
 
       {/* Waitlisted Requests */}
       <div
-        className="rounded-tl-[40px] rounded-tr-[40px] p-4 mt-5"
+        className="rounded-tl-[40px] rounded-tr-[40px] p-4 mt-5 min-h-screen"
         style={{
           background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
         }}
       >
         <h3 className="text-white mb-4 font-bold mt-2">Waitlisted Requests:</h3>
-        <div className="space-y-3 mb-20">
-          {/* Barangay Clearance Request */}
-          <div className="bg-white rounded-2xl p-4 flex items-center">
-            <div className="text-center mr-4">
-              <div className="text-2xl font-bold">23</div>
-              <div className="text-sm text-gray-500">Jan</div>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium">Barangay Clearance</h4>
-              <p className="text-sm text-gray-500">submitted 02/30/21</p>
-            </div>
-            <button className="bg-warning text-white text-sm px-3 py-1 rounded-full">
-              Pending
-            </button>
-          </div>
-          <div className="bg-white rounded-2xl p-4 flex items-center">
-            <div className="text-center mr-4">
-              <div className="text-2xl font-bold">23</div>
-              <div className="text-sm text-gray-500">Jan</div>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium">Barangay Clearance</h4>
-              <p className="text-sm text-gray-500">submitted 02/30/21</p>
-            </div>
-            <button className="bg-[#23ab80] text-white text-sm px-3 py-1 rounded-full">
-              Accepted
-            </button>
-          </div>
-          <div className="bg-white rounded-2xl p-4 flex items-center">
-            <div className="text-center mr-4">
-              <div className="text-2xl font-bold">23</div>
-              <div className="text-sm text-gray-500">Jan</div>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium">Barangay Clearance</h4>
-              <p className="text-sm text-gray-500">submitted 02/30/21</p>
-            </div>
-            <button className="bg-error text-white text-sm px-3 py-1 rounded-full">
-              Rejected
-            </button>
-          </div>
-          <div className="bg-white rounded-2xl p-4 flex items-center">
-            <div className="text-center mr-4">
-              <div className="text-2xl font-bold">23</div>
-              <div className="text-sm text-gray-500">Jan</div>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium">Barangay Clearance</h4>
-              <p className="text-sm text-gray-500">submitted 02/30/21</p>
-            </div>
-            <button className="bg-warning text-white text-sm px-3 py-1 rounded-full">
-              Pending
-            </button>
-          </div>
 
-          {/* Attendance Request */}
-          <div className="bg-white rounded-2xl p-4 flex items-center">
-            <div className="text-center mr-4">
-              <div className="text-2xl font-bold">29</div>
-              <div className="text-sm text-gray-500">Aug</div>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium">Attendance</h4>
-              <p className="text-sm text-gray-500">submitted 03/18/21</p>
-            </div>
-            <button className="bg-[#23ab80] text-white text-sm px-3 py-1 rounded-full">
-              Accepted
-            </button>
+        {waitlistedRequests.length > 0 ? (
+          <div className="space-y-3 mb-20">
+            {waitlistedRequests.map((request) => (
+              <div
+                key={request.id}
+                className="bg-white rounded-2xl p-4 flex items-center"
+              >
+                <div className="text-center mr-4">
+                  <div className="text-2xl font-bold">{request.date.day}</div>
+                  <div className="text-sm text-gray-500">
+                    {request.date.month}
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium">{request.title}</h4>
+                  <p className="text-sm text-gray-500">
+                    submitted {request.submitted}
+                  </p>
+                </div>
+                <button
+                  className={`${request.statusColor} text-white text-sm px-3 py-1 rounded-full`}
+                >
+                  {request.status}
+                </button>
+              </div>
+            ))}
           </div>
-        </div>
+        ) : (
+          <p className="text-center text-gray-300">
+            No waitlisted requests available
+          </p>
+        )}
       </div>
 
       <Menu />
