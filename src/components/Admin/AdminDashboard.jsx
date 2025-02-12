@@ -1,4 +1,3 @@
-import React from "react";
 import Menu from "../../Menu";
 import { GrAnnounce } from "react-icons/gr";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -6,6 +5,8 @@ import "swiper/swiper-bundle.css";
 import AdminSocialPost from "./AdminSocialPost";
 import CreatePostModal from "./CreatePostModal";
 import { useState } from "react";
+import { FaEdit } from "react-icons/fa";
+import { IoTrash } from "react-icons/io5";
 
 const DynamicCalendarIcon = ({ date }) => {
   const parsedDate = new Date(date);
@@ -22,25 +23,52 @@ const DynamicCalendarIcon = ({ date }) => {
 
 const AdminDashboard = () => {
   const [showModal, setShowModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [announcementToDelete, setAnnouncementToDelete] = useState(null);
+  const [announcements, setAnnouncements] = useState([
+    {
+      id: 1,
+      date: "2025-01-13",
+      text: "Meeting rescheduled to January 12th, 2025.",
+    },
+    {
+      id: 2,
+      date: "2025-01-15",
+      text: "Reminder: Submit your reports before the deadline.",
+    },
+    {
+      id: 3,
+      date: "2025-01-16",
+      text: "Meeting rescheduled to January 16th, 2025.",
+    },
+  ]);
 
-  // Simulated announcements
-  const announcements = [
-    // {
-    //   id: 1,
-    //   date: "2025-01-12",
-    //   text: "Meeting rescheduled to January 12th, 2025. Please mark your calendars.",
-    // },
-    // {
-    //   id: 2,
-    //   date: "2025-01-15",
-    //   text: "Reminder: Submit your reports before the deadline on January 15th, 2025.",
-    // },
-    // {
-    //   id: 3,
-    //   date: "2025-01-16",
-    //   text: "Meeting rescheduled to January 16th, 2025. Please mark your calendars.",
-    // },
-  ];
+  const confirmDelete = (id) => {
+    setAnnouncementToDelete(id);
+    setDeleteModal(true);
+  };
+
+  const handleEdit = (announcement) => {
+    setCurrentAnnouncement(announcement);
+    setEditModal(true);
+  };
+
+  const handleSaveEdit = () => {
+    setAnnouncements((prev) =>
+      prev.map((item) =>
+        item.id === currentAnnouncement.id
+          ? {
+              ...item,
+              text: currentAnnouncement.text,
+              date: currentAnnouncement.date,
+            }
+          : item
+      )
+    );
+    setEditModal(false);
+  };
 
   return (
     <div
@@ -77,11 +105,27 @@ const AdminDashboard = () => {
               {announcements.map((announcement) => (
                 <SwiperSlide
                   key={announcement.id}
-                  className="flex-shrink-0 w-80 p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
+                  className="flex-shrink-0 w-80 p-3 bg-white rounded-lg shadow-md flex flex-col justify-between"
                 >
                   <div className="flex gap-2">
                     <DynamicCalendarIcon date={announcement.date} />
                     <p className="text-sm mt-2">{announcement.text}</p>
+                  </div>
+
+                  {/* Buttons for Edit & Delete */}
+                  <div className="flex justify-end gap-3 mt-2">
+                    <button
+                      onClick={() => handleEdit(announcement)}
+                      className="text-blue-500 text-xl"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => confirmDelete(announcement.id)}
+                      className="text-red-500 text-xl"
+                    >
+                      <IoTrash />
+                    </button>
                   </div>
                 </SwiperSlide>
               ))}
@@ -102,6 +146,78 @@ const AdminDashboard = () => {
         />
       </div>
       <Menu />
+
+      {editModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+          <div className="bg-white p-5 rounded-lg shadow-lg w-80">
+            <h2 className="text-lg font-bold mb-3">Edit Announcement</h2>
+            <input
+              type="date"
+              value={currentAnnouncement.date}
+              onChange={(e) =>
+                setCurrentAnnouncement({
+                  ...currentAnnouncement,
+                  date: e.target.value, // Update the date in state
+                })
+              }
+              className="w-full p-2 border rounded"
+            />
+            <textarea
+              value={currentAnnouncement.text}
+              onChange={(e) =>
+                setCurrentAnnouncement({
+                  ...currentAnnouncement,
+                  text: e.target.value,
+                })
+              }
+              className="w-full p-2 border rounded resize-none h-24"
+            />
+
+            <div className="flex justify-end gap-2 mt-3">
+              <button
+                onClick={() => setEditModal(false)}
+                className="text-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="bg-blue-500 text-white px-3 py-1 rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+          <div className="bg-white p-5 rounded-lg shadow-lg w-80">
+            <h2 className="text-lg font-bold mb-3">Confirm Deletion</h2>
+            <p>Are you sure you want to delete this announcement?</p>
+            <div className="flex justify-end gap-2 mt-3">
+              <button
+                onClick={() => setDeleteModal(false)}
+                className="text-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setAnnouncements((prev) =>
+                    prev.filter((item) => item.id !== announcementToDelete)
+                  );
+                  setDeleteModal(false);
+                }}
+                className="bg-red-500 text-white px-3 py-1 rounded"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

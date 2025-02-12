@@ -176,9 +176,7 @@ const AdminAttendance = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-gray-500">
-                No attendees available
-              </p>
+              <p className="text-center text-white">No attendees available</p>
             )}
           </div>
         </div>

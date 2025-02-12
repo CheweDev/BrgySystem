@@ -8,38 +8,51 @@ const UserSocialPost = () => {
   const [commentText, setCommentText] = useState("");
   const [previewImage, setPreviewImage] = useState(null);
   const [comments, setComments] = useState([
-    // {
-    //   id: 1,
-    //   author: "Neneng",
-    //   content: "Hoy tangina asa ni dapit?",
-    //   timestamp: "06/06/21 8:00pm",
-    //   avatar:
-    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    // },
-    // ...Array(5)
-    //   .fill(null)
-    //   .map((_, i) => ({
-    //     id: i + 2,
-    //     author: `User ${i + 2}`,
-    //     content: "Makit'an tika boss ibtan tikag ngipon! 👍",
-    //     timestamp: "06/06/21 8:00pm",
-    //     avatar:
-    //       "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    //   })),
+    {
+      id: 1,
+      author: "Neneng",
+      content: "Hoy tangina asa ni dapit?",
+      timestamp: "06/06/21 8:00pm",
+      avatar:
+        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    },
+    ...Array(5)
+      .fill(null)
+      .map((_, i) => ({
+        id: i + 2,
+        author: `User ${i + 2}`,
+        content: "Makit'an tika boss ibtan tikag ngipon! 👍",
+        timestamp: "06/06/21 8:00pm",
+        avatar:
+          "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+      })),
   ]);
   const [posts, setPosts] = useState([
-    // {
-    //   id: 1,
-    //   author: "Marc Gerasmio",
-    //   content: "Bossing?! Musta ang buhay buhay",
-    //   location: "Purok 6",
-    //   images: [
-    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    //     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    //   ],
-    // },
+    {
+      id: 1,
+      author: "Marc Gerasmio",
+      content: "Bossing?! Musta ang buhay buhay",
+      location: "Purok 6",
+      images: [
+        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+      ],
+    },
   ]);
+  const [replies, setReplies] = useState({});
+  const [replyText, setReplyText] = useState({});
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editCommentText, setEditCommentText] = useState("");
+  const [editingComment, setEditingComment] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [editingReply, setEditingReply] = useState({
+    commentId: null,
+    replyId: null,
+  });
+  const [editReplyText, setEditReplyText] = useState("");
+
   const modalRef = useRef(null);
 
   const handleSubmitComment = (e) => {
@@ -86,6 +99,83 @@ const UserSocialPost = () => {
     };
   }, [isCommentsOpen]);
 
+  const handleReplySubmit = (commentId) => {
+    if (!replyText[commentId]?.trim()) return;
+
+    const newReply = {
+      id: Date.now(),
+      author: "You",
+      content: replyText[commentId],
+      timestamp: new Date().toLocaleString(),
+      avatar:
+        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
+    };
+
+    setReplies((prevReplies) => ({
+      ...prevReplies,
+      [commentId]: [...(prevReplies[commentId] || []), newReply],
+    }));
+
+    setReplyText((prev) => ({ ...prev, [commentId]: "" }));
+    setReplyingTo(null);
+  };
+
+  const handleEditComment = (commentId, content) => {
+    setEditingComment(commentId);
+    setEditText(content);
+  };
+
+  const handleEdit = (comment) => {
+    setEditingComment(comment.id);
+    setEditText(comment.content);
+  };
+
+  const handleSaveReplyEdit = (id) => {
+    setComments((prevComments) =>
+      prevComments.map((comment) =>
+        comment.id === id ? { ...comment, content: editText } : comment
+      )
+    );
+    setEditingComment(null); // Exit edit mode
+  };
+
+  const handleUpdateReply = () => {
+    setReplies((prevReplies) => ({
+      ...prevReplies,
+      [editingReply.commentId]: prevReplies[editingReply.commentId].map(
+        (reply) =>
+          reply.id === editingReply.replyId
+            ? { ...reply, content: editReplyText }
+            : reply
+      ),
+    }));
+    setEditingReply({ commentId: null, replyId: null });
+    setEditReplyText("");
+  };
+
+  const handleUpdateComment = (commentId) => {
+    const updatedComments = post.comments.map((c) =>
+      c.id === commentId ? { ...c, content: editText } : c
+    );
+    setPost({ ...post, comments: updatedComments });
+    setEditingComment(null);
+  };
+
+  const handleDeleteComment = (id) => {
+    setComments((prevComments) =>
+      prevComments.filter((comment) => comment.id !== id)
+    );
+  };
+
+  const handleDeleteReply = (commentId, replyId) => {
+    setReplies((prevReplies) => ({
+      ...prevReplies,
+      [commentId]: prevReplies[commentId].filter(
+        (reply) => reply.id !== replyId
+      ),
+    }));
+  };
+
   return (
     <>
       {posts.length > 0 ? (
@@ -116,17 +206,13 @@ const UserSocialPost = () => {
               {/* Image Grid */}
               <div className="grid grid-cols-3 gap-1 mb-4">
                 {post.images.map((image, i) => (
-                  <div
+                  <img
                     key={i}
-                    className="aspect-square relative"
+                    src={image}
+                    alt="Post"
+                    className="w-full h-28 object-cover rounded cursor-pointer"
                     onClick={() => setPreviewImage(image)}
-                  >
-                    <img
-                      src={image}
-                      alt={`Image ${i + 1}`}
-                      className="object-cover w-full h-full rounded cursor-pointer"
-                    />
-                  </div>
+                  />
                 ))}
               </div>
             </div>
@@ -148,7 +234,7 @@ const UserSocialPost = () => {
                 className="flex items-center gap-1 text-gray-600 text-sm hover:text-gray-900"
               >
                 <FaRegComment className="w-5 h-5" />
-                Comments
+                <span className="text-sm">Comment</span>
               </button>
             </div>
           </div>
@@ -159,7 +245,7 @@ const UserSocialPost = () => {
 
       {/* Comments Modal */}
       {isCommentsOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-10">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 z-10">
           <div
             ref={modalRef}
             className="bg-base-200 rounded-lg w-full max-w-md max-h-[90vh] flex flex-col"
@@ -190,11 +276,174 @@ const UserSocialPost = () => {
                       <div className="flex-1">
                         <div className="bg-white p-3 rounded-2xl">
                           <h3 className="font-medium">{comment.author}</h3>
-                          <p className="text-sm">{comment.content}</p>
+
+                          {editingComment === comment.id ? (
+                            <input
+                              type="text"
+                              value={editText}
+                              onChange={(e) => setEditText(e.target.value)}
+                              className="w-full p-1 border rounded"
+                            />
+                          ) : (
+                            <p className="text-sm">{comment.content}</p>
+                          )}
                         </div>
-                        <span className="text-xs text-gray-500 ml-2">
-                          {comment.timestamp}
-                        </span>
+
+                        {/* Edit, Delete, and Reply Buttons */}
+                        <div className="flex gap-2 mt-2 text-sm justify-between">
+                          <span className="text-xs text-gray-500">
+                            {comment.timestamp}
+                          </span>
+                          {editingComment === comment.id ? (
+                            <div className="gap-3 flex">
+                              <button
+                                onClick={() => handleSaveReplyEdit(comment.id)}
+                                className="text-green-800"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => setEditingComment(null)}
+                                className="text-red-500"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={() => handleEdit(comment)}
+                                className="text-blue-500"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteComment(comment.id)}
+                                className="text-red-500"
+                              >
+                                Delete
+                              </button>
+                              <button
+                                onClick={() => setReplyingTo(comment.id)}
+                                className="text-green-500"
+                              >
+                                Reply
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Reply Input Field */}
+                        {replyingTo === comment.id && (
+                          <div className="mt-2 flex gap-2">
+                            <input
+                              type="text"
+                              value={replyText[comment.id] || ""}
+                              onChange={(e) =>
+                                setReplyText((prev) => ({
+                                  ...prev,
+                                  [comment.id]: e.target.value,
+                                }))
+                              }
+                              className="w-full p-1 border rounded"
+                              placeholder="Write a reply..."
+                            />
+                            <button
+                              onClick={() => handleReplySubmit(comment.id)}
+                              className="bg-[#509c83] btn-sm btn text-white"
+                            >
+                              Reply
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Display Replies */}
+                        {replies[comment.id] &&
+                          replies[comment.id].length > 0 && (
+                            <div className="mt-3 pl-6 border-l">
+                              {replies[comment.id].map((reply) => (
+                                <div key={reply.id} className="flex gap-2">
+                                  <img
+                                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                                    alt="Reply Avatar"
+                                    className="rounded-full w-8 h-8"
+                                  />
+                                  <div className="bg-white p-2 rounded-lg flex-1">
+                                    <h4 className="text-sm font-medium">
+                                      {reply.author}
+                                    </h4>
+                                    {editingReply.commentId === comment.id &&
+                                    editingReply.replyId === reply.id ? (
+                                      <input
+                                        type="text"
+                                        value={editReplyText}
+                                        onChange={(e) =>
+                                          setEditReplyText(e.target.value)
+                                        }
+                                        className="w-full p-1 border rounded"
+                                      />
+                                    ) : (
+                                      <p className="text-xs">{reply.content}</p>
+                                    )}
+
+                                    {/* Edit & Delete Reply Buttons */}
+                                    <div className="flex gap-2 text-sm justify-between mt-1">
+                                      <span className="text-xs text-gray-500">
+                                        {reply.timestamp}
+                                      </span>
+                                      {editingReply.commentId === comment.id &&
+                                      editingReply.replyId === reply.id ? (
+                                        <div className="gap-3 flex">
+                                          <button
+                                            onClick={handleUpdateReply}
+                                            className="text-green-800"
+                                          >
+                                            Save
+                                          </button>
+                                          <button
+                                            onClick={() =>
+                                              setEditingReply({
+                                                commentId: null,
+                                                replyId: null,
+                                              })
+                                            }
+                                            className="text-red-500"
+                                          >
+                                            Cancel
+                                          </button>
+                                        </div>
+                                      ) : (
+                                        <div className="flex justify-end gap-2">
+                                          <button
+                                            onClick={() =>
+                                              setEditingReply({
+                                                commentId: comment.id,
+                                                replyId: reply.id,
+                                              })
+                                            }
+                                            className="text-blue-500"
+                                          >
+                                            Edit
+                                          </button>
+                                          <button
+                                            onClick={() =>
+                                              handleDeleteReply(
+                                                comment.id,
+                                                reply.id
+                                              )
+                                            }
+                                            className="text-red-500"
+                                          >
+                                            Delete
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                       </div>
                     </div>
                   ))
@@ -220,7 +469,7 @@ const UserSocialPost = () => {
                 </div>
                 <button
                   type="submit"
-                  className="bg-[#77cdb1] text-white mb-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#77cdb1]"
+                  className="bg-[#509c83] text-white mb-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#77cdb1]"
                 >
                   Post
                 </button>

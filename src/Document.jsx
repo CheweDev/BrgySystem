@@ -5,35 +5,43 @@ import PaymentForm from "./PaymentForm";
 const clearanceOptions = [
   {
     label: "Death Certificate",
-    image: "https://placehold.co/600x400?text=Death+Certificate",
+    image: "death.jpg",
+    price: "50 pesos",
   },
   {
     label: "First Time Job Seeker Certificate",
-    image: "https://placehold.co/600x400?text=ftjs",
+    image: "jobseeker.jpg",
+    price: "50 pesos",
   },
   {
     label: "Certificate of Indigency",
-    image: "https://placehold.co/600x400?text=Certificate+of+Indigency",
+    image: "indigency.jpg",
+    price: "50 pesos",
   },
   {
-    label: "Certificate of ONEES",
-    image: "https://placehold.co/600x400?text=Certificate+of+ONESS",
+    label: "Certificate for Senior Citizen",
+    image: "senior.jpg",
+    price: "50 pesos",
   },
   {
     label: "Certificate of Low Income",
-    image: "https://placehold.co/600x400?text=Certificate+of+Low+Income",
+    image: "lowincome.jpg",
+    price: "50 pesos",
   },
   {
     label: "Certificate of Residency",
-    image: "https://placehold.co/600x400?text=Certificate+of+Residency",
+    image: "residency.jpg",
+    price: "50 pesos",
   },
   {
-    label: "OATH OF UNDERTAKING",
-    image: "https://placehold.co/600x400?text=Oath+of+Undertaking",
+    label: "Purok Clearance",
+    image: "purokclearance.jpg",
+    price: "50 pesos",
   },
   {
     label: "Baranggay Clearance",
-    image: "https://placehold.co/600x400?text=Baranggay+Clearance",
+    image: "brgyclearance.jpg",
+    price: "50 pesos",
   },
 ];
 
@@ -113,14 +121,18 @@ const Document = () => {
             </div>
 
             {/* Document Preview */}
-            <div className="mb-4">
-              <div className="relative w-full h-48 bg-gray-50 rounded-lg overflow-hidden">
-                <img
-                  src={selectedClearance.image}
-                  alt={`${selectedClearance.label} Preview`}
-                  className="object-contain w-full h-full"
-                />
+            <div className="mb-4 relative w-full h-48 bg-gray-50 rounded-lg overflow-hidden">
+              {/* Price Label at Top Right */}
+              <div className="absolute top-2 right-2 bg-slate-500 text-white text-xs px-2 py-1 rounded">
+                50 PHP
               </div>
+
+              {/* Document Image */}
+              <img
+                src={selectedClearance.image}
+                alt={`${selectedClearance.label} Preview`}
+                className="object-contain w-full h-full"
+              />
             </div>
 
             {/* Buttons */}

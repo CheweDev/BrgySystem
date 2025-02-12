@@ -9,6 +9,7 @@ const AttendanceForm = () => {
     status: "Present",
     timeIn: "",
     timeOut: "",
+    what: "", // Added new state for "What"
   });
   const [hoursRendered, setHoursRendered] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -16,7 +17,6 @@ const AttendanceForm = () => {
   // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
     setFormData({ ...formData, [name]: value });
 
     // Automatically calculate hours rendered if timeIn and timeOut are provided
@@ -39,7 +39,7 @@ const AttendanceForm = () => {
       if (diff > 0) {
         setHoursRendered(diff.toFixed(2));
       } else {
-        setHoursRendered(null); // Reset if invalid times
+        setHoursRendered(null);
       }
     } else {
       setHoursRendered(null);
@@ -64,6 +64,7 @@ const AttendanceForm = () => {
       status: "Present",
       timeIn: "",
       timeOut: "",
+      what: "", // Reset "What" field
     });
     setHoursRendered(null);
   };
@@ -81,7 +82,7 @@ const AttendanceForm = () => {
         </p>
         <hr className="border-t border-white my-4" />
         <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             {/* Name Input */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium mb-1">
@@ -111,6 +112,22 @@ const AttendanceForm = () => {
                 value={formData.date}
                 onChange={handleInputChange}
                 required
+                className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#77cdb1]"
+              />
+            </div>
+
+            {/* What Input Field */}
+            <div>
+              <label htmlFor="what" className="block text-sm font-medium mb-1">
+                What
+              </label>
+              <input
+                type="text"
+                id="what"
+                name="what"
+                value={formData.what}
+                onChange={handleInputChange}
+                placeholder="Enter details"
                 className="w-full border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-[#77cdb1]"
               />
             </div>
@@ -197,32 +214,6 @@ const AttendanceForm = () => {
               Submit Attendance
             </button>
           </form>
-
-          {/* Success Modal */}
-          {isSubmitted && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-2">
-              <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Success!</h2>
-                  <button
-                    onClick={() => setIsSubmitted(false)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <IoClose className="h-6 w-6" />
-                  </button>
-                </div>
-                <p className="text-gray-700">
-                  Attendance has been successfully submitted.
-                </p>
-                <button
-                  onClick={() => setIsSubmitted(false)}
-                  className="mt-4 w-full bg-[#77cdb1] text-white py-2 rounded-lg font-medium hover:bg-[#66bca0] focus:outline-none focus:ring-2 focus:ring-[#77cdb1]"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
