@@ -1,21 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import SAMenu from "./SAMenu";
+import { useNavigate } from "react-router-dom";
+import supabase from "../../supabaseClient";
+import { FaEdit } from "react-icons/fa";
 
 const SAProfile = () => {
+  const name = sessionStorage.getItem("name");
+  const [gcashName, setGcashName] = useState("");
+  const [gcashNumber, setGcashNumber] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [newGcashName, setNewGcashName] = useState("");
+  const [newGcashNumber, setNewGcashNumber] = useState("");
+  const navigate = useNavigate();
   const [profileImage, setProfileImage] = useState(
     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
   );
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
+  useEffect(() => {
+    fetchGcash();
+  }, []);
+
+  const fetchGcash = async () => {
+    const { data } = await supabase
+      .from("Number")
+      .select("*")
+      .eq("id", "1")
+    
+    setGcashName(data[0].name || []);
+    setGcashNumber(data[0].number || []);
   };
+
+  const handleEdit = () => {
+    setNewGcashName(gcashName);
+    setNewGcashNumber(gcashNumber);
+    setIsEditing(true);
+  };
+
+  const handleSave = async () => {
+    await supabase.from("Number").update({ name: newGcashName, number: newGcashNumber }).eq("id", "1");
+    setGcashName(newGcashName);
+    setGcashNumber(newGcashNumber);
+    setIsEditing(false);
+  };
+
+  const logout = () => {
+    sessionStorage.clear();
+    navigate("/login");
+  }
+
 
   return (
     <div
@@ -29,7 +61,7 @@ const SAProfile = () => {
         <div className="bg-white rounded-3xl p-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <h2 className="text-lg font-semibold">Mang Kanor</h2>
+              <h2 className="text-lg font-semibold">{name}</h2>
               <div className="flex items-center gap-2">
                 <span className="text-gray-600">Super Admin</span>
                 <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
@@ -45,49 +77,57 @@ const SAProfile = () => {
                   alt="Profile"
                   className="rounded-full object-cover w-full h-full"
                 />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="absolute inset-0 opacity-0"
-                />
               </label>
             </div>
           </div>
 
           <hr className="border-t my-5" />
 
-          <div className="bg-white rounded-3xl p-4 shadow-sm">
-            <h3 className="text-lg font-semibold">Contact Information</h3>
-            <ul className="mt-2 text-gray-600">
-              <li>Email: mangkanor@example.com</li>
-              <li>Phone: (123) 456-7890</li>
-              <li>Website: www.mangkanor.com</li>
-            </ul>
+          <div className="flex gap-2 mb-2">
+            <img src="gcash.png" alt="" width={50} height={50} />
+            <h3 className="text-xl mt-2 font-semibold text-primary">
+              Gcash Number
+            </h3>
+          </div>
+          <div className="p-4 border rounded-lg bg-blue-50 border-blue-500 flex justify-between">
+            <div>
+              <p className="text-gray-600 font-bold">{gcashName}</p>
+              <p className="text-gray-600">{gcashNumber}</p>
+            </div>
+            <button
+              onClick={handleEdit}
+              className="btn btn-primary text-white text-xl btn-outline"
+            >
+              <FaEdit />
+            </button>
           </div>
 
           <hr className="border-t my-5" />
 
           <div className="mt-4">
-            <div className="bg-error text-white font-bold text-center py-2 rounded-full">
+            <div className="bg-error text-white font-bold text-center py-2 rounded-full"
+            onClick={logout}>
               Logout
             </div>
           </div>
         </div>
       </div>
 
-      {/* <div className="px-2">
-        <div className="bg-white rounded-lg p-4 shadow-sm mt-5">
-          <h3 className="text-lg font-semibold">About Mang Kanor</h3>
-          <p className="text-gray-600 mt-2">
-            Mang Kanor is a passionate individual committed to serving the
-            community. With years of experience in local governance, he works
-            hard to ensure the welfare of his fellow citizens. He believes in
-            transparency and is dedicated to making the local environment a
-            better place.
-          </p>
+   
+
+      {isEditing && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-lg font-semibold">Edit Gcash Info</h3>
+            <input type="text" value={newGcashName} onChange={(e) => setNewGcashName(e.target.value)} className="border p-2 w-full mt-2" />
+            <input type="text" value={newGcashNumber} onChange={(e) => setNewGcashNumber(e.target.value)} className="border p-2 w-full mt-2" />
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={() => setIsEditing(false)} className="bg-gray-300 px-4 py-2 rounded-lg">Cancel</button>
+              <button onClick={handleSave} className="bg-green-500 text-white px-4 py-2 rounded-lg">Save</button>
+            </div>
+          </div>
         </div>
-      </div> */}
+      )}
 
       <SAMenu />
     </div>

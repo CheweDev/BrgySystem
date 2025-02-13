@@ -1,10 +1,73 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Menu from "../../Menu";
+import { useNavigate } from "react-router-dom";
+import supabase from "../../supabaseClient";
 
 const UserProfile = () => {
   const [profileImage, setProfileImage] = useState(
     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
   );
+
+  const [docs, setDocs] = useState([]);
+  const name = sessionStorage.getItem("name");
+  const purokno = sessionStorage.getItem("purokno");
+  const navigate = useNavigate();
+  const [hours, setHours] = useState('');
+  const [minutes, setMinutes] = useState('');
+
+  const logout = () => {
+
+    sessionStorage.clear();
+    navigate("/login");
+
+  }
+
+  useEffect(() => {
+    fetchHours();
+    fetchDocs();
+  }, []);
+
+  const fetchDocs = async () => {
+    const { data } = await supabase
+      .from("Requests")
+      .select("*")
+      .eq("name", name);
+    
+    setDocs(data || []);
+  };
+
+  const fetchHours = async () => {
+    const { data, error } = await supabase
+      .from("Attendance")
+      .select("total")
+      .eq("name", name);
+  
+    if (error) {
+      console.error("Error fetching hours:", error);
+      return;
+    }
+  
+    // Parse hours and minutes separately
+    let totalMinutes = data.reduce((acc, entry) => {
+      const [hours, minutes] = entry.total.split('.');
+      return acc + (parseInt(hours) * 60) + parseInt(minutes);
+    }, 0);
+  
+    // Convert total minutes to hours and minutes
+    let finalHours = Math.floor(totalMinutes / 60);
+    let finalMinutes = Math.round(totalMinutes % 60);
+  
+    // If minutes reach 60, adjust hours
+    if (finalMinutes === 60) {
+      finalHours += 1;
+      finalMinutes = 0;
+    }
+
+    setHours(finalHours);
+    setMinutes(finalMinutes)
+  
+    console.log(`Total Hours Rendered: ${finalHours}.${finalMinutes}m`);
+  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -29,7 +92,7 @@ const UserProfile = () => {
         <div className="bg-white rounded-3xl p-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <h2 className="text-lg font-semibold">Mang Tomas</h2>
+              <h2 className="text-lg font-semibold">{name}</h2>
               <div className="flex items-center gap-2">
                 <span className="text-gray-600">Resident</span>
                 <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
@@ -56,18 +119,19 @@ const UserProfile = () => {
           </div>
 
           <div className="mt-4 border-t pt-4">
-            <div className="text-gray-600">Resident Address</div>
+            <div className="text-gray-600">Resident Purok</div>
           </div>
 
           <div className="mt-4">
             <div className="bg-[#E8F5F1] text-center py-2 rounded-full">
-              Purok 8, Brgy. Lumbocan
+              Purok {purokno}
             </div>
           </div>
 
           <hr className="border-t my-4" />
 
-          <button className="w-full rounded-full bg-error text-white font-bold py-2">
+          <button className="w-full rounded-full bg-error text-white font-bold py-2"
+          onClick={logout}>
             Logout
           </button>
         </div>
@@ -77,91 +141,58 @@ const UserProfile = () => {
       <div className="px-2 mt-4">
         <div className="bg-[#25596E] rounded-2xl p-4 text-white flex items-center gap-4">
           <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center">
-            <span className="text-[#2A7B62] text-2xl font-bold">34</span>
+            <span className="text-[#2A7B62] text-1xl font-bold">{hours}.{minutes}</span>
           </div>
           <div className="text-lg">volunteer hours +</div>
         </div>
       </div>
 
-      {/* Waitlisted Requests */}
-      <div
-        className="rounded-tl-[40px] rounded-tr-[40px] p-4 mt-5"
-        style={{
-          background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
-        }}
-      >
-        <h3 className="text-white mb-4 font-bold mt-2">Waitlisted Requests:</h3>
-        <div className="space-y-3 mb-20">
-          {/* Barangay Clearance Request */}
-          <div className="bg-white rounded-2xl p-4 flex items-center">
-            <div className="text-center mr-4">
-              <div className="text-2xl font-bold">23</div>
-              <div className="text-sm text-gray-500">Jan</div>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium">Barangay Clearance</h4>
-              <p className="text-sm text-gray-500">submitted 02/30/21</p>
-            </div>
-            <button className="bg-warning text-white text-sm px-3 py-1 rounded-full">
-              Pending
-            </button>
-          </div>
-          <div className="bg-white rounded-2xl p-4 flex items-center">
-            <div className="text-center mr-4">
-              <div className="text-2xl font-bold">23</div>
-              <div className="text-sm text-gray-500">Jan</div>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium">Barangay Clearance</h4>
-              <p className="text-sm text-gray-500">submitted 02/30/21</p>
-            </div>
-            <button className="bg-[#23ab80] text-white text-sm px-3 py-1 rounded-full">
-              Accepted
-            </button>
-          </div>
-          <div className="bg-white rounded-2xl p-4 flex items-center">
-            <div className="text-center mr-4">
-              <div className="text-2xl font-bold">23</div>
-              <div className="text-sm text-gray-500">Jan</div>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium">Barangay Clearance</h4>
-              <p className="text-sm text-gray-500">submitted 02/30/21</p>
-            </div>
-            <button className="bg-error text-white text-sm px-3 py-1 rounded-full">
-              Rejected
-            </button>
-          </div>
-          <div className="bg-white rounded-2xl p-4 flex items-center">
-            <div className="text-center mr-4">
-              <div className="text-2xl font-bold">23</div>
-              <div className="text-sm text-gray-500">Jan</div>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium">Barangay Clearance</h4>
-              <p className="text-sm text-gray-500">submitted 02/30/21</p>
-            </div>
-            <button className="bg-warning text-white text-sm px-3 py-1 rounded-full">
-              Pending
-            </button>
-          </div>
+    {/* Waitlisted Requests */}
+    <div
+      className="rounded-tl-[40px] rounded-tr-[40px] p-4 mt-5"
+      style={{
+        background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
+      }}
+    >
+      <h3 className="text-white mb-4 font-bold mt-2">Waitlisted Requests:</h3>
+      <div className="space-y-3 mb-20">
+        {docs.length > 0 ? (
+          docs.map((doc, index) => {
+            const submissionDate = new Date(doc.created_at); // Assuming there's a 'submitted_at' field
+            const day = submissionDate.getDate();
+            const month = submissionDate.toLocaleString("default", { month: "short" });
 
-          {/* Attendance Request */}
-          <div className="bg-white rounded-2xl p-4 flex items-center">
-            <div className="text-center mr-4">
-              <div className="text-2xl font-bold">29</div>
-              <div className="text-sm text-gray-500">Aug</div>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-medium">Attendance</h4>
-              <p className="text-sm text-gray-500">submitted 03/18/21</p>
-            </div>
-            <button className="bg-[#23ab80] text-white text-sm px-3 py-1 rounded-full">
-              Accepted
-            </button>
-          </div>
-        </div>
+            return (
+              <div key={index} className="bg-white rounded-2xl p-4 flex items-center">
+                <div className="text-center mr-4">
+                  <div className="text-2xl font-bold">{day}</div>
+                  <div className="text-sm text-gray-500">{month}</div>
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium">{doc.document_type}</h4>
+                  <p className="text-sm text-gray-500">
+                    submitted {submissionDate.toLocaleDateString()}
+                  </p>
+                </div>
+                <button
+                  className={`text-white text-sm px-3 py-1 rounded-full ${
+                    doc.status === "Pending"
+                      ? "bg-warning"
+                      : doc.status === "Approved"
+                      ? "bg-[#23ab80]"
+                      : "bg-error"
+                  }`}
+                >
+                  {doc.status}
+                </button>
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-white text-center">No waitlisted requests found.</p>
+        )}
       </div>
+    </div>
 
       <Menu />
     </div>

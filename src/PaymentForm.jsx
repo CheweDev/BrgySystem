@@ -1,45 +1,110 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import supabase from "./supabaseClient";
 
 const PaymentForm = ({ onClose }) => {
-  const gcashNumber = "09123456789"; // Static GCash number
+  const [gcashName, setGcashName] = useState("");
+  const [gcashNumber, setGcashNumber] = useState("");
+    const [age, setAge] = useState('');
+    const [reason, setReason] = useState('');
+    const [files, setFiles] = useState({ image: null });
+    const name = sessionStorage.getItem("name");
+    const purokno = sessionStorage.getItem("purokno");
+    const description  = sessionStorage.getItem("activityDescription")
+    const document_type = sessionStorage.getItem("selectedClearance");
 
-  const [formData, setFormData] = useState({
-    firstname: "",
-    age: "",
-    purok: "",
-    reason: "",
-  });
 
-  const [isSubmitted, setIsSubmitted] = useState(false); // Control success modal
-  const [isError, setIsError] = useState(false); // Control error modal
+    const uploadImage = async (file) => {
+      if (!file) return null;
+  
+      try {
+        const filePath = `${file.name}`;
+        const { data, error } = await supabase.storage
+          .from("Images")
+          .upload(filePath, file);
+  
+        if (error) throw error;
+  
+        const { data: publicURL, error: urlError } = supabase.storage
+          .from("Images")
+          .getPublicUrl(filePath);
+  
+        if (urlError) throw urlError;
+  
+        return publicURL.publicUrl;
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        alert("Error uploading image: " + error.message);
+        return null;
+      }
+    };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+    useEffect(() => {
+      fetchGcash();
+    }, []);
+  
+    const fetchGcash = async () => {
+      const { data } = await supabase
+        .from("Number")
+        .select("*")
+        .eq("id", "1")
+      
+      setGcashName(data[0].name || []);
+      setGcashNumber(data[0].number || []);
+    };
+  
+  
 
-  const handleSubmit = (e) => {
+
+  const [isSubmitted, setIsSubmitted] = useState(false); 
+  const [isError, setIsError] = useState(false); 
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Simulating success or error response
-    const isSuccess = Math.random() > 0.3; // 70% chance of success
-
-    if (isSuccess) {
-      setIsSubmitted(true);
-      setIsError(false);
-    } else {
-      setIsError(true);
-      setIsSubmitted(false);
+    if (!files.image) {
+      alert("Please upload all three images before submitting.");
+      return;
     }
-  };
+  
+    let uploadedImages = { image: "" };
+  
+
+    uploadedImages.image = await uploadImage(files.image);
+
+  
+
+    if (!uploadedImages.image) {
+      alert("Failed to upload one or more images. Please try again.");
+      return;
+    }
+      const { data, error } = await supabase
+        .from('Requests')
+        .insert([
+          {
+            name,
+            purokno,
+            image: uploadedImages.image,
+            reason,
+            document_type,
+            status : 'Pending',
+            description,
+          },
+        ])
+        .select();
+  
+      if (error) {
+        console.error("Error inserting data:", error);
+        alert("Error inserting data");
+      } else {
+        console.log("Data inserted successfully:", data);
+        window.location.reload();
+      }
+  }
 
   const closeModals = () => {
     setIsSubmitted(false);
     setIsError(false);
-    onClose(); // Close main modal
+    onClose(); 
   };
 
   return (
@@ -67,6 +132,9 @@ const PaymentForm = ({ onClose }) => {
               <p className="text-lg font-semibold text-blue-600">
                 {gcashNumber}
               </p>
+              <p className="text-lg font-semibold text-blue-600">
+                {gcashName}
+              </p>
             </div>
           </div>
         </div>
@@ -80,8 +148,8 @@ const PaymentForm = ({ onClose }) => {
                 type="text"
                 name="firstname"
                 placeholder="Name"
-                value={formData.firstname}
-                onChange={handleInputChange}
+                value={name}
+              disabled
                 className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-gray-300"
                 required
               />
@@ -89,8 +157,8 @@ const PaymentForm = ({ onClose }) => {
                 type="number"
                 name="age"
                 placeholder="Age"
-                value={formData.age}
-                onChange={handleInputChange}
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
                 className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-gray-300"
                 required
               />
@@ -98,22 +166,22 @@ const PaymentForm = ({ onClose }) => {
                 type="text"
                 name="purok"
                 placeholder="Purok"
-                value={formData.purok}
-                onChange={handleInputChange}
+                value={`Purok ${purokno}`}
+                disabled
                 className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-gray-300"
                 required
               />
               <textarea
                 name="reason"
                 placeholder="Reason for Requesting"
-                value={formData.reason}
-                onChange={handleInputChange}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
                 rows="3"
                 className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:border-gray-300 resize-none"
                 required
               />
               <h2 className="text-md font-medium">Proof of Payment:</h2>
-              <input type="file" />
+              <input type="file" onChange={(e) => setFiles({ ...files, image: e.target.files[0] })} />
             </div>
           </div>
 

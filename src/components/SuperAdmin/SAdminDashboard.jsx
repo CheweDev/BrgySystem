@@ -6,6 +6,7 @@ import "swiper/swiper-bundle.css";
 import { FaRegComment } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import SAMenu from "./SAMenu";
+import supabase from "../../supabaseClient";
 
 const DynamicCalendarIcon = ({ date }) => {
   const parsedDate = new Date(date);
@@ -21,110 +22,164 @@ const DynamicCalendarIcon = ({ date }) => {
 };
 
 export default function SuperAdminDashboard() {
-  const modalRef = useRef(null); // Initialize the modalRef
+  const [editingComment, setEditingComment] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState({});
+  const [replies, setReplies] = useState({});
+  const avatar = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+  const modalRef = useRef(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [selectedPurok, setSelectedPurok] = useState("all");
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
-  const [comments, setComments] = useState([
-    {
-      id: 1,
-      author: "Neneng",
-      content: "Hoy tangina asa ni dapit?",
-      timestamp: "06/06/21 8:00pm",
-      avatar:
-        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    },
-    ...Array(5)
-      .fill(null)
-      .map((_, i) => ({
-        id: i + 2,
-        author: `User ${i + 2}`,
-        content: "Makit'an tika boss ibtan tikag ngipon! 👍",
-        timestamp: "06/06/21 8:00pm",
-        avatar:
-          "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-      })),
-  ]);
+  const [comments, setComments] = useState([]);
   const [selectedPostId, setSelectedPostId] = useState(null); // Store the ID of the selected post
+  const [announcements, setAnnouncements] = useState([]);
+  const [socialPosts, setSocialPosts] = useState([]);
+  const name = sessionStorage.getItem("name");
+  const today = new Date();
+  const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const getCurrentTime = () => {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, "0");
+      const minutes = String(now.getMinutes()).padStart(2, "0");
+      const seconds = String(now.getSeconds()).padStart(2, "0");
+      return `${hours}:${minutes}:${seconds}`;
+    };
 
-  const announcements = [
-    {
-      id: 1,
-      date: "2025-01-12",
-      text: "Meeting rescheduled to January 12th, 2025.",
-      purok: "6",
-      admin: "Admin 1",
-    },
-    {
-      id: 2,
-      date: "2025-01-15",
-      text: "Submit reports before deadline.",
-      purok: "7",
-      admin: "Admin 2",
-    },
-    {
-      id: 3,
-      date: "2025-01-16",
-      text: "Community cleanup drive.",
-      purok: "6",
-      admin: "Admin 3",
-    },
-  ];
+    const isAuthor = (authorName) => {
+      return name === authorName;
+    };
 
-  const socialPosts = [
-    {
-      id: 1,
-      admin: "Marc Gerasmio",
-      purok: "6",
-      content: "Bossing?! Musta ang buhay buhay",
-      date: "2025-02-05",
-      comments: 10,
-      images: [
-        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-      ],
-    },
-    {
-      id: 2,
-      admin: "Juan Dela Cruz",
-      purok: "7",
-      content: "Salamat sa tanan ni-ambit sa atong clean-up drive!",
-      date: "2025-02-06",
-      comments: 15,
-      images: [
-        "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-      ],
-    },
-    {
-      id: 3,
-      admin: "Maria Santos",
-      purok: "3",
-      content: "Nag-abot na ang relief goods, palihug kuha sa Brgy. Hall.",
-      date: "2025-02-07",
-      comments: 12,
-      images: [],
-    },
-  ];
+  useEffect(() => {
+    fetchAnnouncements();
+    fetchPosts();
+  }, []);
 
-  const handleSubmitComment = (e) => {
+  const fetchAnnouncements = async () => {
+    const { data } = await supabase
+      .from("Announcement")
+      .select("*")
+      .order("created_at", { ascending: false });
+    
+    setAnnouncements(data || []);
+  };
+
+  const fetchPosts = async () => {
+    const { data } = await supabase
+      .from("Social")
+      .select("*")
+      .order("created_at", { ascending: false });
+    
+    setSocialPosts(data || []);
+  };
+
+
+
+  const handleSubmitComment = async (e) => {
     e.preventDefault();
-    if (commentText.trim()) {
-      const newComment = {
-        id: comments.length + 1,
-        author: "You",
-        content: commentText,
-        timestamp: new Date().toLocaleString(),
-        avatar:
-          "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-      };
-      setComments([...comments, newComment]);
-      setCommentText("");
+    const post_id = sessionStorage.getItem("id");
+    const { data, error } = await supabase
+        .from('Comments')
+        .insert([
+          {
+            name,
+            comment : commentText,
+            post_id,
+            date: formattedDate,
+            time : getCurrentTime(),
+          },
+        ])
+        .select();
+  
+      if (error) {
+        console.error("Error inserting data:", error);
+        alert("Error inserting data");
+      } else {
+        console.log("Data inserted successfully:", data);
+        window.location.reload();
+      }
+  };
+
+  const handleReplySubmit = async (commentId) => {
+    if (!replyText[commentId]?.trim()) return;
+
+    const post_id = sessionStorage.getItem("id");
+    const { error } = await supabase
+      .from('Replies')
+      .insert([{
+        name,
+        content: replyText[commentId],
+        post_id,
+        comment_id: commentId,
+        date: formattedDate,
+        time: getCurrentTime(),
+      }]);
+
+    if (error) {
+      console.error("Error posting reply:", error);
+      alert("Error posting reply");
+    } else {
+      setReplyText(prev => ({ ...prev, [commentId]: "" }));
+      setReplyingTo(null);
+      fetchComments(post_id);
     }
   };
+
+  const handleDeleteComment = async (commentId) => {
+    const { error } = await supabase
+      .from('Comments')
+      .delete()
+      .eq('id', commentId);
+
+    if (error) {
+      console.error("Error deleting comment:", error);
+      alert("Error deleting comment");
+    } else {
+      const post_id = sessionStorage.getItem("id");
+      fetchComments(post_id);
+    }
+  };
+
+  const handleEdit = (comment) => {
+    setEditingComment(comment.id);
+    setEditText(comment.comment);
+  };
+
+  const handleSaveEdit = async (commentId) => {
+    const { error } = await supabase
+      .from('Comments')
+      .update({ comment: editText })
+      .eq('id', commentId);
+
+    if (error) {
+      console.error("Error updating comment:", error);
+      alert("Error updating comment");
+    } else {
+      setEditingComment(null);
+      const post_id = sessionStorage.getItem("id");
+      fetchComments(post_id);
+    }
+  };
+
+  const handleDeleteReply = async (replyId) => {
+    const { error } = await supabase
+      .from('Replies')
+      .delete()
+      .eq('id', replyId);
+
+    if (error) {
+      console.error("Error deleting reply:", error);
+      alert("Error deleting reply");
+    } else {
+      const post_id = sessionStorage.getItem("id");
+      fetchComments(post_id);
+    }
+  };
+
 
   const openComments = (postId) => {
     setSelectedPostId(postId); // Set the post ID for the selected post
@@ -162,17 +217,61 @@ export default function SuperAdminDashboard() {
   const filteredAnnouncements = announcements.filter(
     (announcement) =>
       (selectedPurok === "all" ||
-        announcement.purok.toString() === selectedPurok) &&
-      (announcement.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        announcement.purokno.toString() === selectedPurok) &&
+      (announcement.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
         announcement.admin.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const filteredSocialPosts = socialPosts.filter(
     (post) =>
-      (selectedPurok === "all" || post.purok.toString() === selectedPurok) &&
-      (post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.admin.toLowerCase().includes(searchQuery.toLowerCase()))
+      (selectedPurok === "all" || post.purokno.toString() === selectedPurok) &&
+      (post.text.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.name.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  const fetchComments = async (id) => {
+    const { data: commentsData } = await supabase
+      .from("Comments")
+      .select("*")
+      .eq("post_id", id);
+    
+    const { data: repliesData } = await supabase
+      .from("Replies")
+      .select("*")
+      .eq("post_id", id);
+
+    setComments(commentsData || []);
+    
+    // Organize replies by comment_id
+    const repliesByComment = {};
+    (repliesData || []).forEach(reply => {
+      if (!repliesByComment[reply.comment_id]) {
+        repliesByComment[reply.comment_id] = [];
+      }
+      repliesByComment[reply.comment_id].push(reply);
+    });
+    setReplies(repliesByComment);
+  };
+
+  const openComment = (post) => {
+    const id = sessionStorage.setItem("id", post.id)
+    fetchComments(post.id)
+    setIsCommentsOpen(true);
+  }
+
+  function formatDateTime(dateStr, timeStr) {
+    let [year, month, day] = dateStr.split("-").map(Number);
+    let [hour, minute, second] = timeStr.split(":").map(Number);
+    let date = new Date(year, month - 1, day, hour, minute, second);
+    return date.toLocaleString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "2-digit",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E]">
@@ -188,30 +287,6 @@ export default function SuperAdminDashboard() {
             {selectedPurok === "all" ? "All Purok" : `Purok ${selectedPurok}`}
           </button>
         </div>
-
-        {/* Search Bar */}
-        <div className="relative mb-6">
-          <input
-            type="text"
-            className="w-full px-4 py-2 rounded-lg bg-white/90 backdrop-blur-sm"
-            placeholder="Search posts, announcements, or admins..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            className="h-4 w-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-500"
-          >
-            <path
-              fillRule="evenodd"
-              d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-
         {/* Announcements Section */}
         <section className="mb-6">
           <div className="flex justify-between items-center mb-4">
@@ -222,7 +297,7 @@ export default function SuperAdminDashboard() {
               {filteredAnnouncements.length} posts
             </span>
           </div>
-
+          {filteredAnnouncements.length > 0 ? (
           <Swiper
             spaceBetween={10}
             slidesPerView={1}
@@ -236,10 +311,9 @@ export default function SuperAdminDashboard() {
                   <div className="flex gap-4">
                     <DynamicCalendarIcon date={announcement.date} />
                     <div className="flex-1">
-                      <p className="text-sm mb-2">{announcement.text}</p>
+                      <p className="text-sm mb-2">{announcement.content}</p>
                       <div className="flex justify-between text-xs text-gray-500">
-                        <span>Admin: {announcement.admin}</span>
-                        <span>Purok {announcement.purok}</span>
+                        <span>Purok {announcement.purokno}</span>
                       </div>
                     </div>
                   </div>
@@ -247,10 +321,15 @@ export default function SuperAdminDashboard() {
               </SwiperSlide>
             ))}
           </Swiper>
+            ) : (
+              <div className="p-4 text-center text-white">
+                No announcement available.
+              </div>
+            )}
         </section>
-
+    
         <hr className="border-t border-white my-4" />
-
+          <div className="overflow-y-auto max-h-[500px] pb-20">
         {/* Social Posts Section */}
         {filteredSocialPosts.length > 0 ? (
           filteredSocialPosts.map((post) => (
@@ -266,35 +345,34 @@ export default function SuperAdminDashboard() {
                   className="rounded-full w-10 h-10"
                 />
                 <div>
-                  <h2 className="font-medium">{post.admin}</h2>
+                  <h2 className="font-medium">{post.name}</h2>
                 </div>
                 <span className="ml-auto text-sm text-white rounded-full p-1 bg-[#77cdb1] w-1/4 flex justify-center">
-                  Purok {post.purok}
+                  Purok {post.purokno}
                 </span>
               </div>
 
               {/* Post Content */}
               <div className="px-4 pb-2">
-                <p className="mb-3">{post.content}</p>
+                <p className="mb-3">{post.text}</p>
 
-                {/* Image Grid (if images exist) */}
-                {post.images && post.images.length > 0 && (
-                  <div className="grid grid-cols-3 gap-1 mb-4">
-                    {post.images.map((image, index) => (
+                <div className="grid grid-cols-3 gap-1 mb-4">
+                  {[post.image1, post.image2, post.image3]
+                    .filter((img) => img) // Remove null/undefined images
+                    .map((img, index) => (
                       <div
                         key={index}
                         className="aspect-square relative"
-                        onClick={() => setPreviewImage(image)}
+                        onClick={() => setPreviewImage(img)}
                       >
                         <img
-                          src={image}
+                          src={img}
                           alt={`Image ${index + 1}`}
                           className="object-cover w-full h-full rounded cursor-pointer"
                         />
                       </div>
                     ))}
-                  </div>
-                )}
+                </div>
               </div>
 
               {previewImage && (
@@ -321,7 +399,7 @@ export default function SuperAdminDashboard() {
               {/* Comment Button */}
               <div className="flex justify-end items-center px-4 pb-3 text-gray-600 text-sm">
                 <button
-                  onClick={() => openComments(post.id)} // Call openComments with the post ID
+               onClick={() => openComment(post)} // Call openComments with the post ID
                   className="flex items-center gap-1 text-gray-600 text-sm hover:text-gray-900"
                 >
                   <FaRegComment className="w-5 h-5" />
@@ -332,9 +410,10 @@ export default function SuperAdminDashboard() {
           ))
         ) : (
           <p className="text-white text-center">
-            No posts available for this Purok.
+            No post available.
           </p>
         )}
+      </div>
       </div>
 
       {/* Comments Modal */}
@@ -356,45 +435,161 @@ export default function SuperAdminDashboard() {
               </div>
             </div>
 
-            {/* Comments Section (Updated Responsive Design) */}
-            <div className="flex flex-col gap-3 p-4 max-h-[60vh] overflow-y-auto">
-              {comments.map((comment) => (
-                <div key={comment.id} className="flex gap-3">
-                  <img
-                    src={comment.avatar || "/placeholder.svg"}
-                    alt={`${comment.author}'s avatar`}
-                    className="rounded-full w-10 h-10"
-                  />
-                  <div className="flex-1">
-                    <div className="bg-white p-3 rounded-2xl shadow-md">
-                      <h3 className="font-medium">{comment.author}</h3>
-                      <p className="text-sm">{comment.content}</p>
-                    </div>
-                    <span className="text-xs text-gray-500 ml-2">
-                      {comment.timestamp}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="space-y-4">
+                {comments.length === 0 ? (
+                  <p className="text-center text-gray-500">No comments yet</p>
+                ) : (
+                  comments.map((comment) => (
+                    <div key={comment.id} className="flex gap-3">
+                      <img
+                        src={avatar}
+                        alt={`${comment.name}'s avatar`}
+                        className="rounded-full w-8 h-8"
+                      />
+                      <div className="flex-1">
+                        <div className="bg-white p-3 rounded-2xl">
+                          <h3 className="font-medium">{comment.name}</h3>
+                          {editingComment === comment.id ? (
+                            <input
+                              type="text"
+                              value={editText}
+                              onChange={(e) => setEditText(e.target.value)}
+                              className="w-full p-1 border rounded mt-2"
+                            />
+                          ) : (
+                            <p className="text-sm">{comment.comment}</p>
+                          )}
+                        </div>
 
+                        
+                        <div className="flex justify-between items-center mt-2 text-sm">
+                          <span className="text-xs text-gray-500">
+                            {formatDateTime(comment.date, comment.time)}
+                          </span>
+                          <div className="flex gap-2">
+                            {/* Only show edit/delete for comment author */}
+                            {isAuthor(comment.name) && (
+                              <>
+                                {editingComment === comment.id ? (
+                                  <>
+                                    <button
+                                      onClick={() => handleSaveEdit(comment.id)}
+                                      className="text-green-600 text-sm"
+                                    >
+                                      Save
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingComment(null)}
+                                      className="text-red-500 text-sm"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={() => handleEdit(comment)}
+                                      className="text-blue-500 text-sm"
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteComment(comment.id)}
+                                      className="text-red-500 text-sm"
+                                    >
+                                      Delete
+                                    </button>
+                                  </>
+                                )}
+                              </>
+                            )}
+                            {/* Always show reply button */}
+                            <button
+                              onClick={() => setReplyingTo(comment.id)}
+                              className="text-green-600 text-sm"
+                            >
+                              Reply
+                            </button>
+                          </div>
+                        </div>
+
+                        {replyingTo === comment.id && (
+                          <div className="mt-2 flex gap-2">
+                            <input
+                              type="text"
+                              value={replyText[comment.id] || ""}
+                              onChange={(e) =>
+                                setReplyText((prev) => ({
+                                  ...prev,
+                                  [comment.id]: e.target.value,
+                                }))
+                              }
+                              className="flex-1 p-2 border rounded"
+                              placeholder="Write a reply..."
+                            />
+                            <button
+                              onClick={() => handleReplySubmit(comment.id)}
+                              className="bg-[#509c83] text-white px-3 rounded"
+                            >
+                              Reply
+                            </button>
+                          </div>
+                        )}
+
+                    {replies[comment.id]?.length > 0 && (
+                          <div className="mt-3 pl-6 space-y-3">
+                            {replies[comment.id].map((reply) => (
+                              <div key={reply.id} className="flex gap-2">
+                                <img
+                                  src={avatar}
+                                  alt="Reply Avatar"
+                                  className="w-6 h-6 rounded-full"
+                                />
+                                <div className="flex-1">
+                                  <div className="bg-white p-2 rounded-lg">
+                                    <h4 className="text-sm font-medium">{reply.name}</h4>
+                                    <p className="text-xs">{reply.content}</p>
+                                    <div className="flex justify-between items-center mt-1 text-xs">
+                                      <span className="text-gray-500">
+                                        {formatDateTime(reply.date, reply.time)}
+                                      </span>
+                                      {/* Only show delete button for reply author */}
+                                      {isAuthor(reply.name) && (
+                                        <button
+                                          onClick={() => handleDeleteReply(reply.id)}
+                                          className="text-red-500"
+                                        >
+                                          Delete
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
             {/* Comment Input */}
-            <form
-              onSubmit={handleSubmitComment}
-              className="p-4 border-t mt-auto bg-white shadow-md"
-            >
-              <div className="flex flex-col sm:flex-row gap-2">
+            <form onSubmit={handleSubmitComment} className="p-3 border-t mt-auto">
+              <div className="flex gap-2">
                 <div className="flex-1">
                   <textarea
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder="Write a comment..."
-                    className="w-full min-h-[40px] p-2 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#77cdb1]"
+                    className="w-full min-h-[40px] p-1 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#77cdb1]"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="bg-[#77cdb1] text-white mt-2 sm:mt-0 sm:w-[100px] px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-[#77cdb1]"
+                  className="bg-[#77cdb1] text-white mb-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#77cdb1]"
                 >
                   Post
                 </button>
@@ -404,9 +599,10 @@ export default function SuperAdminDashboard() {
         </div>
       )}
 
+
       {/* Purok Filter Modal */}
       {showFilterModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-end justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-end justify-center p-4 z-50">
           <div className="bg-white rounded-t-2xl w-full max-w-md p-4">
             <h3 className="text-lg font-medium mb-4">Filter by Purok</h3>
             <div className="grid grid-cols-2 gap-2 mb-4">
@@ -421,7 +617,7 @@ export default function SuperAdminDashboard() {
               >
                 All
               </button>
-              {["6", "7", "8", "3"].map((purok) => (
+              {["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"].map((purok) => (
                 <button
                   key={purok}
                   onClick={() => {
@@ -448,7 +644,9 @@ export default function SuperAdminDashboard() {
         </div>
       )}
 
-      <SAMenu />
+      <div className="relative z-10">
+        <SAMenu />
+      </div>
     </div>
   );
 }

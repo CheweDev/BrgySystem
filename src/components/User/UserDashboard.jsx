@@ -4,6 +4,8 @@ import { GrAnnounce } from "react-icons/gr";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.css";
 import UserSocialPost from "./UserSocialPost";
+import { useState, useEffect } from "react";
+import supabase from "../../supabaseClient";
 
 const DynamicCalendarIcon = ({ date }) => {
   const parsedDate = new Date(date);
@@ -19,58 +21,40 @@ const DynamicCalendarIcon = ({ date }) => {
 };
 
 const UserDashboard = () => {
-  // Simulated announcements
-  const announcements = [
-    {
-      id: 1,
-      date: "2025-01-12",
-      text: "Meeting rescheduled to January 12th, 2025. Please mark your calendars.",
-    },
-    {
-      id: 2,
-      date: "2025-01-15",
-      text: "Reminder: Submit your reports before the deadline on January 15th, 2025.",
-    },
-    {
-      id: 3,
-      date: "2025-01-16",
-      text: "Meeting rescheduled to January 16th, 2025. Please mark your calendars.",
-    },
-  ];
+  const purokno = sessionStorage.getItem("purokno");
+  const [announcements, setAnnouncements] = useState([]);
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  const fetchAnnouncements = async () => {
+    const { data } = await supabase
+      .from("Announcement")
+      .select("*")
+      .eq("purokno", purokno);
+    
+    setAnnouncements(data || []);
+  };
 
   return (
     <div
       style={{
         background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
       }}
-      className="min-h-screen"
+      className="min-h-screen flex flex-col"
     >
-      <div className="p-3">
+      <div className="p-3 flex-grow">
         <p className="text-3xl font-bold text-white mb-2 mt-5">Dashboard</p>
-        <label className="input input-bordered flex items-center gap-2">
-          <input type="text" className="grow" placeholder="Search" />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            className="h-4 w-4 opacity-70"
-          >
-            <path
-              fillRule="evenodd"
-              d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </label>
         <p className="text-xl text-white mt-4 flex gap-2 mb-2">
           Announcement <GrAnnounce />
         </p>
 
-        <section className="mt-4 bg-gray-100 rounded-lg">
+        <section className="mt-4 rounded-lg">
+        {announcements.length > 0 ? (
           <Swiper
             spaceBetween={10}
             slidesPerView={1}
-            // navigation
             loop
             autoplay={{ delay: 1500 }}
             className="rounded-lg shadow-md"
@@ -82,17 +66,30 @@ const UserDashboard = () => {
               >
                 <div className="flex gap-2">
                   <DynamicCalendarIcon date={announcement.date} />
-                  <p className="text-sm mt-2">{announcement.text}</p>
+                  <p className="text-sm mt-2">{announcement.content}</p>
                 </div>
               </SwiperSlide>
             ))}
           </Swiper>
+            ) : (
+              <div className="p-4 text-center text-white">
+                No announcement available.
+              </div>
+            )}
         </section>
+
         <hr className="border-t border-white my-4" />
-        <UserSocialPost />
+
+        {/* Scrollable UserSocialPost */}
+        <div className="overflow-y-auto max-h-[60vh] px-2 pb-4">
+          <UserSocialPost />
+        </div>
       </div>
 
-      <Menu />
+      {/* Ensure Menu does not overlap buttons */}
+      <div className="relative z-10">
+        <Menu />
+      </div>
     </div>
   );
 };

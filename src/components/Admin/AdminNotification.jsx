@@ -1,38 +1,64 @@
 import Menu from "../../Menu";
+import { useState, useEffect } from "react";
+import supabase from "../../supabaseClient";
 
 const AdminNotification = () => {
-  const notifications = [
-    {
-      id: 1,
-      title: "Barangay Clearance",
-      message: "submitted 02/30/21",
-      isNew: true,
-    },
-    {
-      id: 2,
-      title: "Cleaning",
-      message: "date 02/30/21",
-      isNew: false,
-    },
-    {
-      id: 3,
-      title: "Announcement",
-      message: "date 02/30/21",
-      isNew: false,
-    },
-  ];
+  const name = sessionStorage.getItem("name");
+  const purokno = sessionStorage.getItem("purokno");
+  const [notifications, setNotifications] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
+  const fetchAllData = async () => {
+    const [docsResponse] = await Promise.all([
+      supabase.from("Requests").select("*").eq("name", name).neq("status", "Pending"),
+    ]);
+
+    const docs = docsResponse.data || [];
+
+    const formattedDocs = docs.map((item) => ({
+      id: item.id,
+      type: "request",
+      created_at: item.created_at,
+      content: `Your ${item.document_type} request has been ${item.status}`,
+      isNew: item.isNew || false,
+    }));
+
+
+    const allNotifications = [...formattedDocs].sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+
+    setNotifications(allNotifications);
+  };
+
+  const filteredNotifications = notifications.filter((item) =>
+    item.content.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
 
   return (
     <div
       style={{
         background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
       }}
-      className="min-h-screen"
+      className="min-h-screen flex flex-col"
     >
-      <div className="p-3">
+      <div className="p-3 flex-1 flex flex-col">
         <p className="text-3xl font-bold text-white mb-2 mt-5">Notification</p>
-        <label className="input input-bordered flex items-center gap-2 mb-3">
-          <input type="text" className="grow" placeholder="Search" />
+
+           {/* Search Input */}
+           <label className="input input-bordered flex items-center gap-2 mb-3">
+          <input
+            type="text"
+            className="grow"
+            placeholder="Search notifications..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 16 16"
@@ -47,26 +73,37 @@ const AdminNotification = () => {
           </svg>
         </label>
 
-        {/* Notifications List */}
-        <div className="bg-white/10 rounded-lg p-2 backdrop-blur-md">
-          {notifications.map((item) => (
-            <div
-              key={item.id}
-              className="p-4 border-b border-white/40 flex items-start"
-            >
-              {item.isNew && (
-                <span className="text-red-500 text-lg mr-2">🔴</span>
-              )}
+        {/* Scrollable Notifications List */}
+        <div className="bg-white/10 rounded-lg p-2 backdrop-blur-md flex-1 overflow-y-auto max-h-[80vh]">
+        {filteredNotifications.length > 0 ? (
+          filteredNotifications.map((item) => (
+            <div key={item.id} className="p-4 border-b border-white/40 flex items-start">
+              {item.isNew && <span className="text-red-500 text-lg mr-2">🔴</span>}
               <div>
-                <h3 className="text-white font-semibold">{item.title}</h3>
-                <p className="text-white/80 text-sm">{item.message}</p>
+                <h3 className="text-white font-semibold">
+                  {item.type === "announcement"
+                    ? "Announcement!"
+                    : item.type === "social"
+                    ? "Social Post"
+                    : "Request Update"}
+                </h3>
+                <p className="text-white">{item.content}</p>
+                <p className="text-white/80 text-sm">{new Date(item.created_at).toLocaleDateString()}</p>
               </div>
             </div>
-          ))}
+          ))
+        ) : (
+          <p className="text-center text-white py-4">
+            No notifications found.
+          </p>
+        )}
         </div>
       </div>
 
-      <Menu />
+      {/* Fixed Menu at Bottom */}
+      <div className="sticky bottom-0 w-full">
+        <Menu />
+      </div>
     </div>
   );
 };

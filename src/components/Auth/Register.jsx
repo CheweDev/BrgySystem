@@ -1,8 +1,59 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import supabase from "../../supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState('');
+  const [purok_no, setPurokNo] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('Admin');
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState({
+    message: "",
+    type: "",
+    show: false,
+  });
+
+  const navigate = useNavigate();
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+  
+    const { data, error } = await supabase
+      .from('Users')
+      .insert([
+        {
+       name,
+       purok_no,
+       email,
+       password,
+       role
+        },
+      ])
+      .select();
+
+    if (error) {
+      console.error('Error inserting data:', error);
+      setLoading(false);
+      setNotification({
+        message: "Please check details!",
+        type: "error",
+        show: true,
+      });
+    } else {
+      console.log('Data inserted successfully:', data);
+      setNotification({
+        message: "Register successful!",
+        type: "success",
+        show: true,
+      });
+    }
+  };
 
   return (
     <>
@@ -26,7 +77,9 @@ const Register = () => {
               >
                 <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM12.735 14c.618 0 1.093-.561.872-1.139a6.002 6.002 0 0 0-11.215 0c-.22.578.254 1.139.872 1.139h9.47Z" />
               </svg>
-              <input type="text" className="grow" placeholder="Name" />
+              <input type="text" className="grow" placeholder="Name" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}/>
             </label>
 
             <label className="input input-bordered flex items-center gap-2 mb-2 rounded-full">
@@ -43,7 +96,9 @@ const Register = () => {
                 />
                 <path d="M12 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
               </svg>
-              <input type="text" className="grow" placeholder="Purok #" />
+              <input type="text" className="grow" placeholder="Purok #"
+                value={purok_no}
+                onChange={(e) => setPurokNo(e.target.value)} />
             </label>
 
             <label className="input input-bordered flex items-center gap-2 mb-2 rounded-full">
@@ -60,6 +115,8 @@ const Register = () => {
                 type="text"
                 className="grow"
                 placeholder="Enter an email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </label>
 
@@ -81,6 +138,8 @@ const Register = () => {
                 placeholder="Enter a password"
                 className="grow"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </label>
 
@@ -105,7 +164,7 @@ const Register = () => {
               />
             </label>
 
-            <select className="select select-bordered w-full rounded-full mb-4">
+            <select className="select select-bordered w-full rounded-full mb-4" onChange={(e) => setRole(e.target.value)}>
               <option>Admin</option>
               <option>User</option>
             </select>
@@ -119,8 +178,38 @@ const Register = () => {
               Show Password
             </label>
 
-            <button className="w-full shadow-xl bg-green-300 font-extrabold py-3 sm:py-4 text-base sm:text-lg rounded-full mb-6 sm:mb-8 mt-3 tracking-wider transition">
-              Register
+            <button
+          onClick={handleRegister}
+              className="w-full shadow-xl bg-green-300 font-extrabold py-3 sm:py-4 text-base sm:text-lg rounded-full mb-6 sm:mb-8 mt-3 tracking-wider transition flex justify-center"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 mr-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 0116 0H4z"
+                    ></path>
+                  </svg>
+                  Loading...
+                </>
+              ) : (
+                "Register"
+              )}
             </button>
           </form>
           <div className="flex justify-center mb-5">
@@ -131,6 +220,32 @@ const Register = () => {
               </Link>
             </p>
           </div>
+
+          {notification.show && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-xl text-center w-80">
+            <h2
+              className={`text-lg font-bold ${
+                notification.type === "success"
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
+            >
+              {notification.type === "success" ? "Success" : "Error"}
+            </h2>
+            <p className="mt-2">{notification.message}</p>
+            <button
+                 onClick={() => {
+                  setNotification({ ...notification, show: false });
+                  navigate('/login');
+                }}
+              className="mt-4 bg-gray-300 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
         </div>
       </div>
     </>
