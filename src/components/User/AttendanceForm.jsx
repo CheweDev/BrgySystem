@@ -10,10 +10,11 @@ const AttendanceForm = () => {
     status: "Present",
     timeIn: "",
     timeOut: "",
-    what : "",
+    what: "",
   });
   const [hoursRendered, setHoursRendered] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [files, setFiles] = useState({ image: null });
 
   useEffect(() => {
     const storedName = sessionStorage.getItem("name");
@@ -45,10 +46,29 @@ const AttendanceForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    const purokno = sessionStorage.getItem("purokno")
     e.preventDefault();
+    const purokno = sessionStorage.getItem("purokno");
+    let proofImageUrl = null;
+
     try {
-      const { data, error } = await supabase.from("Attendance").insert([
+      if (files.image) {
+        const fileExt = files.image.name.split(".").pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("Images")
+          .upload(fileName, files.image);
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from("Images")
+          .getPublicUrl(fileName);
+
+        proofImageUrl = publicUrlData.publicUrl;
+      }
+
+
+      const { error } = await supabase.from("Attendance").insert([
         { 
           purokno,
           name: formData.name,
@@ -58,9 +78,12 @@ const AttendanceForm = () => {
           time_in: formData.timeIn,
           time_out: formData.timeOut,
           total: hoursRendered || 0,
+          proof: proofImageUrl,
         },
       ]);
+
       if (error) throw error;
+
       setIsSubmitted(true);
       setFormData({
         name: sessionStorage.getItem("name") || "", 
@@ -68,8 +91,10 @@ const AttendanceForm = () => {
         status: "Present",
         timeIn: "",
         timeOut: "",
+        what: "",
       });
       setHoursRendered(null);
+      setFiles({ image: null });
     } catch (error) {
       console.error("Error submitting attendance:", error.message);
     }
@@ -82,32 +107,36 @@ const AttendanceForm = () => {
       </p>
       <hr className="border-t border-white my-4" />
       <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              readOnly
-              className="w-full border rounded-lg p-2 bg-gray-200 text-gray-600 cursor-not-allowed"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Date</label>
-            <input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleInputChange}
-              required
-              className="w-full border rounded-lg p-2"
-            />
-          </div>
-          <div>
-              <label htmlFor="what" className="block text-sm font-medium mb-1">
-                What
-              </label>
+        <div className="max-h-[70vh] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Name</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                readOnly
+                className="w-full border rounded-lg p-2 bg-gray-200 text-gray-600 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Date */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Date</label>
+              <input
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleInputChange}
+                required
+                className="w-full border rounded-lg p-2"
+              />
+            </div>
+
+            {/* What */}
+            <div>
+              <label htmlFor="what" className="block text-sm font-medium mb-1">What</label>
               <input
                 type="text"
                 id="what"
@@ -119,50 +148,72 @@ const AttendanceForm = () => {
               />
             </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleInputChange}
-              className="w-full border rounded-lg p-2"
-            >
-              <option value="Present">Present</option>
-              <option value="Absent">Absent</option>
-              <option value="On Leave">On Leave</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Time In</label>
-            <input
-              type="time"
-              name="timeIn"
-              value={formData.timeIn}
-              onChange={handleInputChange}
-              disabled={formData.status !== "Present"}
-              className="w-full border rounded-lg p-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Time Out</label>
-            <input
-              type="time"
-              name="timeOut"
-              value={formData.timeOut}
-              onChange={handleInputChange}
-              disabled={formData.status !== "Present"}
-              className="w-full border rounded-lg p-2"
-            />
-          </div>
-          {hoursRendered !== null && formData.status === "Present" && (
-            <p className="text-sm font-medium text-gray-600">
-              Hours Rendered: {hoursRendered} hrs
-            </p>
-          )}
-          <button type="submit" className="w-full bg-[#77cdb1] text-white py-2 rounded-lg">
-            Submit Attendance
-          </button>
-        </form>
+            {/* Status */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Status</label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                className="w-full border rounded-lg p-2"
+              >
+                <option value="Present">Present</option>
+                <option value="Absent">Absent</option>
+                <option value="On Leave">On Leave</option>
+              </select>
+            </div>
+
+            {/* Time In */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Time In</label>
+              <input
+                type="time"
+                name="timeIn"
+                value={formData.timeIn}
+                onChange={handleInputChange}
+                disabled={formData.status !== "Present"}
+                className="w-full border rounded-lg p-2"
+              />
+            </div>
+
+            {/* Time Out */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Time Out</label>
+              <input
+                type="time"
+                name="timeOut"
+                value={formData.timeOut}
+                onChange={handleInputChange}
+                disabled={formData.status !== "Present"}
+                className="w-full border rounded-lg p-2"
+              />
+            </div>
+
+            {/* Proof of Attendance */}
+            <div>
+              <h2 className="text-md font-medium">Proof of Attendance:</h2>
+              <input 
+                type="file" 
+                accept="image/*"
+                onChange={(e) => setFiles({ ...files, image: e.target.files[0] })} 
+              />
+            </div>
+
+            {/* Hours Rendered */}
+            {hoursRendered !== null && formData.status === "Present" && (
+              <p className="text-sm font-medium text-gray-600">
+                Hours Rendered: {hoursRendered} hrs
+              </p>
+            )}
+
+            {/* Submit */}
+            <button type="submit" className="w-full bg-[#77cdb1] text-white py-2 rounded-lg">
+              Submit Attendance
+            </button>
+          </form>
+        </div>
+
+        {/* Success Modal */}
         {isSubmitted && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-2">
             <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
@@ -173,7 +224,10 @@ const AttendanceForm = () => {
                 </button>
               </div>
               <p className="text-gray-700">Attendance has been successfully submitted.</p>
-              <button onClick={() => setIsSubmitted(false)} className="mt-4 w-full bg-[#77cdb1] text-white py-2 rounded-lg">
+              <button
+                onClick={() => setIsSubmitted(false)}
+                className="mt-4 w-full bg-[#77cdb1] text-white py-2 rounded-lg"
+              >
                 Close
               </button>
             </div>

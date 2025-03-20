@@ -79,13 +79,14 @@ const CreatePostModal = ({ isOpen, onClose }) => {
         window.location.reload();
       }
     } else {
+      const today = new Date().toISOString().split('T')[0];
       const { data, error } = await supabase
         .from('Announcement')
         .insert([
           {
             content,
             purokno,
-            date,
+            date:today,
           },
         ])
         .select();
@@ -123,12 +124,6 @@ const CreatePostModal = ({ isOpen, onClose }) => {
 
         {postType === "announcement" && (
           <>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full p-2 border rounded mb-3"
-            />
             <textarea
               placeholder="Announcement description..."
               value={content}
