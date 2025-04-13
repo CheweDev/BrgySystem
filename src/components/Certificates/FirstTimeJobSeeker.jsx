@@ -1,9 +1,12 @@
 import { useState, useRef } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
+import { Filesystem, Directory } from '@capacitor/filesystem';
+
 
 const FirstTimeJobseekerCertificate = () => {
   const certificateRef = useRef();
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const today = new Date();
   const defaultYear = today.getFullYear().toString().substr(2);
@@ -23,26 +26,60 @@ const FirstTimeJobseekerCertificate = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDownloadPDF = (e) => {
+  const handleDownloadPDF = async (e) => {
     e.preventDefault();
-    const element = certificateRef.current;
-
-    html2canvas(element, {
-      scale: 2,
-      logging: false,
-      useCORS: true,
-    }).then((canvas) => {
+    setIsGenerating(true);
+    
+    try {
+      const element = certificateRef.current;
+      
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+      });
+      
       const imgData = canvas.toDataURL("image/jpeg", 0.98);
       const pdf = new jsPDF({
         unit: "in",
         format: "letter",
         orientation: "portrait",
       });
+      
       const imgWidth = 8.5;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
-      pdf.save("first_time_jobseeker_certificate.pdf");
-    });
+      
+
+      const isMobile = window.Capacitor && window.Capacitor.isNativePlatform();
+      
+      if (isMobile) {
+        // Get PDF as binary string
+        const pdfOutput = pdf.output();
+        // Convert binary string to base64
+        const pdfBase64 = btoa(pdfOutput);
+        const fileName = `first_time_jobseeker_${Date.now()}.pdf`;
+        
+        // For Capacitor v3+
+        await Filesystem.writeFile({
+          path: fileName,
+          data: pdfBase64,
+          directory: Directory.Documents,
+          // Remove encoding parameter if it's causing issues
+        });
+        
+        // Notify user
+        alert(`PDF saved to your documents as ${fileName}`);
+      } else {
+        // Browser environment - use normal save
+        pdf.save("first_time_jobseeker_certificate.pdf");
+      }
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF: ' + error.message);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -124,12 +161,17 @@ const FirstTimeJobseekerCertificate = () => {
           />
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 px-4 py-4 border-t">
+        <div className="fixed bottom-0 left-0 right-0 px-4 py-4 border-t bg-white">
           <button
             type="submit"
-            className="w-full bg-[#23ab80] text-white py-3 px-4 rounded-full"
+            disabled={isGenerating}
+            className={`w-full py-3 px-4 rounded-full text-white ${
+              isGenerating 
+                ? "bg-gray-400" 
+                : "bg-[#23ab80]"
+            }`}
           >
-            Download Certificate
+            {isGenerating ? "Generating..." : "Download Certificate"}
           </button>
         </div>
       </form>
@@ -221,8 +263,10 @@ const FirstTimeJobseekerCertificate = () => {
           </div>
 
           <div className="mt-16 flex justify-end">
-            <p className="font-bold">RONIELEN C. OLANDE</p>
-            <p>Punong Barangay</p>
+            <div className="text-center">
+              <p className="font-bold">RONIELEN C. OLANDE</p>
+              <p>Punong Barangay</p>
+            </div>
           </div>
         </div>
       </div>

@@ -230,7 +230,7 @@ const UserProfile = () => {
                       }
                     }}
                   >
-                    {doc.status}
+                     {doc.status === "Approved" ? "Download" : doc.status}
                   </button>
                 </div>
               );
