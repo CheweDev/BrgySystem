@@ -1,13 +1,13 @@
 import { useState, useRef } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
-import { Filesystem, Directory } from '@capacitor/filesystem';
-
+import { Filesystem, Directory } from "@capacitor/filesystem";
+import { useNavigate } from "react-router-dom";
 
 const FirstTimeJobseekerCertificate = () => {
   const certificateRef = useRef();
   const [isGenerating, setIsGenerating] = useState(false);
-
+  const navigate = useNavigate();
   const today = new Date();
   const defaultYear = today.getFullYear().toString().substr(2);
 
@@ -29,37 +29,36 @@ const FirstTimeJobseekerCertificate = () => {
   const handleDownloadPDF = async (e) => {
     e.preventDefault();
     setIsGenerating(true);
-    
+
     try {
       const element = certificateRef.current;
-      
+
       const canvas = await html2canvas(element, {
         scale: 2,
         logging: false,
         useCORS: true,
       });
-      
+
       const imgData = canvas.toDataURL("image/jpeg", 0.98);
       const pdf = new jsPDF({
         unit: "in",
         format: "letter",
         orientation: "portrait",
       });
-      
+
       const imgWidth = 8.5;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
-      
 
       const isMobile = window.Capacitor && window.Capacitor.isNativePlatform();
-      
+
       if (isMobile) {
         // Get PDF as binary string
         const pdfOutput = pdf.output();
         // Convert binary string to base64
         const pdfBase64 = btoa(pdfOutput);
         const fileName = `first_time_jobseeker_${Date.now()}.pdf`;
-        
+
         // For Capacitor v3+
         await Filesystem.writeFile({
           path: fileName,
@@ -67,16 +66,17 @@ const FirstTimeJobseekerCertificate = () => {
           directory: Directory.Documents,
           // Remove encoding parameter if it's causing issues
         });
-        
+
         // Notify user
         alert(`PDF saved to your documents as ${fileName}`);
+        navigate("/user-profile");
       } else {
         // Browser environment - use normal save
         pdf.save("first_time_jobseeker_certificate.pdf");
       }
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Error generating PDF: ' + error.message);
+      console.error("Error generating PDF:", error);
+      alert("Error generating PDF: " + error.message);
     } finally {
       setIsGenerating(false);
     }
@@ -92,7 +92,7 @@ const FirstTimeJobseekerCertificate = () => {
         *Please fill out all fields
       </p>
 
-      <form onSubmit={handleDownloadPDF} className="space-y-4">
+      <form onSubmit={handleDownloadPDF} className="space-y-5">
         <input
           type="text"
           name="fullName"
@@ -161,19 +161,15 @@ const FirstTimeJobseekerCertificate = () => {
           />
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 px-4 py-4 border-t bg-white">
-          <button
-            type="submit"
-            disabled={isGenerating}
-            className={`w-full py-3 px-4 rounded-full text-white ${
-              isGenerating 
-                ? "bg-gray-400" 
-                : "bg-[#23ab80]"
-            }`}
-          >
-            {isGenerating ? "Generating..." : "Download Certificate"}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={isGenerating}
+          className={`w-full py-3 px-4 rounded-full text-white ${
+            isGenerating ? "bg-gray-400" : "bg-[#23ab80]"
+          }`}
+        >
+          {isGenerating ? "Generating..." : "Download Certificate"}
+        </button>
       </form>
 
       {/* Hidden Certificate for PDF */}
@@ -186,7 +182,7 @@ const FirstTimeJobseekerCertificate = () => {
             <div className="flex items-center justify-between mb-2">
               <div className="w-24 h-24">
                 <img
-                  src="gcash.png"
+                  src="logo2.png"
                   alt="Left Logo"
                   className="w-full h-full object-contain"
                 />
@@ -205,7 +201,7 @@ const FirstTimeJobseekerCertificate = () => {
               </div>
               <div className="w-24 h-24">
                 <img
-                  src="gcash.png"
+                  src="logo1.png"
                   alt="Right Logo"
                   className="w-full h-full object-contain"
                 />

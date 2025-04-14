@@ -1,10 +1,16 @@
 import React, { useRef, useState } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
+import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Capacitor } from "@capacitor/core";
+import { useNavigate } from "react-router-dom";
 
 const BrgyClearanceForm = () => {
   const certificateRef = useRef();
   const today = new Date();
+  const navigate = useNavigate();
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const [formData, setFormData] = useState({
     fullName: "",
     gender: "",
@@ -20,25 +26,66 @@ const BrgyClearanceForm = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDownloadPDF = (e) => {
+  const preloadImages = async (element) => {
+    const imgs = element.querySelectorAll("img");
+    await Promise.all(
+      Array.from(imgs).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          img.onload = img.onerror = resolve;
+        });
+      })
+    );
+  };
+
+  const handleDownloadPDF = async (e) => {
     e.preventDefault();
+    setIsGenerating(true);
     const element = certificateRef.current;
-    html2canvas(element, {
-      scale: 2,
-      logging: false,
-      useCORS: true,
-    }).then((canvas) => {
+
+    try {
+      await preloadImages(element);
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+      });
+
       const imgData = canvas.toDataURL("image/jpeg", 0.98);
       const pdf = new jsPDF({
         unit: "in",
         format: "letter",
         orientation: "portrait",
       });
+
       const imgWidth = 8.5;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
       pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
-      pdf.save("brgy_clearance_certificate.pdf");
-    });
+
+      const isMobile = Capacitor.isNativePlatform();
+
+      if (isMobile) {
+        const pdfBase64 = pdf.output("datauristring").split(",")[1];
+        const fileName = `brgy_clearance_${Date.now()}.pdf`;
+
+        await Filesystem.writeFile({
+          path: fileName,
+          data: pdfBase64,
+          directory: Directory.Documents,
+        });
+
+        alert(`PDF saved to your documents as ${fileName}`);
+        navigate("/user-profile");
+      } else {
+        pdf.save("brgy_clearance_certificate.pdf");
+      }
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Error generating PDF: " + error.message);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -48,7 +95,7 @@ const BrgyClearanceForm = () => {
       </h1>
       <div className="divider"></div>
       <p className="italic text-white text-sm mb-5">*Please input all fields</p>
-      <form onSubmit={handleDownloadPDF} className="space-y-4">
+      <form onSubmit={handleDownloadPDF} className="space-y-5">
         <input
           type="text"
           name="fullName"
@@ -90,14 +137,16 @@ const BrgyClearanceForm = () => {
           className="w-full p-2 border border-gray-300 rounded"
           required
         />
-        <div className="fixed bottom-0 left-0 right-0 px-4 py-4 border-t">
-          <button
-            onClick={handleDownloadPDF}
-            className="w-full bg-[#23ab80] text-white py-3 px-4 rounded-full"
-          >
-            Download Certificate
-          </button>
-        </div>
+
+        <button
+          type="submit"
+          disabled={isGenerating}
+          className={`w-full py-3 px-4 rounded-full text-white ${
+            isGenerating ? "bg-gray-400" : "bg-[#23ab80]"
+          }`}
+        >
+          {isGenerating ? "Generating..." : "Download Certificate"}
+        </button>
       </form>
 
       {/* Hidden Certificate Template */}
@@ -110,7 +159,7 @@ const BrgyClearanceForm = () => {
             <div className="flex items-center justify-between mb-2">
               <div className="w-24 h-24">
                 <img
-                  src="gcash.png"
+                  src="logo2.png"
                   alt="Left Logo"
                   className="w-full h-full object-contain"
                 />
@@ -129,7 +178,7 @@ const BrgyClearanceForm = () => {
               </div>
               <div className="w-24 h-24">
                 <img
-                  src="gcash.png"
+                  src="logo1.png"
                   alt="Right Logo"
                   className="w-full h-full object-contain"
                 />

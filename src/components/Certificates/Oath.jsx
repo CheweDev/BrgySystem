@@ -1,9 +1,12 @@
 import React, { useRef, useState } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
+import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+import { useNavigate } from "react-router-dom";
 
 const Oath = () => {
   const certificateRef = useRef();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: "",
     age: "",
@@ -21,25 +24,55 @@ const Oath = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDownloadPDF = (e) => {
+  const handleDownloadPDF = async (e) => {
     e.preventDefault();
     const element = certificateRef.current;
-    html2canvas(element, {
+
+    // Generate canvas from the element
+    const canvas = await html2canvas(element, {
       scale: 2,
       logging: false,
       useCORS: true,
-    }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/jpeg", 0.98);
-      const pdf = new jsPDF({
-        unit: "in",
-        format: "letter",
-        orientation: "portrait",
-      });
-      const imgWidth = 8.5;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
-      pdf.save("Oath_of_Undertaking_certificate.pdf");
     });
+
+    const imgData = canvas.toDataURL("image/jpeg", 0.98);
+
+    // Create the PDF
+    const pdf = new jsPDF({
+      unit: "in",
+      format: "letter",
+      orientation: "portrait",
+    });
+
+    const imgWidth = 8.5;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
+
+    // Convert to base64 data
+    const pdfOutput = pdf.output("datauristring");
+    const base64Data = pdfOutput.split(",")[1];
+
+    const fileName = "Oath_of_Undertaking_certificate.pdf";
+
+    // Check if Capacitor is available (for mobile)
+    if (window.Capacitor) {
+      try {
+        await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8,
+        });
+        alert("PDF saved successfully to device.");
+        navigate("/user-profile");
+      } catch (err) {
+        console.error("Failed to save PDF on device:", err);
+        alert("Failed to save PDF. Please try again.");
+      }
+    } else {
+      // For web, just download the file as before
+      pdf.save(fileName);
+    }
   };
 
   return (

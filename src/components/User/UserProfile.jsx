@@ -221,7 +221,7 @@ const UserProfile = () => {
                       doc.status === "Pending"
                         ? "bg-warning"
                         : doc.status === "Approved"
-                        ? "bg-[#23ab80]"
+                        ? "bg-info"
                         : "bg-error"
                     }`}
                     onClick={() => {
@@ -230,7 +230,7 @@ const UserProfile = () => {
                       }
                     }}
                   >
-                     {doc.status === "Approved" ? "Download" : doc.status}
+                    {doc.status === "Approved" ? "Download" : doc.status}
                   </button>
                 </div>
               );

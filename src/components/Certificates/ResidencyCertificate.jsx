@@ -1,10 +1,13 @@
 import React, { useRef, useState } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
+import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+import { useNavigate } from "react-router-dom";
 
 const ResidencyCertificate = () => {
   const certificateRef = useRef();
   const today = new Date();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     completeName: "",
     gender: "",
@@ -23,25 +26,48 @@ const ResidencyCertificate = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDownloadPDF = (e) => {
+  const handleDownloadPDF = async (e) => {
     e.preventDefault();
     const element = certificateRef.current;
-    html2canvas(element, {
+
+    const canvas = await html2canvas(element, {
       scale: 2,
       logging: false,
       useCORS: true,
-    }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/jpeg", 0.98);
-      const pdf = new jsPDF({
-        unit: "in",
-        format: "letter",
-        orientation: "portrait",
-      });
-      const imgWidth = 8.5;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
-      pdf.save("residency_certificate.pdf");
     });
+
+    const imgData = canvas.toDataURL("image/jpeg", 0.98);
+    const pdf = new jsPDF({
+      unit: "in",
+      format: "letter",
+      orientation: "portrait",
+    });
+
+    const imgWidth = 8.5;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
+
+    const pdfOutput = pdf.output("datauristring");
+    const base64Data = pdfOutput.split(",")[1];
+    const fileName = "residency_certificate.pdf";
+
+    if (window.Capacitor) {
+      try {
+        await Filesystem.writeFile({
+          path: fileName,
+          data: base64Data,
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8,
+        });
+        alert("PDF saved successfully to device.");
+        navigate("/user-profile");
+      } catch (err) {
+        console.error("Failed to save PDF on device:", err);
+        alert("Failed to save PDF. Please try again.");
+      }
+    } else {
+      pdf.save(fileName);
+    }
   };
 
   return (
@@ -54,7 +80,7 @@ const ResidencyCertificate = () => {
         *Please fill out all fields
       </p>
 
-      <form onSubmit={handleDownloadPDF} className="space-y-4 pb-28">
+      <form onSubmit={handleDownloadPDF} className="space-y-5 pb-28">
         {[
           { name: "completeName", placeholder: "Complete Name" },
           { name: "gender", placeholder: "Gender" },
@@ -75,7 +101,6 @@ const ResidencyCertificate = () => {
             required
           />
         ))}
-
         <div className="flex gap-2">
           <input
             type="text"
@@ -105,15 +130,12 @@ const ResidencyCertificate = () => {
             required
           />
         </div>
-
-        <div className="fixed bottom-0 left-0 right-0 px-4 py-4 border-t">
-          <button
-            type="submit"
-            className="w-full bg-[#23ab80] text-white py-3 px-4 rounded-full"
-          >
-            Download Certificate
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="w-full bg-[#23ab80] text-white py-3 px-4 rounded-full"
+        >
+          Download Certificate
+        </button>
       </form>
 
       {/* Hidden certificate layout */}
@@ -126,7 +148,7 @@ const ResidencyCertificate = () => {
             <div className="flex items-center justify-between mb-2">
               <div className="w-24 h-24">
                 <img
-                  src="gcash.png"
+                  src="logo2.png"
                   alt="Left Logo"
                   className="w-full h-full object-contain"
                 />
@@ -145,7 +167,7 @@ const ResidencyCertificate = () => {
               </div>
               <div className="w-24 h-24">
                 <img
-                  src="gcash.png"
+                  src="logo1.png"
                   alt="Right Logo"
                   className="w-full h-full object-contain"
                 />

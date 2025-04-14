@@ -1,10 +1,13 @@
 import { useState, useRef } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
+import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+import { useNavigate } from "react-router-dom";
 
 const DeathCertificate = () => {
   const certificateRef = useRef();
   const today = new Date();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     age: "",
@@ -27,25 +30,43 @@ const DeathCertificate = () => {
     }));
   };
 
-  const handleDownloadPDF = (e) => {
+  const handleDownloadPDF = async (e) => {
     e.preventDefault();
     const element = certificateRef.current;
-    html2canvas(element, {
+
+    const canvas = await html2canvas(element, {
       scale: 2,
       logging: false,
       useCORS: true,
-    }).then((canvas) => {
-      const imgData = canvas.toDataURL("image/jpeg", 0.98);
-      const pdf = new jsPDF({
-        unit: "in",
-        format: "letter",
-        orientation: "portrait",
-      });
-      const imgWidth = 8.5;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
-      pdf.save("death_certificate.pdf");
     });
+
+    const imgData = canvas.toDataURL("image/jpeg", 0.98);
+    const pdf = new jsPDF({
+      unit: "in",
+      format: "letter",
+      orientation: "portrait",
+    });
+    const imgWidth = 8.5;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
+
+    // Check if Capacitor is available and running in native mobile
+    if (window.Capacitor?.isNativePlatform()) {
+      const pdfOutput = pdf.output("datauristring");
+      const base64Data = pdfOutput.split(",")[1];
+
+      await Filesystem.writeFile({
+        path: `death_certificate_${Date.now()}.pdf`,
+        data: base64Data,
+        directory: Directory.Documents,
+        encoding: Encoding.UTF8,
+      });
+
+      alert("PDF saved to your device's Documents folder.");
+      navigate("/user-profile");
+    } else {
+      pdf.save("death_certificate.pdf");
+    }
   };
 
   return (
@@ -55,7 +76,7 @@ const DeathCertificate = () => {
       </h1>
       <div className="divider"></div>
       <p className="italic text-white text-sm mb-5">*Please input all fields</p>
-      <form onSubmit={handleDownloadPDF} className="space-y-4">
+      <form onSubmit={handleDownloadPDF} className="space-y-5">
         <input
           type="text"
           name="name"
@@ -97,7 +118,7 @@ const DeathCertificate = () => {
         />
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-white mb-1">
             Death Date
           </label>
           <input
@@ -111,7 +132,7 @@ const DeathCertificate = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-white mb-1">
             Death Time
           </label>
           <input
@@ -144,14 +165,12 @@ const DeathCertificate = () => {
           required
         />
 
-        <div className="fixed bottom-0 left-0 w-full border-t p-4">
-          <button
-            type="submit"
-            className="w-full bg-[#23ab80] text-white py-3 px-4 rounded-full"
-          >
-            Download Certificate
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="w-full bg-[#23ab80] text-white py-3 px-4 rounded-full"
+        >
+          Download Certificate
+        </button>
       </form>
 
       {/* Hidden Certificate Template */}
@@ -164,7 +183,7 @@ const DeathCertificate = () => {
             <div className="flex items-center justify-between mb-2">
               <div className="w-24 h-24">
                 <img
-                  src="gcash.png"
+                  src="logo2.png"
                   alt="Left Logo"
                   className="w-full h-full object-contain"
                 />
@@ -183,7 +202,7 @@ const DeathCertificate = () => {
               </div>
               <div className="w-24 h-24">
                 <img
-                  src="gcash.png"
+                  src="logo1.png"
                   alt="Right Logo"
                   className="w-full h-full object-contain"
                 />
