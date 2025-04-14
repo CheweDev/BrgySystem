@@ -15,6 +15,15 @@ import SuperAdminDashboard from "./components/SuperAdmin/SAdminDashboard.jsx";
 import SAProfile from "./components/SuperAdmin/SAProfile.jsx";
 import SANotif from "./components/SuperAdmin/SANotif.jsx";
 import SAProcess from "./components/SuperAdmin/SAProcess.jsx";
+import BrgyClearance from "./components/Certificates/BrgyClearance.jsx";
+import LowIncomeCertificateForm from "./components/Certificates/LowIncome.jsx";
+import DeathCertificate from "./components/Certificates/DeathCertificate.jsx";
+import IndigentCertificate from "./components/Certificates/IndigentCertificate.jsx";
+import OnessCertificate from "./components/Certificates/OnessCertificate.jsx";
+import SeniorCitizen from "./components/Certificates/SeniorCitizen.jsx";
+import ResidencyCertificate from "./components/Certificates/ResidencyCertificate.jsx";
+import Oath from "./components/Certificates/Oath.jsx";
+import FirstTimeJobseekerCertificate from "./components/Certificates/FirstTimeJobSeeker.jsx";
 
 const Routing = () => {
   return (
@@ -36,6 +45,15 @@ const Routing = () => {
         <Route path="/prof" element={<SAProfile />} />
         <Route path="/notif" element={<SANotif />} />
         <Route path="/process" element={<SAProcess />} />
+        <Route path="/brgy" element={<BrgyClearance />} />
+        <Route path="/low" element={<LowIncomeCertificateForm />} />
+        <Route path="/death" element={<DeathCertificate />} />
+        <Route path="/indigent" element={<IndigentCertificate />} />
+        <Route path="/oness" element={<OnessCertificate />} />
+        <Route path="/senior" element={<SeniorCitizen />} />
+        <Route path="/residency" element={<ResidencyCertificate />} />
+        <Route path="/Oath" element={<Oath />} />
+        <Route path="/jobseeker" element={<FirstTimeJobseekerCertificate />} />
       </Routes>
     </BrowserRouter>
   );

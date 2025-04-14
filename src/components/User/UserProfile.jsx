@@ -12,15 +12,13 @@ const UserProfile = () => {
   const name = sessionStorage.getItem("name");
   const purokno = sessionStorage.getItem("purokno");
   const navigate = useNavigate();
-  const [hours, setHours] = useState('');
-  const [minutes, setMinutes] = useState('');
+  const [hours, setHours] = useState("");
+  const [minutes, setMinutes] = useState("");
 
   const logout = () => {
-
     sessionStorage.clear();
     navigate("/login");
-
-  }
+  };
 
   useEffect(() => {
     fetchHours();
@@ -32,7 +30,7 @@ const UserProfile = () => {
       .from("Requests")
       .select("*")
       .eq("name", name);
-    
+
     setDocs(data || []);
   };
 
@@ -41,22 +39,22 @@ const UserProfile = () => {
       .from("Attendance")
       .select("total")
       .eq("name", name);
-  
+
     if (error) {
       console.error("Error fetching hours:", error);
       return;
     }
-  
+
     // Parse hours and minutes separately
     let totalMinutes = data.reduce((acc, entry) => {
-      const [hours, minutes] = entry.total.split('.');
-      return acc + (parseInt(hours) * 60) + parseInt(minutes);
+      const [hours, minutes] = entry.total.split(".");
+      return acc + parseInt(hours) * 60 + parseInt(minutes);
     }, 0);
-  
+
     // Convert total minutes to hours and minutes
     let finalHours = Math.floor(totalMinutes / 60);
     let finalMinutes = Math.round(totalMinutes % 60);
-  
+
     // If minutes reach 60, adjust hours
     if (finalMinutes === 60) {
       finalHours += 1;
@@ -64,8 +62,8 @@ const UserProfile = () => {
     }
 
     setHours(finalHours);
-    setMinutes(finalMinutes)
-  
+    setMinutes(finalMinutes);
+
     console.log(`Total Hours Rendered: ${finalHours}.${finalMinutes}m`);
   };
 
@@ -77,6 +75,41 @@ const UserProfile = () => {
         setProfileImage(reader.result);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRedirect = (type) => {
+    switch (type.toLowerCase()) {
+      case "brgy clearance":
+        navigate("/brgy");
+        break;
+      case "certificate of low income":
+        navigate("/low");
+        break;
+      case "death certificate":
+        navigate("/death");
+        break;
+      case "certificate of indigency":
+        navigate("/indigent");
+        break;
+      case "certificate of oneness":
+        navigate("/oness");
+        break;
+      case "senior citizen certificate":
+        navigate("/senior");
+        break;
+      case "certificate of residency":
+        navigate("/residency");
+        break;
+      case "oath of undertaking":
+        navigate("/Oath");
+        break;
+      case "first time job seeker certificate":
+        navigate("/jobseeker");
+        break;
+      default:
+        console.warn("No matching route for document type:", type);
+        break;
     }
   };
 
@@ -130,8 +163,10 @@ const UserProfile = () => {
 
           <hr className="border-t my-4" />
 
-          <button className="w-full rounded-full bg-error text-white font-bold py-2"
-          onClick={logout}>
+          <button
+            className="w-full rounded-full bg-error text-white font-bold py-2"
+            onClick={logout}
+          >
             Logout
           </button>
         </div>
@@ -141,58 +176,72 @@ const UserProfile = () => {
       <div className="px-2 mt-4">
         <div className="bg-[#25596E] rounded-2xl p-4 text-white flex items-center gap-4">
           <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center">
-            <span className="text-[#2A7B62] text-1xl font-bold">{hours}.{minutes}</span>
+            <span className="text-[#2A7B62] text-1xl font-bold">
+              {hours}.{minutes}
+            </span>
           </div>
           <div className="text-lg">volunteer hours +</div>
         </div>
       </div>
 
-    {/* Waitlisted Requests */}
-    <div
-      className="rounded-tl-[40px] rounded-tr-[40px] p-4 mt-5"
-      style={{
-        background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
-      }}
-    >
-      <h3 className="text-white mb-4 font-bold mt-2">Waitlisted Requests:</h3>
-      <div className="space-y-3 mb-20">
-        {docs.length > 0 ? (
-          docs.map((doc, index) => {
-            const submissionDate = new Date(doc.created_at); // Assuming there's a 'submitted_at' field
-            const day = submissionDate.getDate();
-            const month = submissionDate.toLocaleString("default", { month: "short" });
+      {/* Waitlisted Requests */}
+      <div
+        className="rounded-tl-[40px] rounded-tr-[40px] p-4 mt-5"
+        style={{
+          background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
+        }}
+      >
+        <h3 className="text-white mb-4 font-bold mt-2">Waitlisted Requests:</h3>
+        <div className="space-y-3 mb-20">
+          {docs.length > 0 ? (
+            docs.map((doc, index) => {
+              const submissionDate = new Date(doc.created_at); // Assuming there's a 'submitted_at' field
+              const day = submissionDate.getDate();
+              const month = submissionDate.toLocaleString("default", {
+                month: "short",
+              });
 
-            return (
-              <div key={index} className="bg-white rounded-2xl p-4 flex items-center">
-                <div className="text-center mr-4">
-                  <div className="text-2xl font-bold">{day}</div>
-                  <div className="text-sm text-gray-500">{month}</div>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-medium">{doc.document_type}</h4>
-                  <p className="text-sm text-gray-500">
-                    submitted {submissionDate.toLocaleDateString()}
-                  </p>
-                </div>
-                <button
-                  className={`text-white text-sm px-3 py-1 rounded-full ${
-                    doc.status === "Pending"
-                      ? "bg-warning"
-                      : doc.status === "Approved"
-                      ? "bg-[#23ab80]"
-                      : "bg-error"
-                  }`}
+              return (
+                <div
+                  key={index}
+                  className="bg-white rounded-2xl p-4 flex items-center"
                 >
-                  {doc.status}
-                </button>
-              </div>
-            );
-          })
-        ) : (
-          <p className="text-white text-center">No waitlisted requests found.</p>
-        )}
+                  <div className="text-center mr-4">
+                    <div className="text-2xl font-bold">{day}</div>
+                    <div className="text-sm text-gray-500">{month}</div>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-medium">{doc.document_type}</h4>
+                    <p className="text-sm text-gray-500">
+                      submitted {submissionDate.toLocaleDateString()}
+                    </p>
+                  </div>
+                  <button
+                    className={`text-white text-sm px-3 py-1 rounded-full ${
+                      doc.status === "Pending"
+                        ? "bg-warning"
+                        : doc.status === "Approved"
+                        ? "bg-[#23ab80]"
+                        : "bg-error"
+                    }`}
+                    onClick={() => {
+                      if (doc.status === "Approved") {
+                        handleRedirect(doc.document_type);
+                      }
+                    }}
+                  >
+                    {doc.status}
+                  </button>
+                </div>
+              );
+            })
+          ) : (
+            <p className="text-white text-center">
+              No waitlisted requests found.
+            </p>
+          )}
+        </div>
       </div>
-    </div>
 
       <Menu />
     </div>

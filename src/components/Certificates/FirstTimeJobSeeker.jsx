@@ -1,0 +1,233 @@
+import { useState, useRef } from "react";
+import html2canvas from "html2canvas-pro";
+import jsPDF from "jspdf";
+
+const FirstTimeJobseekerCertificate = () => {
+  const certificateRef = useRef();
+
+  const today = new Date();
+  const defaultYear = today.getFullYear().toString().substr(2);
+
+  const [formData, setFormData] = useState({
+    fullName: "",
+    purok: "",
+    firstName: "",
+    requestorName: "",
+    day: today.getDate().toString(),
+    month: today.toLocaleString("default", { month: "long" }),
+    year: defaultYear,
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleDownloadPDF = (e) => {
+    e.preventDefault();
+    const element = certificateRef.current;
+
+    html2canvas(element, {
+      scale: 2,
+      logging: false,
+      useCORS: true,
+    }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/jpeg", 0.98);
+      const pdf = new jsPDF({
+        unit: "in",
+        format: "letter",
+        orientation: "portrait",
+      });
+      const imgWidth = 8.5;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
+      pdf.save("first_time_jobseeker_certificate.pdf");
+    });
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto p-4 min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E]">
+      <h1 className="text-2xl font-bold text-center mt-5 text-white">
+        First Time Jobseeker Certificate
+      </h1>
+      <div className="divider"></div>
+      <p className="italic text-sm text-white mb-5">
+        *Please fill out all fields
+      </p>
+
+      <form onSubmit={handleDownloadPDF} className="space-y-4">
+        <input
+          type="text"
+          name="fullName"
+          value={formData.fullName}
+          placeholder="Full Name"
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+          required
+        />
+        <input
+          type="text"
+          name="purok"
+          value={formData.purok}
+          placeholder="Purok"
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+          required
+        />
+        <input
+          type="text"
+          name="firstName"
+          value={formData.firstName}
+          placeholder="First Name (repeated in paragraph)"
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+          required
+        />
+        <input
+          type="text"
+          name="requestorName"
+          value={formData.requestorName}
+          placeholder="Requestor's Name"
+          onChange={handleChange}
+          className="w-full p-2 border border-gray-300 rounded"
+          required
+        />
+
+        {/* Date Inputs */}
+        <div className="flex space-x-2">
+          <input
+            type="text"
+            name="day"
+            value={formData.day}
+            onChange={handleChange}
+            placeholder="Day"
+            className="w-1/3 p-2 border border-gray-300 rounded"
+            required
+          />
+          <input
+            type="text"
+            name="month"
+            value={formData.month}
+            onChange={handleChange}
+            placeholder="Month"
+            className="w-1/3 p-2 border border-gray-300 rounded"
+            required
+          />
+          <input
+            type="text"
+            name="year"
+            value={formData.year}
+            onChange={handleChange}
+            placeholder="Year"
+            className="w-1/3 p-2 border border-gray-300 rounded"
+            required
+          />
+        </div>
+
+        <div className="fixed bottom-0 left-0 right-0 px-4 py-4 border-t">
+          <button
+            type="submit"
+            className="w-full bg-[#23ab80] text-white py-3 px-4 rounded-full"
+          >
+            Download Certificate
+          </button>
+        </div>
+      </form>
+
+      {/* Hidden Certificate for PDF */}
+      <div
+        ref={certificateRef}
+        className="absolute left-[-9999px] top-0 font-serif"
+      >
+        <div className="w-full max-w-[8.5in] mx-auto bg-white p-8 border border-gray-300">
+          <div className="text-center mb-6 relative">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-24 h-24">
+                <img
+                  src="gcash.png"
+                  alt="Left Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div className="flex-1 text-center px-4">
+                <p className="text-sm font-semibold">
+                  Republic of the Philippines
+                </p>
+                <p className="text-lg font-bold">
+                  OFFICE OF THE PUNONG BARANGAY
+                </p>
+                <p className="text-sm font-semibold">Pagatpatan, Butuan City</p>
+                <h1 className="text-2xl font-bold mt-2 underline">
+                  BARANGAY CLEARANCE
+                </h1>
+              </div>
+              <div className="w-24 h-24">
+                <img
+                  src="gcash.png"
+                  alt="Right Logo"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+          </div>
+
+          <p className="text-center font-bold mb-6">TO WHOM IT MAY CONCERN:</p>
+
+          <div className="text-justify space-y-5 text-base">
+            <p>
+              This is to certify that{" "}
+              <span className="font-medium border-b border-black px-1">
+                {formData.fullName}
+              </span>
+              , of legal age, single and bonafide resident of Purok{" "}
+              <span className="font-medium border-b border-black px-1">
+                {formData.purok}
+              </span>
+              , Barangay Pagatpatan, Butuan City.
+            </p>
+
+            <p>
+              This certifies further that{" "}
+              <span className="font-medium border-b border-black px-1">
+                {formData.firstName}
+              </span>{" "}
+              is a First Time Jobseeker, as per Republic Act 11261 – First Time
+              Jobseeker Act of 2019.
+            </p>
+
+            <p>
+              This certification is being issued upon request of{" "}
+              <span className="font-medium border-b border-black px-1">
+                {formData.requestorName}
+              </span>{" "}
+              for whatever legal purpose it may serve her best.
+            </p>
+
+            <p>
+              Issued this{" "}
+              <span className="font-medium border-b border-black px-1">
+                {formData.day}
+              </span>{" "}
+              day of{" "}
+              <span className="font-medium border-b border-black px-1">
+                {formData.month}
+              </span>
+              , 202
+              <span className="font-medium border-b border-black px-1">
+                {formData.year}
+              </span>
+              , Barangay Pagatpatan, Butuan City, Philippines.
+            </p>
+          </div>
+
+          <div className="mt-16 flex justify-end">
+            <p className="font-bold">RONIELEN C. OLANDE</p>
+            <p>Punong Barangay</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FirstTimeJobseekerCertificate;
