@@ -5,7 +5,7 @@ import supabase from "../../supabaseClient";
 
 const AttendanceForm = () => {
   const [formData, setFormData] = useState({
-    name: "", 
+    name: "",
     date: "",
     status: "Present",
     timeIn: "",
@@ -67,9 +67,8 @@ const AttendanceForm = () => {
         proofImageUrl = publicUrlData.publicUrl;
       }
 
-
       const { error } = await supabase.from("Attendance").insert([
-        { 
+        {
           purokno,
           name: formData.name,
           date: formData.date,
@@ -86,7 +85,7 @@ const AttendanceForm = () => {
 
       setIsSubmitted(true);
       setFormData({
-        name: sessionStorage.getItem("name") || "", 
+        name: sessionStorage.getItem("name") || "",
         date: "",
         status: "Present",
         timeIn: "",
@@ -101,13 +100,14 @@ const AttendanceForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E] p-3">
-      <p className="text-3xl font-bold text-white mb-2 mt-5 flex justify-center">
+    <div className="min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E] px-4 py-6 sm:px-6 md:px-8">
+      <p className="text-2xl sm:text-3xl font-bold text-white mb-4 text-center">
         Attendance Form
       </p>
-      <hr className="border-t border-white my-4" />
-      <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
-        <div className="max-h-[70vh] overflow-y-auto">
+      <hr className="border-t border-white mb-6" />
+
+      <div className="w-full max-w-lg mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-md">
+        <div className="max-h-[72vh] overflow-y-auto">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name */}
             <div>
@@ -136,7 +136,9 @@ const AttendanceForm = () => {
 
             {/* What */}
             <div>
-              <label htmlFor="what" className="block text-sm font-medium mb-1">What</label>
+              <label htmlFor="what" className="block text-sm font-medium mb-1">
+                What
+              </label>
               <input
                 type="text"
                 id="what"
@@ -191,11 +193,14 @@ const AttendanceForm = () => {
 
             {/* Proof of Attendance */}
             <div>
-              <h2 className="text-md font-medium">Proof of Attendance:</h2>
-              <input 
-                type="file" 
+              <h2 className="text-sm font-medium mb-1">Proof of Attendance:</h2>
+              <input
+                type="file"
                 accept="image/*"
-                onChange={(e) => setFiles({ ...files, image: e.target.files[0] })} 
+                onChange={(e) =>
+                  setFiles({ ...files, image: e.target.files[0] })
+                }
+                className="w-full"
               />
             </div>
 
@@ -206,9 +211,14 @@ const AttendanceForm = () => {
               </p>
             )}
 
+            <div className="divider" />
+
             {/* Submit */}
-            <button type="submit" className="w-full bg-[#77cdb1] text-white py-2 rounded-lg">
-              Submit Attendance
+            <button
+              type="submit"
+              className="w-full bg-teal-700 text-white py-2 rounded-full"
+            >
+              Submit
             </button>
           </form>
         </div>
@@ -223,7 +233,9 @@ const AttendanceForm = () => {
                   <IoClose className="h-6 w-6" />
                 </button>
               </div>
-              <p className="text-gray-700">Attendance has been successfully submitted.</p>
+              <p className="text-gray-700">
+                Attendance has been successfully submitted.
+              </p>
               <button
                 onClick={() => setIsSubmitted(false)}
                 className="mt-4 w-full bg-[#77cdb1] text-white py-2 rounded-lg"
@@ -234,6 +246,7 @@ const AttendanceForm = () => {
           </div>
         )}
       </div>
+
       <Menu />
     </div>
   );

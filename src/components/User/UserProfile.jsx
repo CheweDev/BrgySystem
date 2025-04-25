@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Menu from "../../Menu";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../supabaseClient";
+import { IoMdLogOut } from "react-icons/io";
 
 const UserProfile = () => {
   const [profileImage, setProfileImage] = useState(
@@ -80,7 +81,7 @@ const UserProfile = () => {
 
   const handleRedirect = (type) => {
     switch (type.toLowerCase()) {
-      case "brgy clearance":
+      case "baranggay clearance":
         navigate("/brgy");
         break;
       case "certificate of low income":
@@ -152,11 +153,11 @@ const UserProfile = () => {
           </div>
 
           <div className="mt-4 border-t pt-4">
-            <div className="text-gray-600">Resident Purok</div>
+            <div className="text-gray-600">Resident Purok:</div>
           </div>
 
           <div className="mt-4">
-            <div className="bg-[#E8F5F1] text-center py-2 rounded-full">
+            <div className="bg-[#E8F5F1] text-center py-2 rounded-lg">
               Purok {purokno}
             </div>
           </div>
@@ -164,9 +165,10 @@ const UserProfile = () => {
           <hr className="border-t my-4" />
 
           <button
-            className="w-full rounded-full bg-error text-white font-bold py-2"
+            className="w-full flex justify-center gap-1 rounded-full bg-error text-white font-bold py-2"
             onClick={logout}
           >
+            <IoMdLogOut className="mt-1" />
             Logout
           </button>
         </div>

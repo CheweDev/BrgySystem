@@ -32,7 +32,6 @@ const AdminDashboard = () => {
   const [announcementToDelete, setAnnouncementToDelete] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  
   useEffect(() => {
     fetchAnnouncements();
   }, []);
@@ -43,7 +42,7 @@ const AdminDashboard = () => {
       .select("*")
       .eq("purokno", purokno)
       .order("created_at", { ascending: false });
-    
+
     setAnnouncements(data || []);
   };
 
@@ -54,18 +53,19 @@ const AdminDashboard = () => {
 
   const handleSaveEdit = async () => {
     const { error } = await supabase
-    .from('Announcement')
-    .update({ date: currentAnnouncement.date,
-              content : currentAnnouncement.content,
-     })
-    .eq('id', currentAnnouncement.id);
+      .from("Announcement")
+      .update({
+        date: currentAnnouncement.date,
+        content: currentAnnouncement.content,
+      })
+      .eq("id", currentAnnouncement.id);
 
-  if (error) {
-    console.error("Error updating comment:", error);
-    alert("Error updating comment");
-  } else {
-    window.location.reload();
-  }
+    if (error) {
+      console.error("Error updating comment:", error);
+      alert("Error updating comment");
+    } else {
+      window.location.reload();
+    }
   };
 
   const confirmDelete = (id) => {
@@ -75,54 +75,60 @@ const AdminDashboard = () => {
 
   const handleDeleteAnnouncement = async () => {
     const { error } = await supabase
-    .from('Announcement')
-    .delete()
-    .eq('id', announcementToDelete);
+      .from("Announcement")
+      .delete()
+      .eq("id", announcementToDelete);
 
-  if (error) {
-    console.error("Error deleting announcement:", error);
-    alert("Error deleting announcement");
-  } else {
-   window.location.reload();
-  }
+    if (error) {
+      console.error("Error deleting announcement:", error);
+      alert("Error deleting announcement");
+    } else {
+      window.location.reload();
+    }
   };
 
-
-
-
-
   return (
-    <div className="relative min-h-screen flex flex-col" 
-  style={{ background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)" }}>
-  
-  <div className="p-3 flex-1 overflow-hidden">
-    <p className="text-3xl font-bold text-white mb-2 mt-5">Dashboard</p>
-    
-    <div className="flex justify-between mt-4 mb-2">
-      <p className="text-xl text-white flex gap-2">
-        Announcement <GrAnnounce />
-      </p>
-      <button
-        onClick={() => setShowModal(true)}
-        className="bg-[#25596E] text-white rounded-full shadow-lg btn-sm"
-      >
-        + Create Post
-      </button>
-    </div>
+    <div
+      className="relative min-h-screen flex flex-col"
+      style={{
+        background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
+      }}
+    >
+      <div className="p-3 flex-1 overflow-hidden">
+        <p className="text-3xl font-bold text-white mb-2 mt-3">Dashboard</p>
 
-    <section className="mt-4 ">
-    {announcements.length > 0 ? (
-      <Swiper spaceBetween={10} slidesPerView={1} loop autoplay={{ delay: 1500 }} 
-        className="rounded-lg shadow-md">
-        {announcements.map((announcement) => (
-          <SwiperSlide key={announcement.id} 
-            className="flex-shrink-0 w-80 p-4 bg-white rounded-lg shadow-md flex flex-col justify-between">
-            <div className="flex gap-2">
-              <DynamicCalendarIcon date={announcement.date} />
-              <p className="text-sm mt-2">{announcement.content}</p>
-            </div>
-               {/* Buttons for Edit & Delete */}
-               <div className="flex justify-end gap-3 mt-2">
+        <div className="flex justify-between mt-4 mb-2">
+          <p className="text-lg text-white flex gap-2 mb-2">
+            Announcement <GrAnnounce />
+          </p>
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-[#25596E] text-white rounded-full shadow-lg btn-sm"
+          >
+            + Create Post
+          </button>
+        </div>
+
+        <section className="mt-4 ">
+          {announcements.length > 0 ? (
+            <Swiper
+              spaceBetween={10}
+              slidesPerView={1}
+              loop
+              autoplay={{ delay: 1500 }}
+              className="rounded-lg shadow-md"
+            >
+              {announcements.map((announcement) => (
+                <SwiperSlide
+                  key={announcement.id}
+                  className="flex-shrink-0 w-80 p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
+                >
+                  <div className="flex gap-2">
+                    <DynamicCalendarIcon date={announcement.date} />
+                    <p className="text-sm mt-2">{announcement.content}</p>
+                  </div>
+                  {/* Buttons for Edit & Delete */}
+                  <div className="flex justify-end gap-3 mt-2">
                     <button
                       onClick={() => handleEdit(announcement)}
                       className="text-blue-500 text-xl"
@@ -136,32 +142,35 @@ const AdminDashboard = () => {
                       <IoTrash />
                     </button>
                   </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-        ) : (
-          <div className="p-4 text-center text-white">
-            No announcement available.
-          </div>
-        )}
-    </section>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <div className="p-4 text-center text-white">
+              No announcement available.
+            </div>
+          )}
+        </section>
 
-    <hr className="border-t border-white my-4" />
+        <hr className="border-t border-white my-4" />
 
-    {/* Scrollable AdminSocialPost */}
-    <div className="overflow-y-auto max-h-[500px] pb-20">
-      <AdminSocialPost />
-    </div>
+        {/* Scrollable AdminSocialPost */}
+        <div className="overflow-y-auto max-h-[500px] pb-20">
+          <AdminSocialPost />
+        </div>
 
-    <CreatePostModal isOpen={showModal} onClose={() => setShowModal(false)} />
-  </div>
+        <CreatePostModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+        />
+      </div>
 
-  {/* Fixed Bottom Menu */}
-  <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg">
-    <Menu />
-  </div>
+      {/* Fixed Bottom Menu */}
+      <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg">
+        <Menu />
+      </div>
 
-  {editModal && (
+      {editModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
           <div className="bg-white p-5 rounded-lg shadow-lg w-80">
             <h2 className="text-lg font-bold mb-3">Edit Announcement</h2>
@@ -218,7 +227,7 @@ const AdminDashboard = () => {
                 Cancel
               </button>
               <button
-                onClick= {handleDeleteAnnouncement}
+                onClick={handleDeleteAnnouncement}
                 className="bg-red-500 text-white px-3 py-1 rounded"
               >
                 Yes, Delete
@@ -227,9 +236,7 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
-
-</div>
-
+    </div>
   );
 };
 

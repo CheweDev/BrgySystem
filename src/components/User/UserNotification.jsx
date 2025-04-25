@@ -13,11 +13,16 @@ const UserNotification = () => {
   }, []);
 
   const fetchAllData = async () => {
-    const [docsResponse, announcementsResponse, postsResponse] = await Promise.all([
-      supabase.from("Requests").select("*").eq("name", name).neq("status", "Pending"),
-      supabase.from("Announcement").select("*").eq("purokno", purokno),
-      supabase.from("Social").select("*").eq("purokno", purokno),
-    ]);
+    const [docsResponse, announcementsResponse, postsResponse] =
+      await Promise.all([
+        supabase
+          .from("Requests")
+          .select("*")
+          .eq("name", name)
+          .neq("status", "Pending"),
+        supabase.from("Announcement").select("*").eq("purokno", purokno),
+        supabase.from("Social").select("*").eq("purokno", purokno),
+      ]);
 
     const docs = docsResponse.data || [];
     const announcements = announcementsResponse.data || [];
@@ -45,19 +50,18 @@ const UserNotification = () => {
       content: `A new social post has been posted!`,
     }));
 
-    const allNotifications = [...formattedDocs, ...formattedAnnouncements, ...formattedPosts].sort(
-      (a, b) => new Date(b.created_at) - new Date(a.created_at)
-    );
+    const allNotifications = [
+      ...formattedDocs,
+      ...formattedAnnouncements,
+      ...formattedPosts,
+    ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     setNotifications(allNotifications);
-
-  
   };
 
   const filteredNotifications = notifications.filter((item) =>
     item.content.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
 
   return (
     <div
@@ -94,22 +98,29 @@ const UserNotification = () => {
         {/* Scrollable Notifications List */}
         <div className="bg-white/10 rounded-lg p-2 backdrop-blur-md flex-1 overflow-y-auto max-h-[72vh]">
           {filteredNotifications.length > 0 ? (
-          filteredNotifications.map((item) => (
-            <div key={item.id} className="p-4 border-b border-white/40 flex items-start">
-              {item.isNew && <span className="text-red-500 text-lg mr-2">🔴</span>}
-              <div>
-                <h3 className="text-white font-semibold">
-                  {item.type === "announcement"
-                    ? "Announcement!"
-                    : item.type === "social"
-                    ? "Social Post"
-                    : "Request Update"}
-                </h3>
-                <p className="text-white">{item.content}</p>
-                <p className="text-white/80 text-sm">{new Date(item.created_at).toLocaleDateString()}</p>
+            filteredNotifications.map((item) => (
+              <div
+                key={item.id}
+                className="p-4 border-b border-white/40 flex items-start"
+              >
+                {item.isNew && (
+                  <span className="text-red-500 text-lg mr-2">🔴</span>
+                )}
+                <div>
+                  <h3 className="text-white font-semibold">
+                    {item.type === "announcement"
+                      ? "Announcement!"
+                      : item.type === "social"
+                      ? "Social Post"
+                      : "Request Update"}
+                  </h3>
+                  <p className="text-white">{item.content}</p>
+                  <p className="text-white/80 text-sm">
+                    {new Date(item.created_at).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-            </div>
-           ))
+            ))
           ) : (
             <p className="text-center text-gray-300 py-4">
               No notifications found

@@ -22,11 +22,14 @@ const UserSocialPost = () => {
   const isAuthor = (authorName) => {
     return name === authorName;
   };
-  
-  const avatar = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
-  
+
+  const avatar =
+    "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+
   const today = new Date();
-  const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const formattedDate = `${today.getFullYear()}-${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
   const getCurrentTime = () => {
     const now = new Date();
@@ -46,7 +49,7 @@ const UserSocialPost = () => {
       .select("*")
       .eq("purokno", purokno)
       .order("created_at", { ascending: false });
-    
+
     setPosts(data || []);
   };
 
@@ -55,17 +58,17 @@ const UserSocialPost = () => {
       .from("Comments")
       .select("*")
       .eq("post_id", id);
-    
+
     const { data: repliesData } = await supabase
       .from("Replies")
       .select("*")
       .eq("post_id", id);
 
     setComments(commentsData || []);
-    
+
     // Organize replies by comment_id
     const repliesByComment = {};
-    (repliesData || []).forEach(reply => {
+    (repliesData || []).forEach((reply) => {
       if (!repliesByComment[reply.comment_id]) {
         repliesByComment[reply.comment_id] = [];
       }
@@ -79,16 +82,16 @@ const UserSocialPost = () => {
     if (!commentText.trim()) return;
 
     const post_id = sessionStorage.getItem("id");
-    const { error } = await supabase
-      .from('Comments')
-      .insert([{
+    const { error } = await supabase.from("Comments").insert([
+      {
         name,
         comment: commentText,
         post_id,
         date: formattedDate,
         time: getCurrentTime(),
-      }]);
-  
+      },
+    ]);
+
     if (error) {
       console.error("Error posting comment:", error);
       alert("Error posting comment");
@@ -102,22 +105,22 @@ const UserSocialPost = () => {
     if (!replyText[commentId]?.trim()) return;
 
     const post_id = sessionStorage.getItem("id");
-    const { error } = await supabase
-      .from('Replies')
-      .insert([{
+    const { error } = await supabase.from("Replies").insert([
+      {
         name,
         content: replyText[commentId],
         post_id,
         comment_id: commentId,
         date: formattedDate,
         time: getCurrentTime(),
-      }]);
+      },
+    ]);
 
     if (error) {
       console.error("Error posting reply:", error);
       alert("Error posting reply");
     } else {
-      setReplyText(prev => ({ ...prev, [commentId]: "" }));
+      setReplyText((prev) => ({ ...prev, [commentId]: "" }));
       setReplyingTo(null);
       fetchComments(post_id);
     }
@@ -125,9 +128,9 @@ const UserSocialPost = () => {
 
   const handleDeleteComment = async (commentId) => {
     const { error } = await supabase
-      .from('Comments')
+      .from("Comments")
       .delete()
-      .eq('id', commentId);
+      .eq("id", commentId);
 
     if (error) {
       console.error("Error deleting comment:", error);
@@ -145,9 +148,9 @@ const UserSocialPost = () => {
 
   const handleSaveEdit = async (commentId) => {
     const { error } = await supabase
-      .from('Comments')
+      .from("Comments")
       .update({ comment: editText })
-      .eq('id', commentId);
+      .eq("id", commentId);
 
     if (error) {
       console.error("Error updating comment:", error);
@@ -160,10 +163,7 @@ const UserSocialPost = () => {
   };
 
   const handleDeleteReply = async (replyId) => {
-    const { error } = await supabase
-      .from('Replies')
-      .delete()
-      .eq('id', replyId);
+    const { error } = await supabase.from("Replies").delete().eq("id", replyId);
 
     if (error) {
       console.error("Error deleting reply:", error);
@@ -222,15 +222,16 @@ const UserSocialPost = () => {
     });
   }
 
-  // Rest of your render code remains the same, but update the comments section to include edit/delete/reply functionality:
   return (
     <>
-      {/* Posts rendering remains the same */}
       {posts.length === 0 ? (
         <p className="text-white text-center">No posts available.</p>
       ) : (
         posts.map((post) => (
-          <div key={post.id} className="max-w-lg mx-auto bg-white rounded-xl shadow-sm mb-4">
+          <div
+            key={post.id}
+            className="max-w-lg mx-auto bg-white rounded-xl shadow-sm mb-4"
+          >
             {/* Your existing post header and content code */}
             <div className="flex items-center gap-3 p-4">
               <img
@@ -292,7 +293,7 @@ const UserSocialPost = () => {
 
       {/* Comments Modal */}
       {isCommentsOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-10">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 z-10">
           <div
             ref={modalRef}
             className="bg-base-200 rounded-lg w-full max-w-md max-h-[90vh] flex flex-col"
@@ -336,7 +337,6 @@ const UserSocialPost = () => {
                           )}
                         </div>
 
-                        
                         <div className="flex justify-between items-center mt-2 text-sm">
                           <span className="text-xs text-gray-500">
                             {formatDateTime(comment.date, comment.time)}
@@ -369,7 +369,9 @@ const UserSocialPost = () => {
                                       Edit
                                     </button>
                                     <button
-                                      onClick={() => handleDeleteComment(comment.id)}
+                                      onClick={() =>
+                                        handleDeleteComment(comment.id)
+                                      }
                                       className="text-red-500 text-sm"
                                     >
                                       Delete
@@ -411,7 +413,7 @@ const UserSocialPost = () => {
                           </div>
                         )}
 
-                    {replies[comment.id]?.length > 0 && (
+                        {replies[comment.id]?.length > 0 && (
                           <div className="mt-3 pl-6 space-y-3">
                             {replies[comment.id].map((reply) => (
                               <div key={reply.id} className="flex gap-2">
@@ -422,7 +424,9 @@ const UserSocialPost = () => {
                                 />
                                 <div className="flex-1">
                                   <div className="bg-white p-2 rounded-lg">
-                                    <h4 className="text-sm font-medium">{reply.name}</h4>
+                                    <h4 className="text-sm font-medium">
+                                      {reply.name}
+                                    </h4>
                                     <p className="text-xs">{reply.content}</p>
                                     <div className="flex justify-between items-center mt-1 text-xs">
                                       <span className="text-gray-500">
@@ -431,7 +435,9 @@ const UserSocialPost = () => {
                                       {/* Only show delete button for reply author */}
                                       {isAuthor(reply.name) && (
                                         <button
-                                          onClick={() => handleDeleteReply(reply.id)}
+                                          onClick={() =>
+                                            handleDeleteReply(reply.id)
+                                          }
                                           className="text-red-500"
                                         >
                                           Delete
@@ -451,7 +457,10 @@ const UserSocialPost = () => {
               </div>
             </div>
             {/* Comment Input */}
-            <form onSubmit={handleSubmitComment} className="p-3 border-t mt-auto">
+            <form
+              onSubmit={handleSubmitComment}
+              className="p-3 border-t mt-auto"
+            >
               <div className="flex gap-2">
                 <div className="flex-1">
                   <textarea

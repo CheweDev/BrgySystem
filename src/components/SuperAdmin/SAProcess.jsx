@@ -4,7 +4,8 @@ import SAMenu from "./SAMenu";
 import supabase from "../../supabaseClient";
 
 const SAProcess = () => {
-  const avatar = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+  const avatar =
+    "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -20,13 +21,10 @@ const SAProcess = () => {
     const { data } = await supabase
       .from("Requests")
       .select("*")
-      .eq("status", 'Pending');
-    
+      .eq("status", "Pending");
+
     setRequests(data || []);
   };
-
-
-
 
   const openModal = (request) => {
     setSelectedRequest(request);
@@ -40,17 +38,16 @@ const SAProcess = () => {
 
   const updateStatus = async (newStatus) => {
     if (selectedRequest) {
-      // Update in Supabase
       const { error } = await supabase
-        .from("Requests") // Replace with your actual table name
+        .from("Requests")
         .update({ status: newStatus })
         .eq("id", selectedRequest.id);
-  
+
       if (error) {
         console.error("Error updating status:", error);
         return;
       }
-  
+
       // Update local state if Supabase update is successful
       setRequests((prevRequests) =>
         prevRequests.map((request) =>
@@ -59,18 +56,17 @@ const SAProcess = () => {
             : request
         )
       );
-  
+
       window.location.reload();
     }
   };
-  
+
   const filteredRequests = requests.filter(
     (request) =>
       request.name.toLowerCase().includes(search.toLowerCase()) ||
       request.document_type.toLowerCase().includes(search.toLowerCase()) ||
       request.status.toLowerCase().includes(search.toLowerCase())
   );
-
 
   return (
     <div
@@ -79,8 +75,8 @@ const SAProcess = () => {
       }}
       className="min-h-screen"
     >
-     <header className="p-4 space-y-3">
-        <p className="text-3xl font-bold text-white mb-2 mt-5">Requests</p>
+      <header className="p-3 space-y-3">
+        <p className="text-3xl font-bold text-white mt-3">Requests</p>
         <label className="input input-bordered flex items-center gap-2">
           <input
             type="text"
@@ -106,43 +102,45 @@ const SAProcess = () => {
       </header>
 
       {/* Request List */}
-      <div className="p-4 space-y-3">
-      {filteredRequests.length > 0 ? (
-        filteredRequests.map((request) => (
-          <div
-            key={request.id}
-            className="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm cursor-pointer hover:bg-gray-50 transition-colors"
-            onClick={() => openModal(request)}
-          >
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
-              <img
-                src={avatar || "/placeholder.svg"}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-600">{request.name}</p>
-              <p className="font-medium text-gray-800">{request.document_type}</p>
-            </div>
-            <span
-              className={`px-3 py-1 rounded-full text-sm ${
-                request.status === "Ongoing"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
+      <div className="p-3 space-y-3">
+        {filteredRequests.length > 0 ? (
+          filteredRequests.map((request) => (
+            <div
+              key={request.id}
+              className="flex items-center gap-3 bg-white p-3 rounded-xl shadow-sm cursor-pointer hover:bg-gray-50 transition-colors"
+              onClick={() => openModal(request)}
             >
-              {request.status}
-            </span>
-          </div>
-        ))
-      ) : (
-        <p className="text-white text-center p-4">No requests found.</p>
-      )}
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
+                <img
+                  src={avatar || "/placeholder.svg"}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-gray-600">{request.name}</p>
+                <p className="font-medium text-gray-800">
+                  {request.document_type}
+                </p>
+              </div>
+              <span
+                className={`px-3 py-1 rounded-full text-sm ${
+                  request.status === "Ongoing"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-red-100 text-red-700"
+                }`}
+              >
+                {request.status}
+              </span>
+            </div>
+          ))
+        ) : (
+          <p className="text-white text-center p-4">No requests found.</p>
+        )}
       </div>
 
-     {/* Modal */}
-     {isModalOpen && selectedRequest && (
+      {/* Modal */}
+      {isModalOpen && selectedRequest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
           <div className="bg-white rounded-lg p-4 w-full relative shadow-2xl scale-95">
             {/* Close Button */}
@@ -200,7 +198,6 @@ const SAProcess = () => {
                 />
               </label>
 
-                  
               <label className="flex items-center gap-2 w-full max-w-xs border border-gray-300 p-2 rounded-md bg-gray-100">
                 Purpose:
                 <input
@@ -211,7 +208,7 @@ const SAProcess = () => {
                 />
               </label>
               <label className="flex items-center gap-2 w-full max-w-xs  p-2 rounded-md">
-              Additional Details:
+                Additional Details:
               </label>
               <textarea
                 placeholder={selectedRequest.description}

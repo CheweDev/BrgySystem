@@ -27,7 +27,8 @@ export default function SuperAdminDashboard() {
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState({});
   const [replies, setReplies] = useState({});
-  const avatar = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+  const avatar =
+    "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
   const modalRef = useRef(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [selectedPurok, setSelectedPurok] = useState("all");
@@ -41,18 +42,20 @@ export default function SuperAdminDashboard() {
   const [socialPosts, setSocialPosts] = useState([]);
   const name = sessionStorage.getItem("name");
   const today = new Date();
-  const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const getCurrentTime = () => {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, "0");
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-      const seconds = String(now.getSeconds()).padStart(2, "0");
-      return `${hours}:${minutes}:${seconds}`;
-    };
+  const formattedDate = `${today.getFullYear()}-${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const getCurrentTime = () => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    return `${hours}:${minutes}:${seconds}`;
+  };
 
-    const isAuthor = (authorName) => {
-      return name === authorName;
-    };
+  const isAuthor = (authorName) => {
+    return name === authorName;
+  };
 
   useEffect(() => {
     fetchAnnouncements();
@@ -64,7 +67,7 @@ export default function SuperAdminDashboard() {
       .from("Announcement")
       .select("*")
       .order("created_at", { ascending: false });
-    
+
     setAnnouncements(data || []);
   };
 
@@ -73,57 +76,55 @@ export default function SuperAdminDashboard() {
       .from("Social")
       .select("*")
       .order("created_at", { ascending: false });
-    
+
     setSocialPosts(data || []);
   };
-
-
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
     const post_id = sessionStorage.getItem("id");
     const { data, error } = await supabase
-        .from('Comments')
-        .insert([
-          {
-            name,
-            comment : commentText,
-            post_id,
-            date: formattedDate,
-            time : getCurrentTime(),
-          },
-        ])
-        .select();
-  
-      if (error) {
-        console.error("Error inserting data:", error);
-        alert("Error inserting data");
-      } else {
-        console.log("Data inserted successfully:", data);
-        window.location.reload();
-      }
+      .from("Comments")
+      .insert([
+        {
+          name,
+          comment: commentText,
+          post_id,
+          date: formattedDate,
+          time: getCurrentTime(),
+        },
+      ])
+      .select();
+
+    if (error) {
+      console.error("Error inserting data:", error);
+      alert("Error inserting data");
+    } else {
+      console.log("Data inserted successfully:", data);
+      window.location.reload();
+    }
   };
 
   const handleReplySubmit = async (commentId) => {
     if (!replyText[commentId]?.trim()) return;
 
     const post_id = sessionStorage.getItem("id");
-    const { error } = await supabase
-      .from('Replies')
-      .insert([{
+    const { error } = await supabase.from("Replies").insert([
+      {
         name,
         content: replyText[commentId],
         post_id,
         comment_id: commentId,
         date: formattedDate,
         time: getCurrentTime(),
-      }]);
+      },
+    ]);
 
     if (error) {
       console.error("Error posting reply:", error);
       alert("Error posting reply");
     } else {
-      setReplyText(prev => ({ ...prev, [commentId]: "" }));
+      setReplyText((prev) => ({ ...prev, [commentId]: "" }));
       setReplyingTo(null);
       fetchComments(post_id);
     }
@@ -131,9 +132,9 @@ export default function SuperAdminDashboard() {
 
   const handleDeleteComment = async (commentId) => {
     const { error } = await supabase
-      .from('Comments')
+      .from("Comments")
       .delete()
-      .eq('id', commentId);
+      .eq("id", commentId);
 
     if (error) {
       console.error("Error deleting comment:", error);
@@ -151,9 +152,9 @@ export default function SuperAdminDashboard() {
 
   const handleSaveEdit = async (commentId) => {
     const { error } = await supabase
-      .from('Comments')
+      .from("Comments")
       .update({ comment: editText })
-      .eq('id', commentId);
+      .eq("id", commentId);
 
     if (error) {
       console.error("Error updating comment:", error);
@@ -166,10 +167,7 @@ export default function SuperAdminDashboard() {
   };
 
   const handleDeleteReply = async (replyId) => {
-    const { error } = await supabase
-      .from('Replies')
-      .delete()
-      .eq('id', replyId);
+    const { error } = await supabase.from("Replies").delete().eq("id", replyId);
 
     if (error) {
       console.error("Error deleting reply:", error);
@@ -179,7 +177,6 @@ export default function SuperAdminDashboard() {
       fetchComments(post_id);
     }
   };
-
 
   const openComments = (postId) => {
     setSelectedPostId(postId); // Set the post ID for the selected post
@@ -234,17 +231,17 @@ export default function SuperAdminDashboard() {
       .from("Comments")
       .select("*")
       .eq("post_id", id);
-    
+
     const { data: repliesData } = await supabase
       .from("Replies")
       .select("*")
       .eq("post_id", id);
 
     setComments(commentsData || []);
-    
+
     // Organize replies by comment_id
     const repliesByComment = {};
-    (repliesData || []).forEach(reply => {
+    (repliesData || []).forEach((reply) => {
       if (!repliesByComment[reply.comment_id]) {
         repliesByComment[reply.comment_id] = [];
       }
@@ -254,10 +251,10 @@ export default function SuperAdminDashboard() {
   };
 
   const openComment = (post) => {
-    const id = sessionStorage.setItem("id", post.id)
-    fetchComments(post.id)
+    const id = sessionStorage.setItem("id", post.id);
+    fetchComments(post.id);
     setIsCommentsOpen(true);
-  }
+  };
 
   function formatDateTime(dateStr, timeStr) {
     let [year, month, day] = dateStr.split("-").map(Number);
@@ -281,15 +278,15 @@ export default function SuperAdminDashboard() {
           <h1 className="text-2xl font-bold text-white">SuperAdmin</h1>
           <button
             onClick={() => setShowFilterModal(true)}
-            className="bg-white/20 text-white px-4 py-2 rounded-full flex items-center gap-2"
+            className="bg-white/20 text-white px-4 py-2 rounded-full flex items-center btn-sm gap-2"
           >
             <FiFilter />
             {selectedPurok === "all" ? "All Purok" : `Purok ${selectedPurok}`}
           </button>
         </div>
         {/* Announcements Section */}
-        <section className="mb-6">
-          <div className="flex justify-between items-center mb-4">
+        <section>
+          <div className="flex justify-between items-center mb-2">
             <h2 className="text-xl text-white flex items-center gap-2">
               <GrAnnounce className="text-white" /> Announcements
             </h2>
@@ -298,127 +295,125 @@ export default function SuperAdminDashboard() {
             </span>
           </div>
           {filteredAnnouncements.length > 0 ? (
-          <Swiper
-            spaceBetween={10}
-            slidesPerView={1}
-            loop
-            autoplay={{ delay: 1500 }}
-            className="rounded-lg"
-          >
-            {filteredAnnouncements.map((announcement) => (
-              <SwiperSlide key={announcement.id}>
-                <div className="bg-white p-4 rounded-lg shadow-md">
-                  <div className="flex gap-4">
-                    <DynamicCalendarIcon date={announcement.date} />
-                    <div className="flex-1">
-                      <p className="text-sm mb-2">{announcement.content}</p>
-                      <div className="flex justify-between text-xs text-gray-500">
-                        <span>Purok {announcement.purokno}</span>
+            <Swiper
+              spaceBetween={10}
+              slidesPerView={1}
+              loop
+              autoplay={{ delay: 1500 }}
+              className="rounded-lg"
+            >
+              {filteredAnnouncements.map((announcement) => (
+                <SwiperSlide key={announcement.id}>
+                  <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex gap-4">
+                      <DynamicCalendarIcon date={announcement.date} />
+                      <div className="flex-1">
+                        <p className="text-sm mb-2">{announcement.content}</p>
+                        <div className="flex justify-between text-xs text-gray-500">
+                          <span>Purok {announcement.purokno}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-            ) : (
-              <div className="p-4 text-center text-white">
-                No announcement available.
-              </div>
-            )}
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <div className="p-4 text-center text-white">
+              No announcement available.
+            </div>
+          )}
         </section>
-    
+
         <hr className="border-t border-white my-4" />
-          <div className="overflow-y-auto max-h-[500px] pb-20">
-        {/* Social Posts Section */}
-        {filteredSocialPosts.length > 0 ? (
-          filteredSocialPosts.map((post) => (
-            <div
-              key={post.id}
-              className="max-w-lg mx-auto bg-white rounded-xl shadow-sm mb-4"
-            >
-              {/* Post Header */}
-              <div className="flex items-center gap-3 p-4">
-                <img
-                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                  alt="Profile picture"
-                  className="rounded-full w-10 h-10"
-                />
-                <div>
-                  <h2 className="font-medium">{post.name}</h2>
+        <div className="overflow-y-auto max-h-[500px] pb-20">
+          {/* Social Posts Section */}
+          {filteredSocialPosts.length > 0 ? (
+            filteredSocialPosts.map((post) => (
+              <div
+                key={post.id}
+                className="max-w-lg mx-auto bg-white rounded-xl shadow-sm mb-4"
+              >
+                {/* Post Header */}
+                <div className="flex items-center gap-3 p-4">
+                  <img
+                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                    alt="Profile picture"
+                    className="rounded-full w-10 h-10"
+                  />
+                  <div>
+                    <h2 className="font-medium">{post.name}</h2>
+                  </div>
+                  <span className="ml-auto text-sm text-white rounded-full p-1 bg-[#77cdb1] w-1/4 flex justify-center">
+                    Purok {post.purokno}
+                  </span>
                 </div>
-                <span className="ml-auto text-sm text-white rounded-full p-1 bg-[#77cdb1] w-1/4 flex justify-center">
-                  Purok {post.purokno}
-                </span>
-              </div>
 
-              {/* Post Content */}
-              <div className="px-4 pb-2">
-                <p className="mb-3">{post.text}</p>
+                {/* Post Content */}
+                <div className="px-4 pb-2">
+                  <p className="mb-3">{post.text}</p>
 
-                <div className="grid grid-cols-3 gap-1 mb-4">
-                  {[post.image1, post.image2, post.image3]
-                    .filter((img) => img) // Remove null/undefined images
-                    .map((img, index) => (
-                      <div
-                        key={index}
-                        className="aspect-square relative"
-                        onClick={() => setPreviewImage(img)}
-                      >
-                        <img
-                          src={img}
-                          alt={`Image ${index + 1}`}
-                          className="object-cover w-full h-full rounded cursor-pointer"
-                        />
-                      </div>
-                    ))}
-                </div>
-              </div>
-
-              {previewImage && (
-                <div
-                  className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-20"
-                  onClick={() => setPreviewImage(null)} // Close on background click
-                >
-                  <div className="relative">
-                    <button
-                      onClick={() => setPreviewImage(null)}
-                      className="absolute top-2 right-2 text-white text-2xl"
-                    >
-                      <IoClose />
-                    </button>
-                    <img
-                      src={previewImage}
-                      alt="Preview"
-                      className="max-w-full max-h-screen rounded-lg"
-                    />
+                  <div className="grid grid-cols-3 gap-1 mb-4">
+                    {[post.image1, post.image2, post.image3]
+                      .filter((img) => img) // Remove null/undefined images
+                      .map((img, index) => (
+                        <div
+                          key={index}
+                          className="aspect-square relative"
+                          onClick={() => setPreviewImage(img)}
+                        >
+                          <img
+                            src={img}
+                            alt={`Image ${index + 1}`}
+                            className="object-cover w-full h-full rounded cursor-pointer"
+                          />
+                        </div>
+                      ))}
                   </div>
                 </div>
-              )}
 
-              {/* Comment Button */}
-              <div className="flex justify-end items-center px-4 pb-3 text-gray-600 text-sm">
-                <button
-               onClick={() => openComment(post)} // Call openComments with the post ID
-                  className="flex items-center gap-1 text-gray-600 text-sm hover:text-gray-900"
-                >
-                  <FaRegComment className="w-5 h-5" />
-                  <span>{post.comments} Comments</span>
-                </button>
+                {previewImage && (
+                  <div
+                    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-20"
+                    onClick={() => setPreviewImage(null)} // Close on background click
+                  >
+                    <div className="relative">
+                      <button
+                        onClick={() => setPreviewImage(null)}
+                        className="absolute top-2 right-2 text-white text-2xl"
+                      >
+                        <IoClose />
+                      </button>
+                      <img
+                        src={previewImage}
+                        alt="Preview"
+                        className="max-w-full max-h-screen rounded-lg"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Comment Button */}
+                <div className="flex justify-end items-center px-4 pb-3 text-gray-600 text-sm">
+                  <button
+                    onClick={() => openComment(post)} // Call openComments with the post ID
+                    className="flex items-center gap-1 text-gray-600 text-sm hover:text-gray-900"
+                  >
+                    <FaRegComment className="w-5 h-5" />
+                    <span>{post.comments} Comments</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-white text-center">
-            No post available.
-          </p>
-        )}
-      </div>
+            ))
+          ) : (
+            <p className="text-white text-center">No post available.</p>
+          )}
+        </div>
       </div>
 
       {/* Comments Modal */}
       {isCommentsOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-10">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 z-10">
           <div
             ref={modalRef}
             className="bg-base-200 rounded-lg w-full max-w-md max-h-[90vh] flex flex-col"
@@ -462,7 +457,6 @@ export default function SuperAdminDashboard() {
                           )}
                         </div>
 
-                        
                         <div className="flex justify-between items-center mt-2 text-sm">
                           <span className="text-xs text-gray-500">
                             {formatDateTime(comment.date, comment.time)}
@@ -495,7 +489,9 @@ export default function SuperAdminDashboard() {
                                       Edit
                                     </button>
                                     <button
-                                      onClick={() => handleDeleteComment(comment.id)}
+                                      onClick={() =>
+                                        handleDeleteComment(comment.id)
+                                      }
                                       className="text-red-500 text-sm"
                                     >
                                       Delete
@@ -537,7 +533,7 @@ export default function SuperAdminDashboard() {
                           </div>
                         )}
 
-                    {replies[comment.id]?.length > 0 && (
+                        {replies[comment.id]?.length > 0 && (
                           <div className="mt-3 pl-6 space-y-3">
                             {replies[comment.id].map((reply) => (
                               <div key={reply.id} className="flex gap-2">
@@ -548,7 +544,9 @@ export default function SuperAdminDashboard() {
                                 />
                                 <div className="flex-1">
                                   <div className="bg-white p-2 rounded-lg">
-                                    <h4 className="text-sm font-medium">{reply.name}</h4>
+                                    <h4 className="text-sm font-medium">
+                                      {reply.name}
+                                    </h4>
                                     <p className="text-xs">{reply.content}</p>
                                     <div className="flex justify-between items-center mt-1 text-xs">
                                       <span className="text-gray-500">
@@ -557,7 +555,9 @@ export default function SuperAdminDashboard() {
                                       {/* Only show delete button for reply author */}
                                       {isAuthor(reply.name) && (
                                         <button
-                                          onClick={() => handleDeleteReply(reply.id)}
+                                          onClick={() =>
+                                            handleDeleteReply(reply.id)
+                                          }
                                           className="text-red-500"
                                         >
                                           Delete
@@ -577,7 +577,10 @@ export default function SuperAdminDashboard() {
               </div>
             </div>
             {/* Comment Input */}
-            <form onSubmit={handleSubmitComment} className="p-3 border-t mt-auto">
+            <form
+              onSubmit={handleSubmitComment}
+              className="p-3 border-t mt-auto"
+            >
               <div className="flex gap-2">
                 <div className="flex-1">
                   <textarea
@@ -599,7 +602,6 @@ export default function SuperAdminDashboard() {
         </div>
       )}
 
-
       {/* Purok Filter Modal */}
       {showFilterModal && (
         <div className="fixed inset-0 bg-black/50 flex items-end justify-center p-4 z-50">
@@ -617,7 +619,28 @@ export default function SuperAdminDashboard() {
               >
                 All
               </button>
-              {["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20"].map((purok) => (
+              {[
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10",
+                "11",
+                "12",
+                "13",
+                "14",
+                "15",
+                "16",
+                "17",
+                "18",
+                "19",
+                "20",
+              ].map((purok) => (
                 <button
                   key={purok}
                   onClick={() => {

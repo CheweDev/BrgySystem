@@ -1,12 +1,14 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { useNavigate } from "react-router-dom";
+import { FaFileDownload } from "react-icons/fa";
 
 const Oath = () => {
   const certificateRef = useRef();
   const navigate = useNavigate();
+  const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     age: "",
@@ -19,6 +21,19 @@ const Oath = () => {
     residencyType: "",
   });
 
+  useEffect(() => {
+    const name = sessionStorage.getItem("name");
+    const purokno = sessionStorage.getItem("purokno");
+
+    if (name || purokno) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: name || "",
+        purok: purokno || "",
+      }));
+    }
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -26,6 +41,7 @@ const Oath = () => {
 
   const handleDownloadPDF = async (e) => {
     e.preventDefault();
+    setIsGenerating(true);
     const element = certificateRef.current;
 
     // Generate canvas from the element
@@ -63,6 +79,7 @@ const Oath = () => {
           directory: Directory.Documents,
           encoding: Encoding.UTF8,
         });
+        setIsGenerating(false);
         alert("PDF saved successfully to device.");
         navigate("/user-profile");
       } catch (err) {
@@ -72,6 +89,7 @@ const Oath = () => {
     } else {
       // For web, just download the file as before
       pdf.save(fileName);
+      setIsGenerating(false);
     }
   };
 
@@ -159,11 +177,16 @@ const Oath = () => {
           className="w-full p-2 border rounded"
         />
 
+        <div className="divider"></div>
         <button
           type="submit"
-          className="w-full bg-[#23ab80] text-white py-3 px-4 rounded"
+          disabled={isGenerating}
+          className={`w-full py-3 px-4 rounded-full text-white flex justify-center gap-1 ${
+            isGenerating ? "bg-gray-400" : "bg-[#23ab80]"
+          }`}
         >
-          Download Certificate
+          <FaFileDownload className="mt-1" />
+          {isGenerating ? "Generating..." : "Download"}
         </button>
       </form>
 

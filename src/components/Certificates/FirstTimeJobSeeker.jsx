@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { useNavigate } from "react-router-dom";
+import { FaFileDownload } from "react-icons/fa";
 
 const FirstTimeJobseekerCertificate = () => {
   const certificateRef = useRef();
@@ -10,7 +11,6 @@ const FirstTimeJobseekerCertificate = () => {
   const navigate = useNavigate();
   const today = new Date();
   const defaultYear = today.getFullYear().toString().substr(2);
-
   const [formData, setFormData] = useState({
     fullName: "",
     purok: "",
@@ -20,6 +20,19 @@ const FirstTimeJobseekerCertificate = () => {
     month: today.toLocaleString("default", { month: "long" }),
     year: defaultYear,
   });
+
+  useEffect(() => {
+    const name = sessionStorage.getItem("name");
+    const purokno = sessionStorage.getItem("purokno");
+
+    if (name || purokno) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: name || "",
+        purok: purokno || "",
+      }));
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,25 +66,19 @@ const FirstTimeJobseekerCertificate = () => {
       const isMobile = window.Capacitor && window.Capacitor.isNativePlatform();
 
       if (isMobile) {
-        // Get PDF as binary string
         const pdfOutput = pdf.output();
-        // Convert binary string to base64
         const pdfBase64 = btoa(pdfOutput);
         const fileName = `first_time_jobseeker_${Date.now()}.pdf`;
-
         // For Capacitor v3+
         await Filesystem.writeFile({
           path: fileName,
           data: pdfBase64,
           directory: Directory.Documents,
-          // Remove encoding parameter if it's causing issues
         });
-
-        // Notify user
+        setIsGenerating(false);
         alert(`PDF saved to your documents as ${fileName}`);
         navigate("/user-profile");
       } else {
-        // Browser environment - use normal save
         pdf.save("first_time_jobseeker_certificate.pdf");
       }
     } catch (error) {
@@ -160,15 +167,16 @@ const FirstTimeJobseekerCertificate = () => {
             required
           />
         </div>
-
+        <div className="divider"></div>
         <button
           type="submit"
           disabled={isGenerating}
-          className={`w-full py-3 px-4 rounded-full text-white ${
+          className={`w-full py-3 px-4 rounded-full text-white flex justify-center gap-1 ${
             isGenerating ? "bg-gray-400" : "bg-[#23ab80]"
           }`}
         >
-          {isGenerating ? "Generating..." : "Download Certificate"}
+          <FaFileDownload className="mt-1" />
+          {isGenerating ? "Generating..." : "Download"}
         </button>
       </form>
 

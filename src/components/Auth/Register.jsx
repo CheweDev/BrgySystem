@@ -76,12 +76,12 @@ const Register = () => {
 
   return (
     <>
-      <div className="flex justify-center mt-7">
+      <div className="flex justify-center mt-10">
         <img src="logo - Copy.png" alt="logo" />
       </div>
       <div className="p-2 mt-3">
         <div
-          className="rounded-tl-[35px] rounded-tr-[35px]  rounded-br-[35px] p-4 sm:p-8 shadow-xl"
+          className="rounded-tl-[35px] rounded-tr-[35px]  rounded-br-[35px] p-3 shadow-xl"
           style={{
             background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
           }}

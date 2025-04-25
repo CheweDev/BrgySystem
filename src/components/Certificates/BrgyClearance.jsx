@@ -1,16 +1,16 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Capacitor } from "@capacitor/core";
 import { useNavigate } from "react-router-dom";
+import { FaFileDownload } from "react-icons/fa";
 
 const BrgyClearanceForm = () => {
   const certificateRef = useRef();
   const today = new Date();
   const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
-
   const [formData, setFormData] = useState({
     fullName: "",
     gender: "",
@@ -20,6 +20,19 @@ const BrgyClearanceForm = () => {
     month: today.toLocaleString("default", { month: "long" }),
     year: today.getFullYear().toString(),
   });
+
+  useEffect(() => {
+    const name = sessionStorage.getItem("name");
+    const purokno = sessionStorage.getItem("purokno");
+
+    if (name || purokno) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: name || "",
+        purok: purokno || "",
+      }));
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,7 +87,7 @@ const BrgyClearanceForm = () => {
           data: pdfBase64,
           directory: Directory.Documents,
         });
-
+        setIsGenerating(false);
         alert(`PDF saved to your documents as ${fileName}`);
         navigate("/user-profile");
       } else {
@@ -137,15 +150,16 @@ const BrgyClearanceForm = () => {
           className="w-full p-2 border border-gray-300 rounded"
           required
         />
-
+        <div className="divider"></div>
         <button
           type="submit"
           disabled={isGenerating}
-          className={`w-full py-3 px-4 rounded-full text-white ${
+          className={`w-full py-3 px-4 rounded-full text-white flex justify-center gap-1 ${
             isGenerating ? "bg-gray-400" : "bg-[#23ab80]"
           }`}
         >
-          {isGenerating ? "Generating..." : "Download Certificate"}
+          <FaFileDownload className="mt-1" />
+          {isGenerating ? "Generating..." : "Download"}
         </button>
       </form>
 
