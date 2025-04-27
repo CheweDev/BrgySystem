@@ -65,8 +65,7 @@ const Oath = () => {
     pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
 
     // Convert to base64 data
-    const pdfOutput = pdf.output("datauristring");
-    const base64Data = pdfOutput.split(",")[1];
+    const base64Data = pdf.output("datauristring").split(",")[1];
 
     const fileName = "Oath_of_Undertaking_certificate.pdf";
 
@@ -77,7 +76,7 @@ const Oath = () => {
           path: fileName,
           data: base64Data,
           directory: Directory.Documents,
-          encoding: Encoding.UTF8,
+          encoding: Encoding.Base64,
         });
         setIsGenerating(false);
         alert("PDF saved successfully to device.");

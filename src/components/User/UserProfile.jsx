@@ -79,38 +79,26 @@ const UserProfile = () => {
     }
   };
 
+  const routes = {
+    "baranggay clearance": "/brgy",
+    "certificate of low income": "/low",
+    "death certificate": "/death",
+    "certificate of indigency": "/indigent",
+    "oness certificate": "/oness",
+    "certificate of onees": "/oness",
+    "senior citizen": "/senior",
+    "certificate for senior": "/senior",
+    "certificate of residency": "/residency",
+    "oath of undertaking": "/Oath",
+    "first time job seeker certificate": "/jobseeker",
+  };
+
   const handleRedirect = (type) => {
-    switch (type.toLowerCase()) {
-      case "baranggay clearance":
-        navigate("/brgy");
-        break;
-      case "certificate of low income":
-        navigate("/low");
-        break;
-      case "death certificate":
-        navigate("/death");
-        break;
-      case "certificate of indigency":
-        navigate("/indigent");
-        break;
-      case "certificate of oneness":
-        navigate("/oness");
-        break;
-      case "senior citizen certificate":
-        navigate("/senior");
-        break;
-      case "certificate of residency":
-        navigate("/residency");
-        break;
-      case "oath of undertaking":
-        navigate("/Oath");
-        break;
-      case "first time job seeker certificate":
-        navigate("/jobseeker");
-        break;
-      default:
-        console.warn("No matching route for document type:", type);
-        break;
+    const path = routes[type.toLowerCase().trim()];
+    if (path) {
+      navigate(path);
+    } else {
+      console.warn("No matching route for document type:", type);
     }
   };
 

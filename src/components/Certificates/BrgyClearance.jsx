@@ -168,7 +168,10 @@ const BrgyClearanceForm = () => {
         ref={certificateRef}
         className="absolute left-[-9999px] top-0 font-serif"
       >
-        <div className="w-full max-w-[8.5in] mx-auto bg-white p-8 border border-gray-300">
+        <div
+          className="w-full bg-white p-8 mx-auto overflow-hidden"
+          style={{ width: "210mm", maxWidth: "210mm", border: "none" }}
+        >
           <div className="text-center mb-6 relative">
             <div className="flex items-center justify-between mb-2">
               <div className="w-24 h-24">

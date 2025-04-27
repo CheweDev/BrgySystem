@@ -44,11 +44,15 @@ const SeniorCitizen = () => {
     e.preventDefault();
     setIsGenerating(true);
     const element = certificateRef.current;
+
     const canvas = await html2canvas(element, {
       scale: 2,
       logging: false,
       useCORS: true,
+      allowTaint: true,
+      imageTimeout: 15000,
     });
+
     const imgData = canvas.toDataURL("image/jpeg", 0.98);
     const pdf = new jsPDF({
       unit: "in",
@@ -59,25 +63,19 @@ const SeniorCitizen = () => {
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
 
-    const pdfBlob = pdf.output("blob");
-
     if (Capacitor.getPlatform() === "web") {
       pdf.save("senior_citizen_certificate.pdf");
       setIsGenerating(false);
     } else {
-      const reader = new FileReader();
-      reader.readAsDataURL(pdfBlob);
-      reader.onloadend = async () => {
-        const base64Data = reader.result.split(",")[1];
-        await Filesystem.writeFile({
-          path: "senior_citizen_certificate.pdf",
-          data: base64Data,
-          directory: Directory.Documents,
-        });
-        setIsGenerating(false);
-        alert("PDF saved to Documents folder");
-        navigate("/user-profile");
-      };
+      const base64Data = pdf.output("datauristring").split(",")[1];
+      await Filesystem.writeFile({
+        path: "senior_citizen_certificate.pdf",
+        data: base64Data,
+        directory: Directory.Documents,
+      });
+      setIsGenerating(false);
+      alert("PDF saved to Documents folder");
+      navigate("/user-profile");
     }
   };
 
@@ -186,7 +184,10 @@ const SeniorCitizen = () => {
         ref={certificateRef}
         className="absolute left-[-9999px] top-0 font-serif"
       >
-        <div className="w-full max-w-[8.5in] mx-auto bg-white p-8 border border-gray-300">
+        <div
+          className="w-full bg-white p-8 mx-auto overflow-hidden"
+          style={{ width: "210mm", maxWidth: "210mm", border: "none" }}
+        >
           <div className="text-center mb-6 relative">
             <div className="flex items-center justify-between mb-2">
               <div className="w-24 h-24">

@@ -66,16 +66,14 @@ const DeathCertificate = () => {
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
     pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
 
-    // Check if Capacitor is available and running in native mobile
     if (window.Capacitor?.isNativePlatform()) {
-      const pdfOutput = pdf.output("datauristring");
-      const base64Data = pdfOutput.split(",")[1];
+      const base64Data = pdf.output("datauristring").split(",")[1];
 
       await Filesystem.writeFile({
         path: `death_certificate_${Date.now()}.pdf`,
         data: base64Data,
         directory: Directory.Documents,
-        encoding: Encoding.UTF8,
+        encoding: Encoding.Base64,
       });
       setIsGenerating(false);
       alert("PDF saved to your device's Documents folder.");
@@ -200,7 +198,10 @@ const DeathCertificate = () => {
         ref={certificateRef}
         className="absolute left-[-9999px] top-0 font-serif"
       >
-        <div className="w-full max-w-[8.5in] mx-auto bg-white p-8 border border-gray-300">
+        <div
+          className="w-full bg-white p-8 mx-auto overflow-hidden"
+          style={{ width: "210mm", maxWidth: "210mm", border: "none" }}
+        >
           <div className="text-center mb-6 relative">
             <div className="flex items-center justify-between mb-2">
               <div className="w-24 h-24">

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Capacitor } from "@capacitor/core";
 import { useNavigate } from "react-router-dom";
 import { FaFileDownload } from "react-icons/fa";
 
@@ -39,37 +40,62 @@ const FirstTimeJobseekerCertificate = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const preloadImages = async (element) => {
+    const imgs = element.querySelectorAll("img");
+    await Promise.all(
+      Array.from(imgs).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          img.onload = img.onerror = resolve;
+        });
+      })
+    );
+  };
+
   const handleDownloadPDF = async (e) => {
     e.preventDefault();
     setIsGenerating(true);
 
     try {
       const element = certificateRef.current;
+      await preloadImages(element);
 
       const canvas = await html2canvas(element, {
         scale: 2,
         logging: false,
         useCORS: true,
+        backgroundColor: "#ffffff",
       });
 
-      const imgData = canvas.toDataURL("image/jpeg", 0.98);
+      const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
       const pdf = new jsPDF({
-        unit: "in",
-        format: "letter",
+        unit: "mm",
+        format: "a4",
         orientation: "portrait",
       });
 
-      const imgWidth = 8.5;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      const contentWidth = pdfWidth - 2 * margin;
+      const contentHeight = (canvas.height * contentWidth) / canvas.width;
 
-      const isMobile = window.Capacitor && window.Capacitor.isNativePlatform();
+      pdf.addImage(
+        imgData,
+        "JPEG",
+        margin,
+        margin,
+        contentWidth,
+        contentHeight
+      );
+
+      const isMobile = Capacitor.isNativePlatform();
 
       if (isMobile) {
-        const pdfOutput = pdf.output();
-        const pdfBase64 = btoa(pdfOutput);
+        const pdfBase64 = pdf.output("datauristring").split(",")[1];
         const fileName = `first_time_jobseeker_${Date.now()}.pdf`;
-        // For Capacitor v3+
+
         await Filesystem.writeFile({
           path: fileName,
           data: pdfBase64,
@@ -180,13 +206,16 @@ const FirstTimeJobseekerCertificate = () => {
         </button>
       </form>
 
-      {/* Hidden Certificate for PDF */}
+      {/* Hidden Certificate for PDF - Updated to match A4 proportions */}
       <div
         ref={certificateRef}
         className="absolute left-[-9999px] top-0 font-serif"
       >
-        <div className="w-full max-w-[8.5in] mx-auto bg-white p-8 border border-gray-300">
-          <div className="text-center mb-6 relative">
+        <div
+          className="w-full bg-white p-8 mx-auto overflow-hidden"
+          style={{ width: "210mm", maxWidth: "210mm", border: "none" }}
+        >
+          <div className="text-center mb-10">
             <div className="flex items-center justify-between mb-2">
               <div className="w-24 h-24">
                 <img
@@ -203,8 +232,8 @@ const FirstTimeJobseekerCertificate = () => {
                   OFFICE OF THE PUNONG BARANGAY
                 </p>
                 <p className="text-sm font-semibold">Pagatpatan, Butuan City</p>
-                <h1 className="text-2xl font-bold mt-2 underline">
-                  BARANGAY CLEARANCE
+                <h1 className="text-3xl font-bold mt-10 underline">
+                  CERTIFICATION
                 </h1>
               </div>
               <div className="w-24 h-24">
@@ -217,16 +246,18 @@ const FirstTimeJobseekerCertificate = () => {
             </div>
           </div>
 
-          <p className="text-center font-bold mb-6">TO WHOM IT MAY CONCERN:</p>
+          <p className="text-left font-bold mb-5 mt-5">
+            TO WHOM IT MAY CONCERN:
+          </p>
 
           <div className="text-justify space-y-5 text-base">
             <p>
               This is to certify that{" "}
-              <span className="font-medium border-b border-black px-1">
+              <span className="font-medium underline px-1">
                 {formData.fullName}
               </span>
               , of legal age, single and bonafide resident of Purok{" "}
-              <span className="font-medium border-b border-black px-1">
+              <span className="font-medium underline px-1">
                 {formData.purok}
               </span>
               , Barangay Pagatpatan, Butuan City.
@@ -234,39 +265,37 @@ const FirstTimeJobseekerCertificate = () => {
 
             <p>
               This certifies further that{" "}
-              <span className="font-medium border-b border-black px-1">
+              <span className="font-medium underline px-1">
                 {formData.firstName}
               </span>{" "}
-              is a First Time Jobseeker, as per Republic Act 11261 – First Time
-              Jobseeker Act of 2019.
+              is a First time Job seeker, as per Republic Act 11261 First Time
+              Job Seeker Act of 2019.
             </p>
 
             <p>
               This certification is being issued upon request of{" "}
-              <span className="font-medium border-b border-black px-1">
+              <span className="font-medium underline px-1">
                 {formData.requestorName}
               </span>{" "}
-              for whatever legal purpose it may serve her best.
+              to whatever legal purpose it may serve her best.
             </p>
 
             <p>
               Issued this{" "}
-              <span className="font-medium border-b border-black px-1">
-                {formData.day}
-              </span>{" "}
+              <span className="font-medium underline px-1">{formData.day}</span>{" "}
               day of{" "}
-              <span className="font-medium border-b border-black px-1">
+              <span className="font-medium underline px-1">
                 {formData.month}
-              </span>
-              , 202
-              <span className="font-medium border-b border-black px-1">
+              </span>{" "}
+              202
+              <span className="font-medium underline px-1">
                 {formData.year}
               </span>
               , Barangay Pagatpatan, Butuan City, Philippines.
             </p>
           </div>
 
-          <div className="mt-16 flex justify-end">
+          <div className="mt-16 flex justify-end mr-4">
             <div className="text-center">
               <p className="font-bold">RONIELEN C. OLANDE</p>
               <p>Punong Barangay</p>
