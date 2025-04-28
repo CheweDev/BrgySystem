@@ -5,11 +5,13 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Capacitor } from "@capacitor/core";
 import { useNavigate } from "react-router-dom";
 import { FaFileDownload } from "react-icons/fa";
+import { IoArrowBackCircle } from "react-icons/io5";
 
 const BrgyClearanceForm = () => {
   const certificateRef = useRef();
   const today = new Date();
   const navigate = useNavigate();
+  const back = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
@@ -101,10 +103,15 @@ const BrgyClearanceForm = () => {
     }
   };
 
+  const goBack = () => {
+    back("/user-profile");
+  };
+
   return (
     <div className="max-w-2xl mx-auto p-4 min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E]">
-      <h1 className="text-2xl font-bold text-center mt-5 text-white">
-        Barangay Clearance Form
+      <IoArrowBackCircle className="text-white" onClick={goBack} size={40} />
+      <h1 className="text-2xl font-bold text-center mt-3 text-white">
+        Baranggay Clearance Certificate Form
       </h1>
       <div className="divider"></div>
       <p className="italic text-white text-sm mb-5">*Please input all fields</p>

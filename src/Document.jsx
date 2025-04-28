@@ -1,98 +1,70 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Menu from "./Menu";
 import PaymentForm from "./PaymentForm";
 import { FiSend } from "react-icons/fi";
 
 const clearanceOptions = [
   {
-    label: "Select Document Type",
-    image: "https://placehold.co/600x400?text=Sample",
-    details: "Provide a detailed personal details for the requested document.",
-  },
-  {
     label: "Death Certificate",
     image: "death.jpg",
     price: "50 pesos",
-    details:
-      "Provide the following : Complete Name, Date and Time of Death, Place of Death.",
   },
   {
     label: "First Time Job Seeker Certificate",
     image: "jobseeker.jpg",
     price: "50 pesos",
-    details: "Provide the following : Full Name, Civil Status.",
   },
   {
     label: "Certificate of Indigency",
     image: "indigency.jpg",
     price: "50 pesos",
-    details: "Provide the following : Full Name.",
   },
   {
     label: "Certificate of ONEES",
     image: "oness.jpg",
     price: "50 pesos",
-    details:
-      "Provide the following : Full Name. And present one valid ID for confirmation to barangay.",
   },
   {
     label: "Certificate of Low Income",
     image: "income.jpg",
     price: "50 pesos",
-    details: "Provide the following : Full Name, Gender, Monthly Income.",
   },
   {
     label: "Certificate of Residency",
     image: "residency.jpg",
     price: "50 pesos",
-    details:
-      "Provide the following : Full Name, Gender, Civil Status, Date of Birth.",
   },
   {
     label: "Certificate for Senior",
     image: "senior.jpg",
     price: "50 pesos",
-    details: "Provide the following : Full Name, Civil Status.",
   },
   {
     label: "Baranggay Clearance",
     image: "brgyclearance.jpg",
     price: "50 pesos",
-    details: "Provide the following : Full Name, Civil Status.",
   },
 ];
 
 const Document = () => {
-  const [description, setDescription] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedClearance, setSelectedClearance] = useState(
     clearanceOptions[0]
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [descriptionPlaceholder, setDescriptionPlaceholder] = useState(
-    "Provide a detailed personal details for the requested document."
-  );
 
   const getFormattedDate = () => {
     const today = new Date();
     const dd = String(today.getDate()).padStart(2, "0");
-    const mm = String(today.getMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
     const yyyy = today.getFullYear();
-
-    return `${yyyy}-${mm}-${dd}`; // Format for input type="date"
+    return `${yyyy}-${mm}-${dd}`;
   };
 
   const handleSelectClearance = (option) => {
     setSelectedClearance(option);
     sessionStorage.setItem("selectedClearance", option.label);
     setIsDropdownOpen(false);
-    setDescriptionPlaceholder(`${option.details}`);
-  };
-
-  const handleDescriptionChange = (e) => {
-    const newDescription = e.target.value;
-    setDescription(newDescription);
-    sessionStorage.setItem("activityDescription", newDescription);
   };
 
   return (
@@ -103,16 +75,13 @@ const Document = () => {
         }}
         className="min-h-screen"
       >
-        <div className="p-3">
-          {/* Header */}
-          <header className="flex justify-between items-center mt-5 mb-5">
-            <h1 className="text-3xl font-semibold text-white">Documents</h1>
-          </header>
-
-          {/* Main Form Card */}
-          <div className="p-4 bg-gray-50 rounded-3xl shadow-sm mb-20">
-            {/* Dropdown */}
-            <div className="mb-4 relative">
+        <div className="p-2">
+          <h1 className="text-2xl font-semibold text-white flex justify-center mt-5 mb-5">
+            Request Document
+          </h1>
+          <hr className="border-t border-white mb-4" />
+          <div className="flex flex-col flex-grow overflow-y-auto overflow-hidden bg-white p-3 rounded-lg">
+            <div className="mb-3 relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className="w-full p-3 border border-gray-200 rounded-lg bg-white text-gray-700 flex justify-between items-center"
@@ -136,7 +105,6 @@ const Document = () => {
               )}
             </div>
 
-            {/* Date Input */}
             <div className="mb-4">
               <input
                 type="date"
@@ -146,14 +114,10 @@ const Document = () => {
               />
             </div>
 
-            {/* Document Preview */}
             <div className="mb-4 relative w-full h-80 bg-gray-50 rounded-lg overflow-hidden">
-              {/* Price Label at Top Right */}
               <div className="absolute top-2 right-2 bg-slate-500 text-white text-xs px-2 py-1 rounded">
                 50 PHP
               </div>
-
-              {/* Document Image */}
               <img
                 src={selectedClearance.image}
                 alt={`${selectedClearance.label} Preview`}
@@ -161,20 +125,9 @@ const Document = () => {
               />
             </div>
 
-            {/* <div className="mb-4">
-              <textarea
-                placeholder={descriptionPlaceholder}
-                value={description}
-                rows={7}
-                onChange={handleDescriptionChange}
-                className="w-full p-3 border border-gray-200 rounded-lg text-gray-700 min-h-[100px] resize-none"
-              />
-            </div> */}
-
-            {/* Buttons */}
             <button
               className="w-full py-2 flex justify-center gap-1 bg-teal-700 text-white rounded-full hover:bg-teal-800 transition-colors"
-              onClick={() => setIsModalOpen(true)} // Open modal when clicked
+              onClick={() => setIsModalOpen(true)}
             >
               <FiSend className="mt-1" />
               Request
@@ -183,7 +136,6 @@ const Document = () => {
         </div>
       </div>
 
-      {/* Modal */}
       {isModalOpen && <PaymentForm onClose={() => setIsModalOpen(false)} />}
 
       <Menu />

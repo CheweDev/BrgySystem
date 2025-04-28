@@ -1,15 +1,18 @@
-import { FaHeart, FaRegHeart, FaRegComment } from "react-icons/fa";
+import { FaCommentDots, FaEdit, FaTrashAlt } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { useState, useEffect, useRef } from "react";
 import supabase from "../../supabaseClient";
+import { TbMessageReply } from "react-icons/tb";
+import { FaRegSave } from "react-icons/fa";
+import { MdOutlineCancel } from "react-icons/md";
 
 const UserSocialPost = () => {
   const [editingComment, setEditingComment] = useState(null);
   const [editText, setEditText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const purokno = sessionStorage.getItem("purokno");
   const name = sessionStorage.getItem("name");
   const [posts, setPosts] = useState([]);
-  const [isHeart, setIsHeart] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [previewImage, setPreviewImage] = useState(null);
@@ -66,7 +69,6 @@ const UserSocialPost = () => {
 
     setComments(commentsData || []);
 
-    // Organize replies by comment_id
     const repliesByComment = {};
     (repliesData || []).forEach((reply) => {
       if (!repliesByComment[reply.comment_id]) {
@@ -82,6 +84,8 @@ const UserSocialPost = () => {
     if (!commentText.trim()) return;
 
     const post_id = sessionStorage.getItem("id");
+    setIsLoading(true);
+
     const { error } = await supabase.from("Comments").insert([
       {
         name,
@@ -91,6 +95,8 @@ const UserSocialPost = () => {
         time: getCurrentTime(),
       },
     ]);
+
+    setIsLoading(false);
 
     if (error) {
       console.error("Error posting comment:", error);
@@ -230,10 +236,9 @@ const UserSocialPost = () => {
         posts.map((post) => (
           <div
             key={post.id}
-            className="max-w-lg mx-auto bg-white rounded-xl shadow-sm mb-4"
+            className="max-w-lg mx-auto bg-white rounded-lg shadow-sm mb-3"
           >
-            {/* Your existing post header and content code */}
-            <div className="flex items-center gap-3 p-4">
+            <div className="flex items-center gap-3 p-2">
               <img
                 src={post.profile_image || avatar}
                 alt="Profile"
@@ -242,7 +247,7 @@ const UserSocialPost = () => {
               <div>
                 <h2 className="font-medium">{post.name}</h2>
               </div>
-              <span className="ml-auto text-sm text-white rounded-full p-1 bg-[#77cdb1] w-1/4 flex justify-center">
+              <span className="ml-auto text-sm text-white rounded-full p-1 bg-[#317996] w-1/4 flex justify-center">
                 Purok {post.purokno}
               </span>
             </div>
@@ -268,22 +273,12 @@ const UserSocialPost = () => {
               </div>
             </div>
 
-            <div className="flex justify-end gap-4 px-4 pb-3">
-              <button
-                onClick={() => setIsHeart(!isHeart)}
-                className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-              >
-                {isHeart ? (
-                  <FaHeart className="w-5 h-5 text-red-500" />
-                ) : (
-                  <FaRegHeart className="w-5 h-5" />
-                )}
-              </button>
+            <div className="flex justify-end gap-4 px-4 p-2 border-t">
               <button
                 onClick={() => openComment(post)}
                 className="flex items-center gap-1 text-gray-600 text-sm hover:text-gray-900"
               >
-                <FaRegComment className="w-5 h-5" />
+                <FaCommentDots className="w-4 h-4" />
                 Comments
               </button>
             </div>
@@ -293,14 +288,17 @@ const UserSocialPost = () => {
 
       {/* Comments Modal */}
       {isCommentsOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 z-10">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 z-50">
           <div
             ref={modalRef}
             className="bg-base-200 rounded-lg w-full max-w-md max-h-[90vh] flex flex-col"
           >
-            <div className="p-4 border-b bg-white">
+            <div className="p-3 border-b bg-white">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Comments</h2>
+                <h2 className="text-lg text-gray-600 font-semibold flex gap-1">
+                  <FaCommentDots className="mt-1" />
+                  Comments
+                </h2>
                 <button
                   onClick={() => setIsCommentsOpen(false)}
                   className="text-gray-500 hover:text-gray-700"
@@ -313,7 +311,9 @@ const UserSocialPost = () => {
             <div className="flex-1 overflow-y-auto p-4">
               <div className="space-y-4">
                 {comments.length === 0 ? (
-                  <p className="text-center text-gray-500">No comments yet</p>
+                  <p className="text-center text-gray-500 italic">
+                    No comments yet
+                  </p>
                 ) : (
                   comments.map((comment) => (
                     <div key={comment.id} className="flex gap-3">
@@ -337,56 +337,54 @@ const UserSocialPost = () => {
                           )}
                         </div>
 
-                        <div className="flex justify-between items-center mt-2 text-sm">
+                        <div className="flex justify-between items-center mt-1 text-sm">
                           <span className="text-xs text-gray-500">
                             {formatDateTime(comment.date, comment.time)}
                           </span>
                           <div className="flex gap-2">
-                            {/* Only show edit/delete for comment author */}
                             {isAuthor(comment.name) && (
                               <>
                                 {editingComment === comment.id ? (
                                   <>
                                     <button
                                       onClick={() => handleSaveEdit(comment.id)}
-                                      className="text-green-600 text-sm"
+                                      className="text-green-700 text-sm"
                                     >
-                                      Save
+                                      <FaRegSave className="w-4 h-4" />
                                     </button>
                                     <button
                                       onClick={() => setEditingComment(null)}
-                                      className="text-red-500 text-sm"
+                                      className="text-red-400 text-sm"
                                     >
-                                      Cancel
+                                      <MdOutlineCancel className="w-5 h-5" />
                                     </button>
                                   </>
                                 ) : (
                                   <>
                                     <button
                                       onClick={() => handleEdit(comment)}
-                                      className="text-blue-500 text-sm"
+                                      className="text-blue-400 text-sm"
                                     >
-                                      Edit
+                                      <FaEdit className="w-4 h-4" />
                                     </button>
                                     <button
                                       onClick={() =>
                                         handleDeleteComment(comment.id)
                                       }
-                                      className="text-red-500 text-sm"
+                                      className="text-red-400 text-sm"
                                     >
-                                      Delete
+                                      <FaTrashAlt className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => setReplyingTo(comment.id)}
+                                      className="text-green-700 text-sm"
+                                    >
+                                      <TbMessageReply className="w-5 h-5" />
                                     </button>
                                   </>
                                 )}
                               </>
                             )}
-                            {/* Always show reply button */}
-                            <button
-                              onClick={() => setReplyingTo(comment.id)}
-                              className="text-green-600 text-sm"
-                            >
-                              Reply
-                            </button>
                           </div>
                         </div>
 
@@ -406,7 +404,7 @@ const UserSocialPost = () => {
                             />
                             <button
                               onClick={() => handleReplySubmit(comment.id)}
-                              className="bg-[#509c83] text-white px-3 rounded"
+                              className="bg-[#77cdb1] text-white px-3 rounded"
                             >
                               Reply
                             </button>
@@ -424,7 +422,7 @@ const UserSocialPost = () => {
                                 />
                                 <div className="flex-1">
                                   <div className="bg-white p-2 rounded-lg">
-                                    <h4 className="text-sm font-medium">
+                                    <h4 className="text-sm font-bold">
                                       {reply.name}
                                     </h4>
                                     <p className="text-xs">{reply.content}</p>
@@ -432,7 +430,6 @@ const UserSocialPost = () => {
                                       <span className="text-gray-500">
                                         {formatDateTime(reply.date, reply.time)}
                                       </span>
-                                      {/* Only show delete button for reply author */}
                                       {isAuthor(reply.name) && (
                                         <button
                                           onClick={() =>
@@ -456,25 +453,29 @@ const UserSocialPost = () => {
                 )}
               </div>
             </div>
-            {/* Comment Input */}
-            <form
-              onSubmit={handleSubmitComment}
-              className="p-3 border-t mt-auto"
-            >
+
+            <form onSubmit={handleSubmitComment} className="p-2 border-t">
               <div className="flex gap-2">
                 <div className="flex-1">
                   <textarea
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="Write a comment..."
-                    className="w-full min-h-[40px] p-1 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-[#77cdb1]"
+                    placeholder="Add a comment..."
+                    className="w-full p-2 rounded border"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="bg-[#77cdb1] text-white mb-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#77cdb1]"
+                  disabled={isLoading}
+                  className={`bg-[#77cdb1] text-white mb-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#77cdb1] ${
+                    isLoading ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
-                  Post
+                  {isLoading ? (
+                    <span className="loader px-4 text-white" />
+                  ) : (
+                    "Post"
+                  )}
                 </button>
               </div>
             </form>

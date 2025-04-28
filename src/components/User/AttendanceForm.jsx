@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 import Menu from "../../Menu";
 import supabase from "../../supabaseClient";
+import { RiCompassDiscoverFill } from "react-icons/ri";
 
 const AttendanceForm = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ const AttendanceForm = () => {
   const [hoursRendered, setHoursRendered] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [files, setFiles] = useState({ image: null });
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const storedName = sessionStorage.getItem("name");
@@ -96,20 +98,22 @@ const AttendanceForm = () => {
       setFiles({ image: null });
     } catch (error) {
       console.error("Error submitting attendance:", error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E] px-4 py-6 sm:px-6 md:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E] px-2 py-6 sm:px-2 pb-16">
       <p className="text-2xl sm:text-3xl font-bold text-white mb-4 text-center">
         Attendance Form
       </p>
-      <hr className="border-t border-white mb-6" />
 
-      <div className="w-full max-w-lg mx-auto bg-white p-4 sm:p-6 rounded-lg shadow-md">
-        <div className="max-h-[72vh] overflow-y-auto">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name */}
+      <hr className="border-t border-white mb-3" />
+
+      <div className="w-full max-w-lg mx-auto bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-md h-auto">
+        <div className="flex flex-col flex-grow overflow-y-auto overflow-hidden">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div>
               <label className="block text-sm font-medium mb-1">Name</label>
               <input
@@ -121,7 +125,6 @@ const AttendanceForm = () => {
               />
             </div>
 
-            {/* Date */}
             <div>
               <label className="block text-sm font-medium mb-1">Date</label>
               <input
@@ -134,7 +137,6 @@ const AttendanceForm = () => {
               />
             </div>
 
-            {/* What */}
             <div>
               <label htmlFor="what" className="block text-sm font-medium mb-1">
                 What
@@ -150,7 +152,6 @@ const AttendanceForm = () => {
               />
             </div>
 
-            {/* Status */}
             <div>
               <label className="block text-sm font-medium mb-1">Status</label>
               <select
@@ -165,7 +166,6 @@ const AttendanceForm = () => {
               </select>
             </div>
 
-            {/* Time In */}
             <div>
               <label className="block text-sm font-medium mb-1">Time In</label>
               <input
@@ -178,7 +178,6 @@ const AttendanceForm = () => {
               />
             </div>
 
-            {/* Time Out */}
             <div>
               <label className="block text-sm font-medium mb-1">Time Out</label>
               <input
@@ -191,7 +190,6 @@ const AttendanceForm = () => {
               />
             </div>
 
-            {/* Proof of Attendance */}
             <div>
               <h2 className="text-sm font-medium mb-1">Proof of Attendance:</h2>
               <input
@@ -204,7 +202,6 @@ const AttendanceForm = () => {
               />
             </div>
 
-            {/* Hours Rendered */}
             {hoursRendered !== null && formData.status === "Present" && (
               <p className="text-sm font-medium text-gray-600">
                 Hours Rendered: {hoursRendered} hrs
@@ -213,12 +210,40 @@ const AttendanceForm = () => {
 
             <div className="divider" />
 
-            {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-teal-700 text-white py-2 rounded-full"
+              className="w-full bg-teal-600 text-white py-2 rounded-full flex gap-1 justify-center"
             >
-              Submit
+              {isLoading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 0116 0H4z"
+                    ></path>
+                  </svg>
+                  Loading...
+                </>
+              ) : (
+                <>
+                  <RiCompassDiscoverFill className="mt-1" size={17} />
+                  Submit
+                </>
+              )}
             </button>
           </form>
         </div>

@@ -19,12 +19,12 @@ const DynamicCalendarIcon = ({ date }) => {
 };
 
 const AdminAttendance = () => {
-  const avatar = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+  const avatar =
+    "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
   const purokno = sessionStorage.getItem("purokno");
   const [announcements, setAnnouncements] = useState([]);
   const [attendees, setAttendees] = useState([]);
 
-  
   useEffect(() => {
     fetchAnnouncements();
     fetchMembers();
@@ -36,7 +36,7 @@ const AdminAttendance = () => {
       .select("*")
       .eq("purokno", purokno)
       .order("created_at", { ascending: false });
-    
+
     setAnnouncements(data || []);
   };
 
@@ -45,14 +45,14 @@ const AdminAttendance = () => {
       .from("Attendance")
       .select("*")
       .eq("purokno", purokno);
-  
+
     if (data) {
       // Merge attendees by name and sum their total time
       const mergedAttendees = data.reduce((acc, attendee) => {
         const existing = acc.find((a) => a.name === attendee.name);
         const [hours, minutes] = attendee.total.split(".").map(Number); // Parse hours and minutes
-        const totalMinutes = (hours * 60) + (minutes || 0); // Convert to total minutes
-  
+        const totalMinutes = hours * 60 + (minutes || 0); // Convert to total minutes
+
         if (existing) {
           existing.totalMinutes += totalMinutes; // Sum minutes
         } else {
@@ -60,30 +60,29 @@ const AdminAttendance = () => {
         }
         return acc;
       }, []);
-  
+
       // Convert total minutes back to hours and minutes format
       const finalAttendees = mergedAttendees.map((attendee) => {
         let finalHours = Math.floor(attendee.totalMinutes / 60);
         let finalMinutes = Math.round(attendee.totalMinutes % 60);
-  
+
         if (finalMinutes === 60) {
           finalHours += 1;
           finalMinutes = 0;
         }
-  
+
         return {
           ...attendee,
           total: `${finalHours}.${finalMinutes}`, // Format as "H.MMm"
         };
       });
-  
+
       setAttendees(finalAttendees);
     } else {
       setAttendees([]);
     }
   };
-  
- 
+
   return (
     <>
       <div
@@ -92,8 +91,10 @@ const AdminAttendance = () => {
         }}
         className="min-h-screen"
       >
-        <div className="p-3">
-          <p className="text-3xl font-bold text-white mb-2 mt-3">Attendance List</p>
+        <div className="p-2">
+          <p className="text-2xl font-bold flex justify-center text-white mb-2 mt-3">
+            Attendance List
+          </p>
 
           <hr className="border-t border-white my-4" />
 
@@ -101,44 +102,38 @@ const AdminAttendance = () => {
           <div className="px-2 mb-20">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-white">Attendance</h2>
-              <span className="text-white text-sm">
-                Volunteer Hours
-              </span>
+              <span className="text-white text-sm">Volunteer Hours</span>
             </div>
             {attendees.length > 0 ? (
-            <div className="space-y-3">
-              {attendees.map((attendee) => (
-                <div
-                  key={attendee.id}
-                  className="bg-base-200 rounded-3xl p-3 flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative w-10 h-10 overflow-hidden rounded-full">
-                      <img
-                        src={
-                          avatar || "https://placehold.co/600x400/png"
-                        }
-                        alt={attendee.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+              <div className="space-y-3">
+                {attendees.map((attendee) => (
+                  <div
+                    key={attendee.id}
+                    className="bg-base-200 rounded-3xl p-3 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-10 h-10 overflow-hidden rounded-full">
+                        <img
+                          src={avatar || "https://placehold.co/600x400/png"}
+                          alt={attendee.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
 
-                    <span className="text-gray-700 font-medium">
-                      {attendee.name}
-                    </span>
+                      <span className="text-gray-700 font-medium">
+                        {attendee.name}
+                      </span>
+                    </div>
+                    <div className="w-12 h-12 bg-[#2A7B62] rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold">
+                        {attendee.total}
+                      </span>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-[#2A7B62] rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">
-                      {attendee.total}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-             ) : (
-              <p className="text-center text-white">
-                No attendees available.
-              </p>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-white">No attendees available.</p>
             )}
           </div>
         </div>

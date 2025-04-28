@@ -1,6 +1,7 @@
 import Menu from "../../Menu";
 import { useState, useEffect } from "react";
 import supabase from "../../supabaseClient";
+import { MdNotificationsActive } from "react-icons/md";
 
 const UserNotification = () => {
   const name = sessionStorage.getItem("name");
@@ -68,16 +69,19 @@ const UserNotification = () => {
       style={{
         background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
       }}
-      className="min-h-screen flex flex-col"
+      className="min-h-screen flex flex-col pb-14"
     >
       <div className="p-3 flex-1 flex flex-col">
-        <p className="text-3xl font-bold text-white mb-2 mt-5">Notification</p>
+        <p className="text-2xl font-bold text-white mb-3 mt-3 flex gap-1">
+          <MdNotificationsActive className="mt-1" />
+          Notifications
+        </p>
 
         <label className="input input-bordered flex items-center gap-2 mb-3">
           <input
             type="text"
             className="grow"
-            placeholder="Search notifications..."
+            placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -95,8 +99,7 @@ const UserNotification = () => {
           </svg>
         </label>
 
-        {/* Scrollable Notifications List */}
-        <div className="bg-white/10 rounded-lg p-2 backdrop-blur-md flex-1 overflow-y-auto max-h-[72vh]">
+        <div className="bg-white/20 rounded-lg p-2 backdrop-blur-lg flex flex-col flex-grow overflow-y-auto overflow-hidden">
           {filteredNotifications.length > 0 ? (
             filteredNotifications.map((item) => (
               <div
@@ -128,8 +131,7 @@ const UserNotification = () => {
           )}
         </div>
       </div>
-      {/* Fixed Menu at Bottom */}
-      <div className="sticky bottom-0 w-full">
+      <div className="fixed bottom-4 right-4 z-50">
         <Menu />
       </div>
     </div>

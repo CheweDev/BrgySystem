@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Menu from "../../Menu";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../supabaseClient";
-import { IoMdLogOut } from "react-icons/io";
+import { ImExit } from "react-icons/im";
 
 const UserProfile = () => {
   const [profileImage, setProfileImage] = useState(
@@ -109,12 +109,13 @@ const UserProfile = () => {
       }}
       className="min-h-screen"
     >
-      {/* Profile Card */}
-      <div className="px-2 pt-5">
+      <div className="px-2 pt-3">
         <div className="bg-white rounded-3xl p-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <h2 className="text-lg font-semibold">{name}</h2>
+              <h2 className="text-xl font-semibold">{name}</h2>
+
+              <div className="text-gray-600">Purok:{purokno}</div>
               <div className="flex items-center gap-2">
                 <span className="text-gray-600">Resident</span>
                 <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
@@ -123,7 +124,6 @@ const UserProfile = () => {
               </div>
             </div>
             <div className="relative w-16 h-16">
-              {/* Image Input and Preview */}
               <label className="cursor-pointer">
                 <img
                   src={profileImage}
@@ -140,24 +140,14 @@ const UserProfile = () => {
             </div>
           </div>
 
-          <div className="mt-4 border-t pt-4">
-            <div className="text-gray-600">Resident Purok:</div>
-          </div>
-
-          <div className="mt-4">
-            <div className="bg-[#E8F5F1] text-center py-2 rounded-lg">
-              Purok {purokno}
-            </div>
-          </div>
-
           <hr className="border-t my-4" />
 
           <button
-            className="w-full flex justify-center gap-1 rounded-full bg-error text-white font-bold py-2"
+            className="w-full flex justify-center gap-1 rounded-full bg-error text-base-200 font-bold py-2"
             onClick={logout}
           >
-            <IoMdLogOut className="mt-1" />
-            Logout
+            <ImExit className="mt-1" />
+            SignOut
           </button>
         </div>
       </div>
@@ -176,16 +166,15 @@ const UserProfile = () => {
 
       {/* Waitlisted Requests */}
       <div
-        className="rounded-tl-[40px] rounded-tr-[40px] p-4 mt-5"
+        className="rounded-tl-[40px] rounded-tr-[40px] p-3 mt-5"
         style={{
           background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
         }}
       >
-        <h3 className="text-white mb-4 font-bold mt-2">Waitlisted Requests:</h3>
-        <div className="space-y-3 mb-20">
+        <div className="space-y-3 pb-14 mt-3">
           {docs.length > 0 ? (
             docs.map((doc, index) => {
-              const submissionDate = new Date(doc.created_at); // Assuming there's a 'submitted_at' field
+              const submissionDate = new Date(doc.created_at);
               const day = submissionDate.getDate();
               const month = submissionDate.toLocaleString("default", {
                 month: "short",

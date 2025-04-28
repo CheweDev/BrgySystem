@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import supabase from "../../supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { GiArchiveRegister } from "react-icons/gi";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -9,7 +10,6 @@ const Register = () => {
   const [purok_no, setPurokNo] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("Admin");
   const [loading, setLoading] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [notification, setNotification] = useState({
@@ -76,18 +76,18 @@ const Register = () => {
 
   return (
     <>
-      <div className="flex justify-center mt-10">
+      <div className="flex justify-center mt-16">
         <img src="logo - Copy.png" alt="logo" />
       </div>
       <div className="p-2 mt-3">
         <div
-          className="rounded-tl-[35px] rounded-tr-[35px]  rounded-br-[35px] p-3 shadow-xl"
+          className="rounded-tl-[35px] rounded-tr-[35px]  rounded-br-[35px] p-2 shadow-xl"
           style={{
             background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
           }}
         >
           <form>
-            <label className="input input-bordered flex items-center gap-2 mt-4 mb-2 rounded-full">
+            <label className="input input-bordered flex items-center gap-2 mt-5 mb-2 rounded-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
@@ -193,7 +193,7 @@ const Register = () => {
               />
             </label>
 
-            <label className="flex items-center text-sm mb-4 text-white">
+            <label className="flex items-center text-sm mb-4 mt-4 px-3 text-white">
               <input
                 type="checkbox"
                 onChange={() => setShowPassword(!showPassword)}
@@ -204,7 +204,7 @@ const Register = () => {
 
             <button
               onClick={handleRegister}
-              className="w-full shadow-xl bg-green-300 font-extrabold py-3 sm:py-4 text-base sm:text-lg rounded-full mb-6 sm:mb-8 mt-3 tracking-wider transition flex justify-center"
+              className="w-full shadow-xl gap-1 bg-green-300 font-bold py-3 sm:py-3 text-base sm:text-lg rounded-full mb-6 sm:mb-8 mt-3 transition flex justify-center items-center"
               disabled={loading}
             >
               {loading ? (
@@ -232,7 +232,10 @@ const Register = () => {
                   Loading...
                 </>
               ) : (
-                "Register"
+                <>
+                  <GiArchiveRegister size={18} />
+                  Register
+                </>
               )}
             </button>
           </form>

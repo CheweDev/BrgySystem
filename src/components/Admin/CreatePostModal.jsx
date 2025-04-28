@@ -1,21 +1,27 @@
 import React, { useState } from "react";
 import supabase from "../../supabaseClient";
+import { IoIosSend } from "react-icons/io";
 
 const CreatePostModal = ({ isOpen, onClose }) => {
-  const [postType, setPostType] = useState("social"); // Default: Social Post
+  const [postType, setPostType] = useState("social");
   const [content, setContent] = useState("");
   const [socialPost, setSocialPost] = useState("");
-  const [date, setDate] = useState(""); // Only for announcements
-  
-  const [image1, setImage1] = useState('');
-  const [image2, setImage2] = useState('');
-  const [image3, setImage3] = useState('');
-  const [files, setFiles] = useState({ image1: null, image2: null, image3: null });
+  const [date, setDate] = useState("");
+
+  const [image1, setImage1] = useState("");
+  const [image2, setImage2] = useState("");
+  const [image3, setImage3] = useState("");
+  const [files, setFiles] = useState({
+    image1: null,
+    image2: null,
+    image3: null,
+  });
   const purokno = sessionStorage.getItem("purokno");
   const name = sessionStorage.getItem("name");
   const today = new Date();
-  const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
+  const formattedDate = `${today.getFullYear()}-${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
 
   const uploadImage = async (file) => {
     if (!file) return null;
@@ -44,20 +50,18 @@ const CreatePostModal = ({ isOpen, onClose }) => {
 
   const handleSubmit = async () => {
     let uploadedImages = { image1: "", image2: "", image3: "" };
-  
-    // Upload images
+
     uploadedImages.image1 = await uploadImage(files.image1);
     uploadedImages.image2 = await uploadImage(files.image2);
     uploadedImages.image3 = await uploadImage(files.image3);
-  
 
     setImage1(uploadedImages.image1);
     setImage2(uploadedImages.image2);
     setImage3(uploadedImages.image3);
-  
+
     if (postType === "social") {
       const { data, error } = await supabase
-        .from('Social')
+        .from("Social")
         .insert([
           {
             name,
@@ -70,7 +74,7 @@ const CreatePostModal = ({ isOpen, onClose }) => {
           },
         ])
         .select();
-  
+
       if (error) {
         console.error("Error inserting data:", error);
         alert("Error inserting data");
@@ -79,18 +83,18 @@ const CreatePostModal = ({ isOpen, onClose }) => {
         window.location.reload();
       }
     } else {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toISOString().split("T")[0];
       const { data, error } = await supabase
-        .from('Announcement')
+        .from("Announcement")
         .insert([
           {
             content,
             purokno,
-            date:today,
+            date: today,
           },
         ])
         .select();
-  
+
       if (error) {
         console.error("Error inserting data:", error);
         alert("Error inserting data");
@@ -99,11 +103,11 @@ const CreatePostModal = ({ isOpen, onClose }) => {
         window.location.reload();
       }
     }
-  };  
-  
+  };
+
   return isOpen ? (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10 p-3">
-      <div className="bg-base-200 p-4 rounded-lg w-96 shadow-lg relative">
+      <div className="bg-base-100 p-4 rounded-lg w-96 shadow-lg relative">
         <button
           onClick={onClose}
           className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-3xl size-8"
@@ -144,9 +148,24 @@ const CreatePostModal = ({ isOpen, onClose }) => {
               className="w-full p-2 border rounded mb-2"
             />
             <div className="space-y-2">
-              <input type="file" onChange={(e) => setFiles({ ...files, image1: e.target.files[0] })} />
-              <input type="file" onChange={(e) => setFiles({ ...files, image2: e.target.files[0] })} />
-              <input type="file" onChange={(e) => setFiles({ ...files, image3: e.target.files[0] })} />
+              <input
+                type="file"
+                onChange={(e) =>
+                  setFiles({ ...files, image1: e.target.files[0] })
+                }
+              />
+              <input
+                type="file"
+                onChange={(e) =>
+                  setFiles({ ...files, image2: e.target.files[0] })
+                }
+              />
+              <input
+                type="file"
+                onChange={(e) =>
+                  setFiles({ ...files, image3: e.target.files[0] })
+                }
+              />
             </div>
           </>
         )}
@@ -154,8 +173,9 @@ const CreatePostModal = ({ isOpen, onClose }) => {
         <div className="flex justify-end mt-10">
           <button
             onClick={handleSubmit}
-            className="px-10 py-2 bg-[#25596E] text-white rounded-full"
+            className="px-10 py-2 bg-[#25596E] text-white rounded-full w-full flex justify-center gap-1"
           >
+            <IoIosSend className="mt-1" />
             Post
           </button>
         </div>

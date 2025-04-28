@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../supabaseClient";
-import { IoMdLogIn } from "react-icons/io";
+import { VscSignIn } from "react-icons/vsc";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -94,7 +94,7 @@ const Login = () => {
               />
             </label>
 
-            <label className="input input-bordered flex items-center gap-2 mb-3 rounded-full">
+            <label className="input input-bordered flex items-center gap-2 mb-2 rounded-full">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
@@ -117,23 +117,35 @@ const Login = () => {
               />
             </label>
 
-            <div className="flex justify-between gap-1">
-              {/* Role Select */}
+            <label className="input input-bordered flex items-center gap-2 mb-2 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="h-4 w-4 opacity-70"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M12 2a5 5 0 0 1 5 5v1a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5Zm-7 18a7 7 0 0 1 14 0v1H5v-1Z"
+                  clipRule="evenodd"
+                />
+              </svg>
               <select
-                className="select select-bordered w-full rounded-full mb-4"
+                className="grow bg-transparent outline-none"
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
+                required
               >
-                <option disabled selected>
+                <option disabled selected value="">
                   Select Role
                 </option>
                 <option>User</option>
                 <option>Admin</option>
                 <option>Super Admin</option>
               </select>
-            </div>
+            </label>
 
-            <label className="flex items-center text-sm mb-4 text-white">
+            <label className="flex items-center text-sm mb-4 mt-4 text-white px-3">
               <input
                 type="checkbox"
                 onChange={() => setShowPassword(!showPassword)}
@@ -144,13 +156,13 @@ const Login = () => {
 
             <button
               onClick={userLogin}
-              className="w-full shadow-xl gap-1 bg-green-300 font-extrabold py-3 sm:py-4 text-base sm:text-lg rounded-full mb-6 sm:mb-8 mt-3 tracking-wider transition flex justify-center items-center"
+              className="w-full shadow-xl gap-1 bg-green-300 font-bold py-3 sm:py-3 text-base sm:text-lg rounded-full mb-6 sm:mb-8 mt-3 transition flex justify-center items-center"
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
                   <svg
-                    className="animate-spin h-5 w-5 mr-3"
+                    className="animate-spin h-5 w-5 mr-1"
                     fill="none"
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
@@ -173,7 +185,7 @@ const Login = () => {
                 </>
               ) : (
                 <>
-                  <IoMdLogIn />
+                  <VscSignIn size={18} />
                   Login
                 </>
               )}

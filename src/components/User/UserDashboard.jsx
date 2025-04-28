@@ -6,6 +6,9 @@ import "swiper/swiper-bundle.css";
 import UserSocialPost from "./UserSocialPost";
 import { useState, useEffect } from "react";
 import supabase from "../../supabaseClient";
+import { Autoplay } from "swiper/modules";
+import { MdWavingHand } from "react-icons/md";
+import styled, { keyframes } from "styled-components";
 
 const DynamicCalendarIcon = ({ date }) => {
   const parsedDate = new Date(date);
@@ -20,9 +23,33 @@ const DynamicCalendarIcon = ({ date }) => {
   );
 };
 
+const wave = keyframes`
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(15deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-15deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+`;
+
+const WavingHandIcon = styled(MdWavingHand)`
+  display: inline-block;
+  animation: ${wave} 0.5s ease-in-out infinite;
+`;
+
 const UserDashboard = () => {
   const purokno = sessionStorage.getItem("purokno");
   const [announcements, setAnnouncements] = useState([]);
+  let name = sessionStorage.getItem("name");
 
   useEffect(() => {
     fetchAnnouncements();
@@ -44,25 +71,33 @@ const UserDashboard = () => {
       }}
       className="min-h-screen flex flex-col"
     >
-      <div className="p-3 flex-grow">
-        <p className="text-3xl font-bold text-white mb-2 mt-3">Dashboard</p>
-        <p className="text-lg text-white flex gap-2 mb-2">
+      <div className="flex flex-col flex-grow overflow-hidden p-2">
+        <p className="text-2xl font-bold text-white mt-3 tracking-wide flex items-center gap-2 px-1">
+          Welcome, <span className="text-[#daf86c]">{name}</span>
+          <WavingHandIcon />
+        </p>
+
+        <p className="text-md text-white flex gap-1 mt-2 mb-1 px-1">
           Announcement <GrAnnounce />
         </p>
 
-        <section className="mt-4 rounded-lg">
+        <section className="shrink-0">
           {announcements.length > 0 ? (
             <Swiper
+              modules={[Autoplay]}
               spaceBetween={10}
               slidesPerView={1}
-              loop
-              autoplay={{ delay: 1500 }}
+              loop={true}
+              autoplay={{
+                delay: 2000,
+                disableOnInteraction: false,
+              }}
               className="rounded-lg shadow-md"
             >
               {announcements.map((announcement) => (
                 <SwiperSlide
                   key={announcement.id}
-                  className="flex-shrink-0 w-80 p-4 bg-white rounded-lg shadow-md flex flex-col justify-between"
+                  className="flex-shrink-0 w-80 p-3 bg-white rounded-lg shadow-md flex flex-col justify-between"
                 >
                   <div className="flex gap-2">
                     <DynamicCalendarIcon date={announcement.date} />
@@ -80,14 +115,11 @@ const UserDashboard = () => {
 
         <hr className="border-t border-white my-4" />
 
-        {/* Scrollable UserSocialPost */}
-        <div className="overflow-y-auto max-h-[60vh] pb-4">
+        <div className="flex-grow overflow-y-auto pb-12">
           <UserSocialPost />
         </div>
       </div>
-
-      {/* Ensure Menu does not overlap buttons */}
-      <div className="relative z-10">
+      <div className="fixed bottom-4 right-4 z-50">
         <Menu />
       </div>
     </div>

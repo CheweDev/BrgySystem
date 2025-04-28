@@ -4,11 +4,13 @@ import jsPDF from "jspdf";
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { useNavigate } from "react-router-dom";
 import { FaFileDownload } from "react-icons/fa";
+import { IoArrowBackCircle } from "react-icons/io5";
 
 const ResidencyCertificate = () => {
   const certificateRef = useRef();
   const today = new Date();
   const navigate = useNavigate();
+  const back = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState({
     completeName: "",
@@ -85,9 +87,14 @@ const ResidencyCertificate = () => {
     }
   };
 
+  const goBack = () => {
+    back("/user-profile");
+  };
+
   return (
     <div className="max-w-2xl mx-auto p-4 min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E]">
-      <h1 className="text-2xl font-bold text-center mt-5 text-white">
+      <IoArrowBackCircle className="text-white" onClick={goBack} size={40} />
+      <h1 className="text-2xl font-bold text-center mt-3 text-white">
         Certificate of Residency Form
       </h1>
       <div className="divider"></div>
@@ -95,7 +102,7 @@ const ResidencyCertificate = () => {
         *Please fill out all fields
       </p>
 
-      <form onSubmit={handleDownloadPDF} className="space-y-5 pb-28">
+      <form onSubmit={handleDownloadPDF} className="space-y-5 pb-5">
         {[
           { name: "completeName", placeholder: "Complete Name" },
           { name: "gender", placeholder: "Gender" },

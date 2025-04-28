@@ -8,7 +8,6 @@ const SANotif = () => {
   const [notifications, setNotifications] = useState([]);
   const [search, setSearch] = useState("");
 
-
   useEffect(() => {
     fetchAllData();
   }, []);
@@ -28,7 +27,6 @@ const SANotif = () => {
       isNew: item.isNew || false,
     }));
 
-
     const allNotifications = [...formattedDocs].sort(
       (a, b) => new Date(b.created_at) - new Date(a.created_at)
     );
@@ -36,21 +34,19 @@ const SANotif = () => {
     setNotifications(allNotifications);
   };
 
-  const filteredNotifications = notifications.filter(
-    (notif) =>
-      notif.content.toLowerCase().includes(search.toLowerCase())
+  const filteredNotifications = notifications.filter((notif) =>
+    notif.content.toLowerCase().includes(search.toLowerCase())
   );
-
 
   return (
     <div
       style={{
         background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
       }}
-      className="min-h-screen flex flex-col"
+      className="min-h-screen flex flex-col pb-14"
     >
-      <div className="p-3 flex-1 flex flex-col">
-        <p className="text-3xl font-bold text-white mb-2 mt-5">Notification</p>
+      <div className="p-2 flex-1 flex flex-col">
+        <p className="text-3xl font-bold text-white mb-3 mt-3">Notifications</p>
         <label className="input input-bordered flex items-center gap-2 mb-3">
           <input
             type="text"
@@ -75,26 +71,33 @@ const SANotif = () => {
 
         {/* Scrollable Notifications List */}
         <div className="bg-white/10 rounded-lg p-2 backdrop-blur-md flex-1 overflow-y-auto max-h-[80vh]">
-        {filteredNotifications.length > 0 ? (
-          filteredNotifications.map((item) => (
-            <div key={item.id} className="p-4 border-b border-white/40 flex items-start">
-              {item.isNew && <span className="text-red-500 text-lg mr-2">🔴</span>}
-              <div>
-                <h3 className="text-white font-semibold">
-                  {item.type === "announcement"
-                    ? "Announcement!"
-                    : item.type === "social"
-                    ? "Social Post"
-                    : "Request Update"}
-                </h3>
-                <p className="text-white">{item.content}</p>
-                <p className="text-white/80 text-sm">{new Date(item.created_at).toLocaleDateString()}</p>
+          {filteredNotifications.length > 0 ? (
+            filteredNotifications.map((item) => (
+              <div
+                key={item.id}
+                className="p-4 border-b border-white/40 flex items-start"
+              >
+                {item.isNew && (
+                  <span className="text-red-500 text-lg mr-2">🔴</span>
+                )}
+                <div>
+                  <h3 className="text-white font-semibold">
+                    {item.type === "announcement"
+                      ? "Announcement!"
+                      : item.type === "social"
+                      ? "Social Post"
+                      : "Request Update"}
+                  </h3>
+                  <p className="text-white">{item.content}</p>
+                  <p className="text-white/80 text-sm">
+                    {new Date(item.created_at).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-white text-center p-4">No notifications yet.</p>
-        )}
+            ))
+          ) : (
+            <p className="text-white text-center p-4">No notifications yet.</p>
+          )}
         </div>
       </div>
 

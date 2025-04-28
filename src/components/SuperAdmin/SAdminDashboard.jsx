@@ -3,9 +3,13 @@ import { GrAnnounce } from "react-icons/gr";
 import { FiFilter } from "react-icons/fi";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.css";
-import { FaRegComment } from "react-icons/fa";
+import { FaCommentDots, FaEdit, FaTrashAlt } from "react-icons/fa";
+import { TbMessageReply } from "react-icons/tb";
+import { FaRegSave } from "react-icons/fa";
+import { MdOutlineCancel } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
 import SAMenu from "./SAMenu";
+import { Autoplay } from "swiper/modules";
 import supabase from "../../supabaseClient";
 
 const DynamicCalendarIcon = ({ date }) => {
@@ -37,7 +41,7 @@ export default function SuperAdminDashboard() {
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
-  const [selectedPostId, setSelectedPostId] = useState(null); // Store the ID of the selected post
+  const [selectedPostId, setSelectedPostId] = useState(null);
   const [announcements, setAnnouncements] = useState([]);
   const [socialPosts, setSocialPosts] = useState([]);
   const name = sessionStorage.getItem("name");
@@ -179,8 +183,8 @@ export default function SuperAdminDashboard() {
   };
 
   const openComments = (postId) => {
-    setSelectedPostId(postId); // Set the post ID for the selected post
-    setIsCommentsOpen(true); // Open the comments modal
+    setSelectedPostId(postId);
+    setIsCommentsOpen(true);
   };
 
   useEffect(() => {
@@ -239,7 +243,6 @@ export default function SuperAdminDashboard() {
 
     setComments(commentsData || []);
 
-    // Organize replies by comment_id
     const repliesByComment = {};
     (repliesData || []).forEach((reply) => {
       if (!repliesByComment[reply.comment_id]) {
@@ -272,35 +275,37 @@ export default function SuperAdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E]">
-      <div className="p-3">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4 mt-3">
-          <h1 className="text-2xl font-bold text-white">SuperAdmin</h1>
+      <div className="p-2">
+        <div className="flex justify-between items-center mb-3 mt-3">
+          <h1 className="text-2xl font-bold text-white px-1">SuperAdmin</h1>
           <button
             onClick={() => setShowFilterModal(true)}
-            className="bg-white/20 text-white px-4 py-2 rounded-full flex items-center btn-sm gap-2"
+            className="bg-white/20 text-white py-2 rounded-full flex items-center btn-sm gap-2"
           >
             <FiFilter />
             {selectedPurok === "all" ? "All Purok" : `Purok ${selectedPurok}`}
           </button>
         </div>
-        {/* Announcements Section */}
         <section>
           <div className="flex justify-between items-center mb-2">
-            <h2 className="text-xl text-white flex items-center gap-2">
-              <GrAnnounce className="text-white" /> Announcements
+            <h2 className="text-xl text-white flex items-center gap-2 px-1">
+              Announcements <GrAnnounce className="text-white text-sm" />
             </h2>
-            <span className="text-white text-sm">
+            <span className="text-white text-sm px-1">
               {filteredAnnouncements.length} posts
             </span>
           </div>
           {filteredAnnouncements.length > 0 ? (
             <Swiper
+              modules={[Autoplay]}
               spaceBetween={10}
               slidesPerView={1}
-              loop
-              autoplay={{ delay: 1500 }}
-              className="rounded-lg"
+              loop={true}
+              autoplay={{
+                delay: 2000,
+                disableOnInteraction: false,
+              }}
+              className="rounded-lg shadow-md"
             >
               {filteredAnnouncements.map((announcement) => (
                 <SwiperSlide key={announcement.id}>
@@ -326,15 +331,15 @@ export default function SuperAdminDashboard() {
         </section>
 
         <hr className="border-t border-white my-4" />
-        <div className="overflow-y-auto max-h-[500px] pb-20">
-          {/* Social Posts Section */}
+
+        {/* Social Posts Section */}
+        <div className="overflow-y-auto max-h-[500px] pb-12">
           {filteredSocialPosts.length > 0 ? (
             filteredSocialPosts.map((post) => (
               <div
                 key={post.id}
-                className="max-w-lg mx-auto bg-white rounded-xl shadow-sm mb-4"
+                className="max-w-lg mx-auto bg-white rounded-lg shadow-sm mb-3"
               >
-                {/* Post Header */}
                 <div className="flex items-center gap-3 p-4">
                   <img
                     src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
@@ -344,18 +349,16 @@ export default function SuperAdminDashboard() {
                   <div>
                     <h2 className="font-medium">{post.name}</h2>
                   </div>
-                  <span className="ml-auto text-sm text-white rounded-full p-1 bg-[#77cdb1] w-1/4 flex justify-center">
+                  <span className="ml-auto text-sm text-white rounded-full p-1 bg-[#317996] w-1/4 flex justify-center">
                     Purok {post.purokno}
                   </span>
                 </div>
-
-                {/* Post Content */}
                 <div className="px-4 pb-2">
                   <p className="mb-3">{post.text}</p>
 
                   <div className="grid grid-cols-3 gap-1 mb-4">
                     {[post.image1, post.image2, post.image3]
-                      .filter((img) => img) // Remove null/undefined images
+                      .filter((img) => img)
                       .map((img, index) => (
                         <div
                           key={index}
@@ -375,7 +378,7 @@ export default function SuperAdminDashboard() {
                 {previewImage && (
                   <div
                     className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-20"
-                    onClick={() => setPreviewImage(null)} // Close on background click
+                    onClick={() => setPreviewImage(null)}
                   >
                     <div className="relative">
                       <button
@@ -393,13 +396,12 @@ export default function SuperAdminDashboard() {
                   </div>
                 )}
 
-                {/* Comment Button */}
-                <div className="flex justify-end items-center px-4 pb-3 text-gray-600 text-sm">
+                <div className="flex justify-end items-center p-2 text-gray-600 text-sm border-t">
                   <button
-                    onClick={() => openComment(post)} // Call openComments with the post ID
+                    onClick={() => openComment(post)}
                     className="flex items-center gap-1 text-gray-600 text-sm hover:text-gray-900"
                   >
-                    <FaRegComment className="w-5 h-5" />
+                    <FaCommentDots className="w-4 h-4" />
                     <span>{post.comments} Comments</span>
                   </button>
                 </div>
@@ -413,14 +415,17 @@ export default function SuperAdminDashboard() {
 
       {/* Comments Modal */}
       {isCommentsOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 z-10">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 z-50">
           <div
             ref={modalRef}
             className="bg-base-200 rounded-lg w-full max-w-md max-h-[90vh] flex flex-col"
           >
-            <div className="p-4 border-b bg-white">
+            <div className="p-3 border-b bg-white">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Comments</h2>
+                <h2 className="text-lg text-gray-600 font-semibold flex gap-1">
+                  <FaCommentDots className="mt-1" />
+                  Comments
+                </h2>
                 <button
                   onClick={() => setIsCommentsOpen(false)}
                   className="text-gray-500 hover:text-gray-700"
@@ -462,50 +467,48 @@ export default function SuperAdminDashboard() {
                             {formatDateTime(comment.date, comment.time)}
                           </span>
                           <div className="flex gap-2">
-                            {/* Only show edit/delete for comment author */}
                             {isAuthor(comment.name) && (
                               <>
                                 {editingComment === comment.id ? (
                                   <>
                                     <button
                                       onClick={() => handleSaveEdit(comment.id)}
-                                      className="text-green-600 text-sm"
+                                      className="text-green-700 text-sm"
                                     >
-                                      Save
+                                      <FaRegSave className="w-4 h-4" />
                                     </button>
                                     <button
                                       onClick={() => setEditingComment(null)}
-                                      className="text-red-500 text-sm"
+                                      className="text-red-400 text-sm"
                                     >
-                                      Cancel
+                                      <MdOutlineCancel className="w-5 h-5" />
                                     </button>
                                   </>
                                 ) : (
                                   <>
                                     <button
                                       onClick={() => handleEdit(comment)}
-                                      className="text-blue-500 text-sm"
+                                      className="text-blue-400 text-sm"
                                     >
-                                      Edit
+                                      <FaEdit className="w-4 h-4" />
                                     </button>
                                     <button
                                       onClick={() =>
                                         handleDeleteComment(comment.id)
                                       }
-                                      className="text-red-500 text-sm"
+                                      className="text-red-400 text-sm"
                                     >
-                                      Delete
+                                      <FaTrashAlt className="w-4 h-4" />
                                     </button>
                                   </>
                                 )}
                               </>
                             )}
-                            {/* Always show reply button */}
                             <button
                               onClick={() => setReplyingTo(comment.id)}
-                              className="text-green-600 text-sm"
+                              className="text-green-700 text-sm"
                             >
-                              Reply
+                              <TbMessageReply className="w-5 h-5" />
                             </button>
                           </div>
                         </div>
@@ -526,7 +529,7 @@ export default function SuperAdminDashboard() {
                             />
                             <button
                               onClick={() => handleReplySubmit(comment.id)}
-                              className="bg-[#509c83] text-white px-3 rounded"
+                              className="bg-[#77cdb1] text-white px-3 rounded"
                             >
                               Reply
                             </button>
@@ -576,6 +579,7 @@ export default function SuperAdminDashboard() {
                 )}
               </div>
             </div>
+
             {/* Comment Input */}
             <form
               onSubmit={handleSubmitComment}
@@ -604,10 +608,18 @@ export default function SuperAdminDashboard() {
 
       {/* Purok Filter Modal */}
       {showFilterModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-end justify-center p-4 z-50">
-          <div className="bg-white rounded-t-2xl w-full max-w-md p-4">
-            <h3 className="text-lg font-medium mb-4">Filter by Purok</h3>
-            <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="fixed inset-0 bg-black/50 flex justify-center p-2 z-50">
+          <div className="bg-white rounded-lg w-full p-5">
+            <div className="flex justify-between">
+              <h3 className="text-lg font-medium mb-5">Filter by Purok</h3>
+              <button
+                onClick={() => setShowFilterModal(false)}
+                className="text-gray-700 mb-5"
+              >
+                <IoClose className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => {
                   setSelectedPurok("all");
@@ -654,14 +666,6 @@ export default function SuperAdminDashboard() {
                   Purok {purok}
                 </button>
               ))}
-            </div>
-            <div className="flex justify-between">
-              <button
-                onClick={() => setShowFilterModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                Cancel
-              </button>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 import SAMenu from "./SAMenu";
 import supabase from "../../supabaseClient";
+import { FaCheckCircle } from "react-icons/fa";
 
 const SAProcess = () => {
   const avatar =
@@ -73,10 +74,10 @@ const SAProcess = () => {
       style={{
         background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
       }}
-      className="min-h-screen"
+      className="min-h-screen pb-14"
     >
-      <header className="p-3 space-y-3">
-        <p className="text-3xl font-bold text-white mt-3">Requests</p>
+      <header className="p-2 space-y-3">
+        <p className="text-2xl font-bold text-white mt-3">Requests</p>
         <label className="input input-bordered flex items-center gap-2">
           <input
             type="text"
@@ -142,24 +143,20 @@ const SAProcess = () => {
       {/* Modal */}
       {isModalOpen && selectedRequest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
-          <div className="bg-white rounded-lg p-4 w-full relative shadow-2xl scale-95">
-            {/* Close Button */}
+          <div className="bg-white rounded-lg p-3 w-full relative scale-95">
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 text-3xl text-gray-600 hover:text-gray-800 transition-colors"
+              className="absolute top-4 right-3 text-2xl text-gray-600 hover:text-gray-800 transition-colors"
             >
               <IoClose />
             </button>
-
-            {/* Modal Content */}
-            <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-6">
               {selectedRequest.document_type}
             </h2>
             <div
               className="relative group w-full h-64"
               onClick={() => setIsOpen(true)}
             >
-              {/* Image */}
               <img
                 src={
                   selectedRequest.image ||
@@ -168,8 +165,6 @@ const SAProcess = () => {
                 alt="Proof of Payment"
                 className="w-full h-full object-cover rounded-lg cursor-pointer"
               />
-
-              {/* Clickable Overlay */}
               <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex items-center justify-center transition-opacity duration-300 group-hover:bg-opacity-50 pointer-events-none">
                 <span className="text-white text-lg font-semibold group-hover:opacity-80 opacity-100 transition-opacity duration-300">
                   Click image to view
@@ -177,8 +172,8 @@ const SAProcess = () => {
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 mt-2">
-              <label className="flex items-center gap-2 w-full max-w-xs border border-gray-300 p-2 rounded-md bg-gray-100">
+            <div className="flex flex-col gap-2 mt-5">
+              <label className="flex items-center gap-2 w-full border border-gray-300 p-2 rounded-md bg-gray-100">
                 Name:
                 <input
                   type="text"
@@ -188,7 +183,7 @@ const SAProcess = () => {
                 />
               </label>
 
-              <label className="flex items-center gap-2 w-full max-w-xs border border-gray-300 p-2 rounded-md bg-gray-100">
+              <label className="flex items-center gap-2 w-full border border-gray-300 p-2 rounded-md bg-gray-100">
                 Purok:
                 <input
                   type="text"
@@ -198,7 +193,7 @@ const SAProcess = () => {
                 />
               </label>
 
-              <label className="flex items-center gap-2 w-full max-w-xs border border-gray-300 p-2 rounded-md bg-gray-100">
+              <label className="flex items-center gap-2 w-full border border-gray-300 p-2 rounded-md bg-gray-100">
                 Purpose:
                 <input
                   type="text"
@@ -207,26 +202,26 @@ const SAProcess = () => {
                   disabled
                 />
               </label>
-              <label className="flex items-center gap-2 w-full max-w-xs  p-2 rounded-md">
-                Additional Details:
-              </label>
+
               <textarea
                 placeholder={selectedRequest.description}
-                className="w-full max-w-xs p-2 border border-gray-300 rounded-md bg-gray-100 text-black cursor-not-allowed"
+                className="w-full p-2 border border-gray-300 rounded-md bg-gray-100 text-black cursor-not-allowed"
                 disabled
               ></textarea>
 
               <div className="flex flex-col sm:flex-row mt-5 gap-2 sm:justify-between">
                 <button
                   onClick={() => updateStatus("Approved")}
-                  className="w-full sm:w-auto px-6 py-3 bg-teal-600 text-white rounded-full hover:bg-green-600 transition-colors shadow-md focus:outline-none"
+                  className="w-full flex gap-1 justify-center sm:w-auto px-6 py-3 bg-teal-600 text-white rounded-full hover:bg-green-600 transition-colors shadow-md focus:outline-none"
                 >
+                  <FaCheckCircle className="mt-1" />
                   Approve
                 </button>
                 <button
                   onClick={() => updateStatus("Rejected")}
-                  className="w-full sm:w-auto px-6 py-3 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-md focus:outline-none"
+                  className="w-full flex justify-center gap-1 sm:w-auto px-6 py-3 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-md focus:outline-none"
                 >
+                  <IoClose className="mt-1" />
                   Reject
                 </button>
               </div>
@@ -237,17 +232,14 @@ const SAProcess = () => {
 
       {/* Modal (only visible when isOpen is true) */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="relative bg-white p-4 rounded-lg max-w-md w-full">
-            {/* Close Button */}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-2">
+          <div className="relative bg-white rounded-lg max-w-md w-full">
             <button
-              className="absolute top-4 right-4 text-3xl text-black hover:text-gray-800 transition-colors"
+              className="absolute top-4 right-4 text-3xl text-white transition-colors"
               onClick={() => setIsOpen(false)}
             >
               <IoClose />
             </button>
-
-            {/* Enlarged Image */}
             <img
               src={
                 selectedRequest.image ||

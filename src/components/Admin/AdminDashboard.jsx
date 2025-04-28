@@ -9,6 +9,10 @@ import { useState, useEffect } from "react";
 import supabase from "../../supabaseClient";
 import { FaEdit } from "react-icons/fa";
 import { IoTrash } from "react-icons/io5";
+import { Autoplay } from "swiper/modules";
+import { MdWavingHand } from "react-icons/md";
+import styled, { keyframes } from "styled-components";
+import { IoIosSend } from "react-icons/io";
 
 const DynamicCalendarIcon = ({ date }) => {
   const parsedDate = new Date(date);
@@ -23,6 +27,29 @@ const DynamicCalendarIcon = ({ date }) => {
   );
 };
 
+const wave = keyframes`
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(15deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-15deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+`;
+
+const WavingHandIcon = styled(MdWavingHand)`
+  display: inline-block;
+  animation: ${wave} 0.5s ease-in-out infinite;
+`;
+
 const AdminDashboard = () => {
   const purokno = sessionStorage.getItem("purokno");
   const [announcements, setAnnouncements] = useState([]);
@@ -31,6 +58,7 @@ const AdminDashboard = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [announcementToDelete, setAnnouncementToDelete] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  let purok = sessionStorage.getItem("purokno");
 
   useEffect(() => {
     fetchAnnouncements();
@@ -89,17 +117,20 @@ const AdminDashboard = () => {
 
   return (
     <div
-      className="relative min-h-screen flex flex-col"
+      className="min-h-screen flex flex-col"
       style={{
         background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
       }}
     >
-      <div className="p-3 flex-1 overflow-hidden">
-        <p className="text-3xl font-bold text-white mb-2 mt-3">Dashboard</p>
+      <div className="flex flex-col flex-grow overflow-hidden p-2">
+        <p className="text-2xl font-bold text-white mt-3 tracking-wide flex items-center gap-2 px-1">
+          Welcome, Admin<span className="text-[#daf86c]">P{purok}</span>
+          <WavingHandIcon />
+        </p>
 
-        <div className="flex justify-between mt-4 mb-2">
-          <p className="text-lg text-white flex gap-2 mb-2">
-            Announcement <GrAnnounce />
+        <div className="flex justify-between mt-3">
+          <p className="text-xl text-white flex gap-2">
+            Announcement <GrAnnounce size={18} />
           </p>
           <button
             onClick={() => setShowModal(true)}
@@ -112,10 +143,14 @@ const AdminDashboard = () => {
         <section className="mt-4 ">
           {announcements.length > 0 ? (
             <Swiper
+              modules={[Autoplay]}
               spaceBetween={10}
               slidesPerView={1}
-              loop
-              autoplay={{ delay: 1500 }}
+              loop={true}
+              autoplay={{
+                delay: 2000,
+                disableOnInteraction: false,
+              }}
               className="rounded-lg shadow-md"
             >
               {announcements.map((announcement) => (
@@ -127,7 +162,6 @@ const AdminDashboard = () => {
                     <DynamicCalendarIcon date={announcement.date} />
                     <p className="text-sm mt-2">{announcement.content}</p>
                   </div>
-                  {/* Buttons for Edit & Delete */}
                   <div className="flex justify-end gap-3 mt-2">
                     <button
                       onClick={() => handleEdit(announcement)}
@@ -154,8 +188,7 @@ const AdminDashboard = () => {
 
         <hr className="border-t border-white my-4" />
 
-        {/* Scrollable AdminSocialPost */}
-        <div className="overflow-y-auto max-h-[500px] pb-20">
+        <div className="flex-grow overflow-y-auto pb-12">
           <AdminSocialPost />
         </div>
 
@@ -165,22 +198,27 @@ const AdminDashboard = () => {
         />
       </div>
 
-      {/* Fixed Bottom Menu */}
-      <div className="fixed bottom-0 left-0 w-full bg-white shadow-lg">
+      <div className="fixed bottom-4 right-4 z-50">
         <Menu />
       </div>
 
       {editModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-80">
-            <h2 className="text-lg font-bold mb-3">Edit Announcement</h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10 p-2">
+          <div className="bg-white p-5 rounded-lg shadow-lg relative">
+            <h2 className="text-xl font-bold mb-5">Edit Announcement</h2>
+            <button
+              onClick={() => setEditModal(false)}
+              className="absolute top-3 right-4 text-3xl"
+            >
+              &times;
+            </button>
             <input
               type="date"
               value={currentAnnouncement.date}
               onChange={(e) =>
                 setCurrentAnnouncement({
                   ...currentAnnouncement,
-                  date: e.target.value, // Update the date in state
+                  date: e.target.value,
                 })
               }
               className="w-full p-2 border rounded"
@@ -196,39 +234,32 @@ const AdminDashboard = () => {
               className="w-full p-2 border rounded resize-none h-24"
             />
 
-            <div className="flex justify-end gap-2 mt-3">
-              <button
-                onClick={() => setEditModal(false)}
-                className="text-gray-500"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveEdit}
-                className="bg-blue-500 text-white px-3 py-1 rounded"
-              >
-                Save
-              </button>
-            </div>
+            <button
+              onClick={handleSaveEdit}
+              className="bg-blue-500 text-white px-3 py-2 rounded-full w-full flex justify-center gap-1 mt-5"
+            >
+              <IoIosSend className="mt-1" />
+              Save
+            </button>
           </div>
         </div>
       )}
 
       {deleteModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-80">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-2 z-10">
+          <div className="bg-white p-5 rounded-lg shadow-lg relative">
             <h2 className="text-lg font-bold mb-3">Confirm Deletion</h2>
+            <button
+              onClick={() => setDeleteModal(false)}
+              className="absolute top-3 right-4 text-3xl"
+            >
+              &times;
+            </button>
             <p>Are you sure you want to delete this announcement?</p>
-            <div className="flex justify-end gap-2 mt-3">
-              <button
-                onClick={() => setDeleteModal(false)}
-                className="text-gray-500"
-              >
-                Cancel
-              </button>
+            <div className="flex justify-end gap-2 mt-5">
               <button
                 onClick={handleDeleteAnnouncement}
-                className="bg-red-500 text-white px-3 py-1 rounded"
+                className="bg-red-500 text-white px-3 py-2 rounded-full w-full"
               >
                 Yes, Delete
               </button>

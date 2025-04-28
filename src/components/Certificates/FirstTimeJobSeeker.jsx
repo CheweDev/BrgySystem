@@ -5,6 +5,7 @@ import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Capacitor } from "@capacitor/core";
 import { useNavigate } from "react-router-dom";
 import { FaFileDownload } from "react-icons/fa";
+import { IoArrowBackCircle } from "react-icons/io5";
 
 const FirstTimeJobseekerCertificate = () => {
   const certificateRef = useRef();
@@ -21,6 +22,7 @@ const FirstTimeJobseekerCertificate = () => {
     month: today.toLocaleString("default", { month: "long" }),
     year: defaultYear,
   });
+  const back = useNavigate();
 
   useEffect(() => {
     const name = sessionStorage.getItem("name");
@@ -115,10 +117,15 @@ const FirstTimeJobseekerCertificate = () => {
     }
   };
 
+  const goBack = () => {
+    back("/user-profile");
+  };
+
   return (
     <div className="max-w-2xl mx-auto p-4 min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E]">
-      <h1 className="text-2xl font-bold text-center mt-5 text-white">
-        First Time Jobseeker Certificate
+      <IoArrowBackCircle className="text-white" onClick={goBack} size={40} />
+      <h1 className="text-2xl font-bold text-center mt-3 text-white">
+        First Time Jobseeker Certificate Form
       </h1>
       <div className="divider"></div>
       <p className="italic text-sm text-white mb-5">
@@ -206,7 +213,6 @@ const FirstTimeJobseekerCertificate = () => {
         </button>
       </form>
 
-      {/* Hidden Certificate for PDF - Updated to match A4 proportions */}
       <div
         ref={certificateRef}
         className="absolute left-[-9999px] top-0 font-serif"

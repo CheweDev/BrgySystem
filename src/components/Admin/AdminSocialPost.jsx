@@ -1,9 +1,13 @@
-import { FaHeart, FaRegHeart, FaRegComment, FaEdit } from "react-icons/fa";
+import { FaCommentDots, FaEdit, FaTrashAlt } from "react-icons/fa";
 import { IoTrash } from "react-icons/io5";
 import { IoClose } from "react-icons/io5";
 import { useState, useEffect, useRef } from "react";
 import supabase from "../../supabaseClient";
 import { comment } from "postcss";
+import { IoIosSend } from "react-icons/io";
+import { TbMessageReply } from "react-icons/tb";
+import { FaRegSave } from "react-icons/fa";
+import { MdOutlineCancel } from "react-icons/md";
 
 const AdminSocialPost = () => {
   const [currentPost, setCurrentPost] = useState({
@@ -18,45 +22,48 @@ const AdminSocialPost = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const [editingComment, setEditingComment] = useState(null);
   const [editText, setEditText] = useState("");
-    const purokno = sessionStorage.getItem("purokno");
-    const name = sessionStorage.getItem("name");
-    const [posts, setPosts] = useState([]);
-    const [isHeart, setIsHeart] = useState(false);
-    const [isCommentsOpen, setIsCommentsOpen] = useState(false);
-    const [commentText, setCommentText] = useState("");
-    const [previewImage, setPreviewImage] = useState(null);
-    const [comments, setComments] = useState([]);
-    const [replyingTo, setReplyingTo] = useState(null);
-    const [replyText, setReplyText] = useState({});
-    const [replies, setReplies] = useState({});
-    const modalRef = useRef(null);
-    const avatar = "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
-    const today = new Date();
-    const formattedDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    const getCurrentTime = () => {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, "0");
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-      const seconds = String(now.getSeconds()).padStart(2, "0");
-      return `${hours}:${minutes}:${seconds}`;
-    };
+  const purokno = sessionStorage.getItem("purokno");
+  const name = sessionStorage.getItem("name");
+  const [posts, setPosts] = useState([]);
+  const [isHeart, setIsHeart] = useState(false);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState({});
+  const [replies, setReplies] = useState({});
+  const modalRef = useRef(null);
+  const avatar =
+    "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp";
+  const today = new Date();
+  const formattedDate = `${today.getFullYear()}-${String(
+    today.getMonth() + 1
+  ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  const getCurrentTime = () => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    return `${hours}:${minutes}:${seconds}`;
+  };
 
-    function formatDateTime(dateStr, timeStr) {
-      let [year, month, day] = dateStr.split("-").map(Number);
-      let [hour, minute, second] = timeStr.split(":").map(Number);
-      let date = new Date(year, month - 1, day, hour, minute, second);
-      return date.toLocaleString("en-US", {
-        month: "2-digit",
-        day: "2-digit",
-        year: "2-digit",
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      });
-    }
-    const isAuthor = (authorName) => {
-      return name === authorName;
-    };
+  function formatDateTime(dateStr, timeStr) {
+    let [year, month, day] = dateStr.split("-").map(Number);
+    let [hour, minute, second] = timeStr.split(":").map(Number);
+    let date = new Date(year, month - 1, day, hour, minute, second);
+    return date.toLocaleString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "2-digit",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  }
+  const isAuthor = (authorName) => {
+    return name === authorName;
+  };
 
   useEffect(() => {
     fetchPosts();
@@ -68,7 +75,7 @@ const AdminSocialPost = () => {
       .select("*")
       .eq("purokno", purokno)
       .order("created_at", { ascending: false });
-    
+
     setPosts(data || []);
   };
 
@@ -77,17 +84,16 @@ const AdminSocialPost = () => {
       .from("Comments")
       .select("*")
       .eq("post_id", id);
-    
+
     const { data: repliesData } = await supabase
       .from("Replies")
       .select("*")
       .eq("post_id", id);
 
     setComments(commentsData || []);
-    
-    // Organize replies by comment_id
+
     const repliesByComment = {};
-    (repliesData || []).forEach(reply => {
+    (repliesData || []).forEach((reply) => {
       if (!repliesByComment[reply.comment_id]) {
         repliesByComment[reply.comment_id] = [];
       }
@@ -100,58 +106,57 @@ const AdminSocialPost = () => {
     e.preventDefault();
     const post_id = sessionStorage.getItem("id");
     const { data, error } = await supabase
-        .from('Comments')
-        .insert([
-          {
-            name,
-            comment : commentText,
-            post_id,
-            date: formattedDate,
-            time : getCurrentTime(),
-          },
-        ])
-        .select();
-  
-      if (error) {
-        console.error("Error inserting data:", error);
-        alert("Error inserting data");
-      } else {
-        console.log("Data inserted successfully:", data);
-        window.location.reload();
-      }
+      .from("Comments")
+      .insert([
+        {
+          name,
+          comment: commentText,
+          post_id,
+          date: formattedDate,
+          time: getCurrentTime(),
+        },
+      ])
+      .select();
+
+    if (error) {
+      console.error("Error inserting data:", error);
+      alert("Error inserting data");
+    } else {
+      console.log("Data inserted successfully:", data);
+      window.location.reload();
+    }
   };
 
   const handleReplySubmit = async (commentId) => {
     if (!replyText[commentId]?.trim()) return;
 
     const post_id = sessionStorage.getItem("id");
-    const { error } = await supabase
-      .from('Replies')
-      .insert([{
+    const { error } = await supabase.from("Replies").insert([
+      {
         name,
         content: replyText[commentId],
         post_id,
         comment_id: commentId,
         date: formattedDate,
         time: getCurrentTime(),
-      }]);
+      },
+    ]);
 
     if (error) {
       console.error("Error posting reply:", error);
       alert("Error posting reply");
     } else {
-      setReplyText(prev => ({ ...prev, [commentId]: "" }));
+      setReplyText((prev) => ({ ...prev, [commentId]: "" }));
       setReplyingTo(null);
       fetchComments(post_id);
     }
   };
-  
 
   const handleDeleteComment = async (commentId) => {
     const { error } = await supabase
-      .from('Comments')
+      .from("Comments")
       .delete()
-      .eq('id', commentId);
+      .eq("id", commentId);
 
     if (error) {
       console.error("Error deleting comment:", error);
@@ -169,9 +174,9 @@ const AdminSocialPost = () => {
 
   const handleSaveEdit = async (commentId) => {
     const { error } = await supabase
-      .from('Comments')
+      .from("Comments")
       .update({ comment: editText })
-      .eq('id', commentId);
+      .eq("id", commentId);
 
     if (error) {
       console.error("Error updating comment:", error);
@@ -185,9 +190,9 @@ const AdminSocialPost = () => {
 
   const handlePostEdit = async () => {
     const { error } = await supabase
-      .from('Social')
+      .from("Social")
       .update({ text: currentPost.text })
-      .eq('id', currentPost.id);
+      .eq("id", currentPost.id);
 
     if (error) {
       console.error("Error updating comment:", error);
@@ -198,25 +203,18 @@ const AdminSocialPost = () => {
   };
 
   const handleDeletePost = async () => {
-    const { error } = await supabase
-      .from('Social')
-      .delete()
-      .eq('id', deleteId);
+    const { error } = await supabase.from("Social").delete().eq("id", deleteId);
 
     if (error) {
       console.error("Error deleting reply:", error);
       alert("Error deleting reply");
     } else {
-     window.location.reload();
+      window.location.reload();
     }
   };
 
-
   const handleDeleteReply = async (replyId) => {
-    const { error } = await supabase
-      .from('Replies')
-      .delete()
-      .eq('id', replyId);
+    const { error } = await supabase.from("Replies").delete().eq("id", replyId);
 
     if (error) {
       console.error("Error deleting reply:", error);
@@ -256,77 +254,68 @@ const AdminSocialPost = () => {
   }, [isCommentsOpen]);
 
   const openComment = (post) => {
-    const id = sessionStorage.setItem("id", post.id)
-    fetchComments(post.id)
+    const id = sessionStorage.setItem("id", post.id);
+    fetchComments(post.id);
     setIsCommentsOpen(true);
-  }
-
-  
+  };
 
   return (
     <>
       {posts.length === 0 ? (
-  <p className="text-white text-center">No posts available.</p>
-) : (
-  posts.map((post) => (
-    <div key={post.id} className="max-w-lg mx-auto bg-white rounded-xl shadow-sm mb-4">
-      {/* Post Header */}
-      <div className="flex items-center gap-3 p-4">
-        <img
-          src={post.profile_image || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"}
-          alt="Profile"
-          className="rounded-full w-10 h-10"
-        />
-        <div>
-          <h2 className="font-medium">{post.name}</h2>
-        </div>
-        <span className="ml-auto text-sm text-white rounded-full p-1 bg-[#77cdb1] w-1/4 flex justify-center">
-          Purok {post.purokno}
-        </span>
-      </div>
-
-      {/* Post Content */}
-      <div className="px-4 pb-2">
-        <p className="mb-3">{post.text}</p>
-
-        {/* Image Grid */}
-        <div className="grid grid-cols-3 gap-1 mb-4">
-          {[post.image1, post.image2, post.image3]
-            .filter((img) => img) // Remove null/undefined images
-            .map((img, index) => (
-              <div
-                key={index}
-                className="aspect-square relative"
-                onClick={() => setPreviewImage(img)}
-              >
-                <img
-                  src={img}
-                  alt={`Image ${index + 1}`}
-                  className="object-cover w-full h-full rounded cursor-pointer"
-                />
+        <p className="text-white text-center">No posts available.</p>
+      ) : (
+        posts.map((post) => (
+          <div
+            key={post.id}
+            className="max-w-lg mx-auto bg-white rounded-lg shadow-sm mb-3"
+          >
+            <div className="flex items-center gap-3 p-4">
+              <img
+                src={
+                  post.profile_image ||
+                  "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                }
+                alt="Profile"
+                className="rounded-full w-10 h-10"
+              />
+              <div>
+                <h2 className="font-medium">{post.name}</h2>
               </div>
-            ))}
-        </div>
-      </div>
+              <span className="ml-auto text-sm text-white rounded-full p-1 bg-[#317996] w-1/4 flex justify-center">
+                Purok {post.purokno}
+              </span>
+            </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-between gap-4 px-4 pb-3">
+            {/* Post Content */}
+            <div className="px-4 pb-2">
+              <p className="mb-3">{post.text}</p>
+              <div className="grid grid-cols-3 gap-1 mb-4">
+                {[post.image1, post.image2, post.image3]
+                  .filter((img) => img)
+                  .map((img, index) => (
+                    <div
+                      key={index}
+                      className="aspect-square relative"
+                      onClick={() => setPreviewImage(img)}
+                    >
+                      <img
+                        src={img}
+                        alt={`Image ${index + 1}`}
+                        className="object-cover w-full h-full rounded cursor-pointer"
+                      />
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between gap-4 px-4 pb-3">
               <div className="flex gap-3">
                 <button
-                  onClick={() => setIsHeart(!isHeart)}
-                  className="flex items-center gap-1 text-gray-600 hover:text-gray-900"
-                >
-                  {isHeart ? (
-                    <FaHeart className="w-5 h-5 text-red-500" />
-                  ) : (
-                    <FaRegHeart className="w-5 h-5" />
-                  )}
-                </button>
-                <button
-                      onClick={() => openComment(post)}
+                  onClick={() => openComment(post)}
                   className="flex items-center gap-1 text-gray-600 text-sm hover:text-gray-900"
                 >
-                  <FaRegComment className="w-5 h-5" />
+                  <FaCommentDots className="w-5 h-5" />
                   Comments
                 </button>
               </div>
@@ -351,20 +340,23 @@ const AdminSocialPost = () => {
                 </button>
               </div>
             </div>
-    </div>
-  ))
-)}
+          </div>
+        ))
+      )}
 
-    {/* Comments Modal */}
-    {isCommentsOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-10">
+      {/* Comments Modal */}
+      {isCommentsOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 z-10">
           <div
             ref={modalRef}
             className="bg-base-200 rounded-lg w-full max-w-md max-h-[90vh] flex flex-col"
           >
             <div className="p-4 border-b bg-white">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Comments</h2>
+                <h2 className="text-lg text-gray-600 font-semibold flex gap-1">
+                  <FaCommentDots className="mt-1" />
+                  Comments
+                </h2>
                 <button
                   onClick={() => setIsCommentsOpen(false)}
                   className="text-gray-500 hover:text-gray-700"
@@ -377,7 +369,9 @@ const AdminSocialPost = () => {
             <div className="flex-1 overflow-y-auto p-4">
               <div className="space-y-4">
                 {comments.length === 0 ? (
-                  <p className="text-center text-gray-500">No comments yet</p>
+                  <p className="text-center text-gray-500 italic">
+                    No comments yet
+                  </p>
                 ) : (
                   comments.map((comment) => (
                     <div key={comment.id} className="flex gap-3">
@@ -401,54 +395,53 @@ const AdminSocialPost = () => {
                           )}
                         </div>
 
-                        
                         <div className="flex justify-between items-center mt-2 text-sm">
                           <span className="text-xs text-gray-500">
                             {formatDateTime(comment.date, comment.time)}
                           </span>
                           <div className="flex gap-2">
-                            {/* Only show edit/delete for comment author */}
                             {isAuthor(comment.name) && (
                               <>
                                 {editingComment === comment.id ? (
                                   <>
                                     <button
                                       onClick={() => handleSaveEdit(comment.id)}
-                                      className="text-green-600 text-sm"
+                                      className="text-green-700 text-sm"
                                     >
-                                      Save
+                                      <FaRegSave className="w-4 h-4" />
                                     </button>
                                     <button
                                       onClick={() => setEditingComment(null)}
-                                      className="text-red-500 text-sm"
+                                      className="text-red-400 text-sm"
                                     >
-                                      Cancel
+                                      <MdOutlineCancel className="w-5 h-5" />
                                     </button>
                                   </>
                                 ) : (
                                   <>
                                     <button
                                       onClick={() => handleEdit(comment)}
-                                      className="text-blue-500 text-sm"
+                                      className="text-blue-400 text-sm"
                                     >
-                                      Edit
+                                      <FaEdit className="w-4 h-4" />
                                     </button>
                                     <button
-                                      onClick={() => handleDeleteComment(comment.id)}
-                                      className="text-red-500 text-sm"
+                                      onClick={() =>
+                                        handleDeleteComment(comment.id)
+                                      }
+                                      className="text-red-400 text-sm"
                                     >
-                                      Delete
+                                      <FaTrashAlt className="w-4 h-4" />
                                     </button>
                                   </>
                                 )}
                               </>
                             )}
-                            {/* Always show reply button */}
                             <button
                               onClick={() => setReplyingTo(comment.id)}
-                              className="text-green-600 text-sm"
+                              className="text-green-700 text-sm"
                             >
-                              Reply
+                              <TbMessageReply className="w-5 h-5" />
                             </button>
                           </div>
                         </div>
@@ -476,7 +469,7 @@ const AdminSocialPost = () => {
                           </div>
                         )}
 
-                    {replies[comment.id]?.length > 0 && (
+                        {replies[comment.id]?.length > 0 && (
                           <div className="mt-3 pl-6 space-y-3">
                             {replies[comment.id].map((reply) => (
                               <div key={reply.id} className="flex gap-2">
@@ -487,7 +480,9 @@ const AdminSocialPost = () => {
                                 />
                                 <div className="flex-1">
                                   <div className="bg-white p-2 rounded-lg">
-                                    <h4 className="text-sm font-medium">{reply.name}</h4>
+                                    <h4 className="text-sm font-medium">
+                                      {reply.name}
+                                    </h4>
                                     <p className="text-xs">{reply.content}</p>
                                     <div className="flex justify-between items-center mt-1 text-xs">
                                       <span className="text-gray-500">
@@ -496,7 +491,9 @@ const AdminSocialPost = () => {
                                       {/* Only show delete button for reply author */}
                                       {isAuthor(reply.name) && (
                                         <button
-                                          onClick={() => handleDeleteReply(reply.id)}
+                                          onClick={() =>
+                                            handleDeleteReply(reply.id)
+                                          }
                                           className="text-red-500"
                                         >
                                           Delete
@@ -516,7 +513,10 @@ const AdminSocialPost = () => {
               </div>
             </div>
             {/* Comment Input */}
-            <form onSubmit={handleSubmitComment} className="p-3 border-t mt-auto">
+            <form
+              onSubmit={handleSubmitComment}
+              className="p-3 border-t mt-auto"
+            >
               <div className="flex gap-2">
                 <div className="flex-1">
                   <textarea
@@ -560,9 +560,16 @@ const AdminSocialPost = () => {
       )}
 
       {editModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-80">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-2 z-10">
+          <div className="bg-white p-5 rounded-lg shadow-lg relative w-full">
             <h2 className="text-lg font-bold mb-3">Edit Post</h2>
+            <button
+              onClick={() => setEditModal(false)}
+              className="absolute top-3 right-4 text-3xl"
+            >
+              &times;
+            </button>
+
             <textarea
               value={currentPost.text}
               onChange={(e) =>
@@ -572,15 +579,10 @@ const AdminSocialPost = () => {
             />
             <div className="flex justify-end gap-2 mt-3">
               <button
-                onClick={() => setEditModal(false)}
-                className="text-gray-500"
-              >
-                Cancel
-              </button>
-              <button
                 onClick={handlePostEdit}
-                className="bg-blue-500 text-white px-3 py-1 rounded"
+                className="bg-blue-500 text-white px-3 py-2 rounded-full w-full flex justify-center gap-1"
               >
+                <IoIosSend className="mt-1" />
                 Save
               </button>
             </div>
@@ -588,25 +590,23 @@ const AdminSocialPost = () => {
         </div>
       )}
 
-{deleteModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-          <div className="bg-white p-5 rounded-lg shadow-lg w-80">
+      {deleteModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-2 z-10">
+          <div className="bg-white p-5 rounded-lg shadow-lg relative">
             <h2 className="text-lg font-bold mb-3">Confirm Deletion</h2>
+            <button
+              onClick={() => setDeleteModal(false)}
+              className="absolute top-3 right-4 text-3xl"
+            >
+              &times;
+            </button>
             <p>Are you sure you want to delete this post?</p>
-            <div className="flex justify-end gap-2 mt-3">
-              <button
-                onClick={() => setDeleteModal(false)}
-                className="text-gray-500"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeletePost}
-                className="bg-red-500 text-white px-3 py-1 rounded"
-              >
-                Yes, Delete
-              </button>
-            </div>
+            <button
+              onClick={handleDeletePost}
+              className="bg-red-500 text-white px-3 py-2 mt-5 rounded-full w-full"
+            >
+              Yes, Delete
+            </button>
           </div>
         </div>
       )}
