@@ -1,57 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Menu from "./Menu";
 import PaymentForm from "./PaymentForm";
 import { FiSend } from "react-icons/fi";
-
-const clearanceOptions = [
-  {
-    label: "Death Certificate",
-    image: "death.jpg",
-    price: "50 pesos",
-  },
-  {
-    label: "First Time Job Seeker Certificate",
-    image: "jobseeker.jpg",
-    price: "50 pesos",
-  },
-  {
-    label: "Certificate of Indigency",
-    image: "indigency.jpg",
-    price: "50 pesos",
-  },
-  {
-    label: "Certificate of ONEES",
-    image: "oness.jpg",
-    price: "50 pesos",
-  },
-  {
-    label: "Certificate of Low Income",
-    image: "income.jpg",
-    price: "50 pesos",
-  },
-  {
-    label: "Certificate of Residency",
-    image: "residency.jpg",
-    price: "50 pesos",
-  },
-  {
-    label: "Certificate for Senior",
-    image: "senior.jpg",
-    price: "50 pesos",
-  },
-  {
-    label: "Baranggay Clearance",
-    image: "brgyclearance.jpg",
-    price: "50 pesos",
-  },
-];
+import supabase from "./supabaseClient";
 
 const Document = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedClearance, setSelectedClearance] = useState(
-    clearanceOptions[0]
-  );
+  const [clearanceOptions, setClearanceOptions] = useState([]);
+  const [selectedClearance, setSelectedClearance] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const getImageFileName = (label) => {
+    return (
+      label
+        .toLowerCase()
+        .replace(/certificate\s+of\s+/gi, "")
+        .replace(/[^a-z0-9]/gi, "") + ".jpg"
+    );
+  };
+
+  useEffect(() => {
+    const fetchClearanceOptions = async () => {
+      const { data, error } = await supabase.from("Certificates").select("*");
+
+      if (error) {
+        console.error("Error fetching certificates:", error);
+        return;
+      }
+
+      const optionsWithImages = data.map((item) => ({
+        ...item,
+        image: `/${getImageFileName(item.label)}`,
+      }));
+
+      setClearanceOptions(optionsWithImages);
+      setSelectedClearance(optionsWithImages[0]);
+    };
+
+    fetchClearanceOptions();
+  }, []);
 
   const getFormattedDate = () => {
     const today = new Date();
@@ -66,6 +53,16 @@ const Document = () => {
     sessionStorage.setItem("selectedClearance", option.label);
     setIsDropdownOpen(false);
   };
+
+  if (!selectedClearance)
+    return (
+      <div className="flex justify-center items-center content-center p-10">
+        <div className="flex flex-col items-center space-y-2">
+          <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-sm font-medium">Loading...</span>
+        </div>
+      </div>
+    );
 
   return (
     <>
@@ -115,9 +112,12 @@ const Document = () => {
             </div>
 
             <div className="mb-4 relative w-full h-80 bg-gray-50 rounded-lg overflow-hidden">
-              <div className="absolute top-2 right-2 bg-slate-500 text-white text-xs px-2 py-1 rounded">
-                50 PHP
-              </div>
+              {selectedClearance && (
+                <div className="absolute top-2 right-2 bg-slate-500 text-white text-xs px-2 py-1 rounded">
+                  {selectedClearance.price} PHP
+                </div>
+              )}
+
               <img
                 src={selectedClearance.image}
                 alt={`${selectedClearance.label} Preview`}

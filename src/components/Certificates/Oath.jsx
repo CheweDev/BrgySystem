@@ -5,6 +5,7 @@ import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { useNavigate } from "react-router-dom";
 import { FaFileDownload } from "react-icons/fa";
 import { IoArrowBackCircle } from "react-icons/io5";
+import supabase from "../../supabaseClient";
 
 const Oath = () => {
   const certificateRef = useRef();
@@ -22,6 +23,7 @@ const Oath = () => {
     residencyYears: "",
     residencyType: "",
   });
+  const [adminName, setAdminName] = useState("");
 
   useEffect(() => {
     const name = sessionStorage.getItem("name");
@@ -34,6 +36,25 @@ const Oath = () => {
         purok: purokno || "",
       }));
     }
+
+    const fetchAdminName = async () => {
+      const { data, error } = await supabase
+        .from("Users")
+        .select("name")
+        .eq("role", "Admin")
+        .limit(1);
+
+      if (error) {
+        console.error("Error fetching admin:", error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        setAdminName(data[0].name);
+      }
+    };
+
+    fetchAdminName();
   }, []);
 
   const handleChange = (e) => {
@@ -266,7 +287,7 @@ const Oath = () => {
             <p className="text-sm">First Time Jobseeker</p>
           </div>
           <div className="text-center w-1/2">
-            <p className="font-bold">RONIELEN C. OLANDE</p>
+            <p className="font-bold">{adminName || "_________"}</p>
             <p className="text-sm">Punong Barangay</p>
           </div>
         </div>

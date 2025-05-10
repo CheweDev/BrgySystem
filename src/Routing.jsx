@@ -24,6 +24,7 @@ import SeniorCitizen from "./components/Certificates/SeniorCitizen.jsx";
 import ResidencyCertificate from "./components/Certificates/ResidencyCertificate.jsx";
 import Oath from "./components/Certificates/Oath.jsx";
 import FirstTimeJobseekerCertificate from "./components/Certificates/FirstTimeJobSeeker.jsx";
+import ManageCertificates from "./components/SuperAdmin/ManageCertificates.jsx";
 
 const Routing = () => {
   return (
@@ -54,6 +55,7 @@ const Routing = () => {
         <Route path="/residency" element={<ResidencyCertificate />} />
         <Route path="/Oath" element={<Oath />} />
         <Route path="/jobseeker" element={<FirstTimeJobseekerCertificate />} />
+        <Route path="/manage" element={<ManageCertificates />} />
       </Routes>
     </BrowserRouter>
   );

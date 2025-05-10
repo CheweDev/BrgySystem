@@ -6,6 +6,7 @@ import { Capacitor } from "@capacitor/core";
 import { useNavigate } from "react-router-dom";
 import { FaFileDownload } from "react-icons/fa";
 import { IoArrowBackCircle } from "react-icons/io5";
+import supabase from "../../supabaseClient";
 
 const BrgyClearanceForm = () => {
   const certificateRef = useRef();
@@ -22,6 +23,7 @@ const BrgyClearanceForm = () => {
     month: today.toLocaleString("default", { month: "long" }),
     year: today.getFullYear().toString(),
   });
+  const [adminName, setAdminName] = useState("");
 
   useEffect(() => {
     const name = sessionStorage.getItem("name");
@@ -34,6 +36,25 @@ const BrgyClearanceForm = () => {
         purok: purokno || "",
       }));
     }
+
+    const fetchAdminName = async () => {
+      const { data, error } = await supabase
+        .from("Users")
+        .select("name")
+        .eq("role", "Admin")
+        .limit(1);
+
+      if (error) {
+        console.error("Error fetching admin:", error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        setAdminName(data[0].name);
+      }
+    };
+
+    fetchAdminName();
   }, []);
 
   const handleChange = (e) => {
@@ -242,7 +263,7 @@ const BrgyClearanceForm = () => {
               , at Barangay Pagatpatan, Butuan City, Philippines.
             </p>
             <div className="mt-20 text-center w-64 ml-auto">
-              <p className="font-bold">RONIELEN C. OLANDE</p>
+              <p className="font-bold">{adminName || "_________"}</p>
               <p className="border-t border-black pt-1">Punong Barangay</p>
             </div>
             <div className="flex justify-start">

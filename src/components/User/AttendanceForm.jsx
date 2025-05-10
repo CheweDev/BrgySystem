@@ -104,7 +104,7 @@ const AttendanceForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E] px-2 py-6 sm:px-2 pb-16">
+    <div className="min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E] px-2 py-6 sm:px-2 pb-20">
       <p className="text-2xl sm:text-3xl font-bold text-white mb-4 text-center">
         Attendance Form
       </p>

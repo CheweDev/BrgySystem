@@ -6,6 +6,7 @@ import { Capacitor } from "@capacitor/core";
 import { useNavigate } from "react-router-dom";
 import { FaFileDownload } from "react-icons/fa";
 import { IoArrowBackCircle } from "react-icons/io5";
+import supabase from "../../supabaseClient";
 
 const FirstTimeJobseekerCertificate = () => {
   const certificateRef = useRef();
@@ -23,6 +24,7 @@ const FirstTimeJobseekerCertificate = () => {
     year: defaultYear,
   });
   const back = useNavigate();
+  const [adminName, setAdminName] = useState("");
 
   useEffect(() => {
     const name = sessionStorage.getItem("name");
@@ -35,6 +37,25 @@ const FirstTimeJobseekerCertificate = () => {
         purok: purokno || "",
       }));
     }
+
+    const fetchAdminName = async () => {
+      const { data, error } = await supabase
+        .from("Users")
+        .select("name")
+        .eq("role", "Admin")
+        .limit(1);
+
+      if (error) {
+        console.error("Error fetching admin:", error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        setAdminName(data[0].name);
+      }
+    };
+
+    fetchAdminName();
   }, []);
 
   const handleChange = (e) => {
@@ -303,7 +324,7 @@ const FirstTimeJobseekerCertificate = () => {
 
           <div className="mt-16 flex justify-end mr-4">
             <div className="text-center">
-              <p className="font-bold">RONIELEN C. OLANDE</p>
+              <p className="font-bold">{adminName || "_________"}</p>
               <p>Punong Barangay</p>
             </div>
           </div>

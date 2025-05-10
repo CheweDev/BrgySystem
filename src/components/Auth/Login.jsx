@@ -6,7 +6,7 @@ import { VscSignIn } from "react-icons/vsc";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState("User");
+  const [selectedRole, setSelectedRole] = useState("Resident");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -39,9 +39,11 @@ const Login = () => {
       sessionStorage.setItem("role", role);
       const name = data.name;
       sessionStorage.setItem("name", name);
-      if (role === "Admin") {
+      const userId = data.id;
+      sessionStorage.setItem("userId", userId);
+      if (role === "Purok Official") {
         navigate("/admin-dashboard");
-      } else if (role === "User") {
+      } else if (role === "Resident") {
         navigate("/user-dashboard");
       } else {
         navigate("/super-dashboard");
@@ -139,9 +141,9 @@ const Login = () => {
                 <option disabled selected value="">
                   Select Role
                 </option>
-                <option>User</option>
+                <option>Resident</option>
+                <option>Purok Official</option>
                 <option>Admin</option>
-                <option>Super Admin</option>
               </select>
             </label>
 

@@ -46,7 +46,7 @@ const SANotif = () => {
       className="min-h-screen flex flex-col pb-14"
     >
       <div className="p-2 flex-1 flex flex-col">
-        <p className="text-3xl font-bold text-white mb-3 mt-3">Notifications</p>
+        <p className="text-2xl font-bold text-white mb-3 mt-3">Notifications</p>
         <label className="input input-bordered flex items-center gap-2 mb-3">
           <input
             type="text"

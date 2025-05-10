@@ -16,10 +16,55 @@ const SAProfile = () => {
   const [profileImage, setProfileImage] = useState(
     "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
   );
+  const [userName, setUserName] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newUserName, setNewUserName] = useState("");
+  const [isSavingName, setIsSavingName] = useState(false);
 
   useEffect(() => {
+    fetchUserName();
     fetchGcash();
   }, []);
+
+  const fetchUserName = async () => {
+    const userId = sessionStorage.getItem("userId");
+
+    const { data, error } = await supabase
+      .from("Users")
+      .select("name")
+      .eq("id", userId)
+      .single();
+
+    if (data) {
+      setUserName(data.name);
+    } else {
+      console.error("Error fetching name:", error);
+    }
+  };
+
+  const handleEditName = () => {
+    setNewUserName(userName);
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = async () => {
+    setIsSavingName(true);
+    const userId = sessionStorage.getItem("userId");
+
+    const { error } = await supabase
+      .from("Users")
+      .update({ name: newUserName })
+      .eq("id", userId);
+
+    if (!error) {
+      setUserName(newUserName);
+      sessionStorage.setItem("name", newUserName);
+      setIsEditingName(false);
+    } else {
+      console.error("Failed to update name:", error);
+    }
+    setIsSavingName(false);
+  };
 
   const fetchGcash = async () => {
     const { data } = await supabase.from("Number").select("*").eq("id", "1");
@@ -60,7 +105,12 @@ const SAProfile = () => {
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <h2 className="text-xl font-semibold">{name}</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold">{userName}</h2>
+                <button onClick={handleEditName} className="text-blue-500">
+                  <FaEdit />
+                </button>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="text-gray-600">Super Admin</span>
                 <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
@@ -140,6 +190,61 @@ const SAProfile = () => {
                 className="bg-green-500 text-white px-4 py-2 rounded-lg"
               >
                 Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEditingName && (
+        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h3 className="text-lg font-semibold">Edit Name</h3>
+            <input
+              type="text"
+              value={newUserName}
+              onChange={(e) => setNewUserName(e.target.value)}
+              className="border p-2 w-full mt-2"
+            />
+            <div className="mt-4 flex justify-center gap-2">
+              <button
+                onClick={() => setIsEditingName(false)}
+                className="bg-gray-300 px-4 py-2 rounded-lg w-full"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveName}
+                className="bg-green-500 w-full text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2"
+                disabled={isSavingName}
+              >
+                {isSavingName ? (
+                  <>
+                    <svg
+                      className="animate-spin h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      ></path>
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
               </button>
             </div>
           </div>
