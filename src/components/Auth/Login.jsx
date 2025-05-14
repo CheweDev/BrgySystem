@@ -6,7 +6,6 @@ import { VscSignIn } from "react-icons/vsc";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState("Resident");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -27,12 +26,7 @@ const Login = () => {
       .eq("email", email)
       .single();
 
-    if (
-      data &&
-      data.password === password &&
-      data.email === email &&
-      data.role === selectedRole
-    ) {
+    if (data && data.password === password) {
       const purokno = data.purok_no;
       sessionStorage.setItem("purokno", purokno);
       const role = data.role;
@@ -117,34 +111,6 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-            </label>
-
-            <label className="input input-bordered flex items-center gap-2 mb-2 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="h-4 w-4 opacity-70"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M12 2a5 5 0 0 1 5 5v1a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5Zm-7 18a7 7 0 0 1 14 0v1H5v-1Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <select
-                className="grow bg-transparent outline-none"
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                required
-              >
-                <option disabled selected value="">
-                  Select Role
-                </option>
-                <option>Resident</option>
-                <option>Purok Official</option>
-                <option>Admin</option>
-              </select>
             </label>
 
             <label className="flex items-center text-sm mb-4 mt-4 text-white px-3">
