@@ -12,6 +12,7 @@ const PaymentForm = ({ onClose }) => {
   const purokno = sessionStorage.getItem("purokno");
   const description = sessionStorage.getItem("activityDescription");
   const document_type = sessionStorage.getItem("selectedClearance");
+  const [isLoading, setIsLoading] = useState(false);
 
   const uploadImage = async (file) => {
     if (!file) return null;
@@ -54,40 +55,51 @@ const PaymentForm = ({ onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!files.image) {
-      alert("Please upload all three images before submitting.");
-      return;
-    }
+    setIsLoading(true);
 
-    let uploadedImages = { image: "" };
+    try {
+      if (!files.image) {
+        alert("Please upload all three images before submitting.");
+        setIsLoading(false);
+        return;
+      }
 
-    uploadedImages.image = await uploadImage(files.image);
+      let uploadedImages = { image: "" };
+      uploadedImages.image = await uploadImage(files.image);
 
-    if (!uploadedImages.image) {
-      alert("Failed to upload one or more images. Please try again.");
-      return;
-    }
-    const { data, error } = await supabase
-      .from("Requests")
-      .insert([
-        {
-          name,
-          purokno,
-          image: uploadedImages.image,
-          reason,
-          document_type,
-          status: "Pending",
-          description,
-        },
-      ])
-      .select();
+      if (!uploadedImages.image) {
+        alert("Failed to upload one or more images. Please try again.");
+        setIsLoading(false);
+        return;
+      }
 
-    if (error) {
-      console.error("Error inserting data:", error);
-      alert("Error inserting data");
-    } else {
-      console.log("Data inserted successfully:", data);
-      window.location.reload();
+      const { data, error } = await supabase
+        .from("Requests")
+        .insert([
+          {
+            name,
+            purokno,
+            image: uploadedImages.image,
+            reason,
+            document_type,
+            status: "Pending",
+            description,
+          },
+        ])
+        .select();
+
+      if (error) {
+        console.error("Error inserting data:", error);
+        alert("Error inserting data");
+        setIsError(true);
+      } else {
+        setIsSubmitted(true);
+      }
+    } catch (err) {
+      console.error(err);
+      setIsError(true);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -150,10 +162,36 @@ const PaymentForm = ({ onClose }) => {
 
           <button
             type="submit"
-            className="w-full bg-teal-700 text-white font-medium py-2 rounded-full transition-colors flex gap-1 justify-center"
+            className="w-full bg-teal-700 text-white font-medium py-2 rounded-full transition-colors flex gap-2 justify-center items-center disabled:opacity-60"
+            disabled={isLoading}
           >
-            <FiSend className="mt-1" />
-            Submit
+            {isLoading ? (
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 00-8 8z"
+                ></path>
+              </svg>
+            ) : (
+              <>
+                <FiSend className="mt-1" />
+                Submit
+              </>
+            )}
           </button>
         </form>
       </div>

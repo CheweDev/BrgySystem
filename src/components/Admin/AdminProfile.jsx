@@ -54,10 +54,10 @@ const AdminProfile = () => {
         <div className="bg-white rounded-3xl p-4 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <h2 className="text-xl font-semibold">Admin</h2>
+              <h2 className="text-xl font-semibold">Purok Official</h2>
               <div className="text-gray-600">Purok: {purokno}</div>
               <div className="flex items-center gap-2">
-                <span className="text-gray-600">Admin</span>
+                <span className="text-gray-600">Account</span>
                 <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
                   verified
                 </span>

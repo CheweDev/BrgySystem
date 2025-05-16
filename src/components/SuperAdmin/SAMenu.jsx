@@ -20,7 +20,7 @@ const menuItems = [
 
 const SAMenu = () => {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50">
+    <div className="fixed bottom-0 left-0 right-0 z-60">
       <ul className="menu menu-horizontal bg-[#50947d] w-full flex justify-around text-xs">
         {menuItems.map(({ to, icon, label }) => (
           <li key={to} className="flex flex-col items-center">

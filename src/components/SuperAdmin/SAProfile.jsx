@@ -112,7 +112,7 @@ const SAProfile = () => {
                 </button>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-gray-600">Super Admin</span>
+                <span className="text-gray-600">Admin</span>
                 <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full">
                   verified
                 </span>

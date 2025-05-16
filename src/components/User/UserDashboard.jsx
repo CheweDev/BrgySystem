@@ -72,12 +72,12 @@ const UserDashboard = () => {
       className="min-h-screen flex flex-col"
     >
       <div className="flex flex-col flex-grow overflow-hidden p-2">
-        <p className="text-2xl font-bold text-white mt-3 tracking-wide flex items-center gap-2 px-1">
+        <p className="text-xl font-bold text-white mt-3 tracking-wide flex items-center gap-2 px-1">
           Welcome, <span className="text-[#daf86c]">{name}</span>
           <WavingHandIcon />
         </p>
 
-        <p className="text-md text-white flex gap-1 mt-2 mb-1 px-1">
+        <p className="text-md text-white flex gap-1 mt-5 mb-1 px-1">
           Announcement <GrAnnounce />
         </p>
 

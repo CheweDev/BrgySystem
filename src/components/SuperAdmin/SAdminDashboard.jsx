@@ -277,7 +277,7 @@ export default function SuperAdminDashboard() {
     <div className="min-h-screen bg-gradient-to-b from-[#89C6A7] to-[#25596E]">
       <div className="p-2">
         <div className="flex justify-between items-center mb-3 mt-3">
-          <h1 className="text-2xl font-bold text-white px-1">SuperAdmin</h1>
+          <h1 className="text-2xl font-bold text-white px-1">Admin</h1>
           <button
             onClick={() => setShowFilterModal(true)}
             className="bg-white/20 text-white py-2 rounded-full flex items-center btn-sm gap-2"

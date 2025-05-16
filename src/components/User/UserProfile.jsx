@@ -171,7 +171,7 @@ const UserProfile = () => {
           background: "linear-gradient(180deg, #89C6A7 0%, #25596E 100%)",
         }}
       >
-        <div className="space-y-3 pb-14 mt-3">
+        <div className="space-y-3 pb-24 mt-3">
           {docs.length > 0 ? (
             docs.map((doc, index) => {
               const submissionDate = new Date(doc.created_at);

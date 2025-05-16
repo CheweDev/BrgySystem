@@ -124,11 +124,12 @@ const AdminDashboard = () => {
     >
       <div className="flex flex-col flex-grow overflow-hidden p-2">
         <p className="text-2xl font-bold text-white mt-3 tracking-wide flex items-center gap-2 px-1">
-          Welcome, Admin<span className="text-[#daf86c]">P{purok}</span>
+          Purok Official
+          <span className="text-[#daf86c]">#{purok}</span>
           <WavingHandIcon />
         </p>
 
-        <div className="flex justify-between mt-3">
+        <div className="flex justify-between mt-5">
           <p className="text-xl text-white flex gap-2">
             Announcement <GrAnnounce size={18} />
           </p>
